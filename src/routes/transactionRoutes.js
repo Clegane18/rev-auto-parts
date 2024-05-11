@@ -7,7 +7,7 @@ const {
 } = require("../middlewares/validators");
 const transactionController = require("../controllers/transactionController");
 
-router.post("/products/buyProducts/", transactionController.buyProducts);
+router.post("/products/buyProducts", transactionController.buyProducts);
 
 router.post(
   "/products/returnProduct/:receiptNumber",

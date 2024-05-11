@@ -1,81 +1,46 @@
-const Product = require("../database/inventoryProductModel");
-const TransactionHistory = require("../database/transactionHistoryModel");
-const TransactionItem = require("../database/transactionItemModel");
+// Import any necessary modules or libraries
+const TransactionItem = require("../database/transactionItemModel"); // Assuming you have a model for TransactionItem
+const TransactionHistory = require("../database/transactionHistoryModel"); // Assuming you have a model for TransactionHistory
 
-const generateTransactionNumber = (length) => {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = "";
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    randomString += characters.charAt(randomIndex);
-  }
-
-  return randomString;
-};
-
+// Define the receipt utility function
 const generateTransactionReceipt = async (transactionId) => {
   try {
-    const transaction = await TransactionHistory.findOne({
-      where: { transactionId },
-      include: [{ model: TransactionItem, include: Product }],
+    // Fetch transaction details from the database based on the transaction ID
+    const transaction = await TransactionHistory.findByPk(transactionId, {
+      include: [TransactionItem], // Include associated transaction items
     });
 
     if (!transaction) {
       throw new Error("Transaction not found");
     }
 
-    const transactionReceipt = {
-      transactionId: transaction.transactionId,
-      receiptNumber: transaction.transactionNo,
-      customerId: transaction.customerId,
-      transactionType: transaction.transactionType,
-      transactionStatus: transaction.transactionStatus,
-      transactionDate: transaction.timeStamp,
-      totalAmount: transaction.transactionAmount,
-      items: transaction.TransactionItems.map((item) => ({
-        productId: item.productId,
-        productName: item.Product.productName,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        subtotalAmount: item.subtotalAmount,
-      })),
-    };
+    // Format the transaction data into a readable format for the receipt
+    let receiptContent = `Transaction Receipt\n`;
+    receiptContent += `-------------------\n`;
+    receiptContent += `Transaction Number: ${transaction.transactionNo}\n`;
+    receiptContent += `Date: ${transaction.createdAt.toLocaleString()}\n`;
+    receiptContent += `-------------------\n`;
+    receiptContent += `Items Purchased:\n`;
 
-    return transactionReceipt;
+    // Iterate over each item in the transaction and add it to the receipt content
+    transaction.TransactionItems.forEach((item, index) => {
+      receiptContent += `${index + 1}. ${item.productName} - Quantity: ${
+        item.quantity
+      }, Unit Price: $${item.unitPrice}, Subtotal: $${item.subtotalAmount}\n`;
+    });
+
+    receiptContent += `-------------------\n`;
+    receiptContent += `Total Amount: $${transaction.totalAmount}\n`;
+    receiptContent += `-------------------\n`;
+    receiptContent += `Thank you for your purchase!\n`;
+
+    // Return the generated receipt content
+    return receiptContent;
   } catch (error) {
     console.error("Error generating transaction receipt:", error);
     throw error;
   }
 };
 
-const createTransactionHistory = async ({
-  transactionType,
-  transactionAmount,
-  transactionStatus,
-  description,
-}) => {
-  try {
-    const transactionNo = generateTransactionNumber(10); // Adjust the length as needed
-
-    const transaction = await TransactionHistory.create({
-      transactionType: transactionType,
-      transactionAmount: transactionAmount,
-      transactionStatus: transactionStatus,
-      description: description,
-      transactionNo: transactionNo, // Use the correct field name
-      transactionDate: new Date(), // Use transactionDate instead of timeStamp
-      totalAmount: transactionAmount,
-    });
-    return transaction;
-  } catch (error) {
-    console.error("Error creating transaction history:", error);
-    throw error;
-  }
-};
-
-module.exports = {
-  generateTransactionReceipt,
-  createTransactionHistory,
-};
+// Export the utility function
+module.exports = generateTransactionReceipt;

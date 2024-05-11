@@ -3,7 +3,7 @@ const sequelize = require("./db");
 const Product = require("./inventoryProductModel");
 const TransactionHistory = require("./transactionHistoryModel");
 
-const TransactionItem = sequelize.define("TransactionItem", {
+const TransactionItem = sequelize.define("TransactionItems", {
   transactionItemId: {
     type: DataTypes.INTEGER,
     allowNull: false,

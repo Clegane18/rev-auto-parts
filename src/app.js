@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const sequelize = require("./database/db");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -18,6 +19,14 @@ app.use(express.json());
   }
 })();
 
+app.use("/favicon.ico", (req, res) => {
+  res.status(204).end();
+});
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
 app.use("/api/auth", adminRoutes);
 app.use("/api/auth", inventoryRoutes);
 app.use("/api/auth/transactions", transactionRoutes);
