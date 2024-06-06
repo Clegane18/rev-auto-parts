@@ -466,7 +466,7 @@ const cancelPendingStock = async (pendingStockId) => {
       throw {
         status: 404,
         data: {
-          message: `Pending stock with the id of ${pendingStockId} not found.`,
+          message: `Pending stock with id of ${pendingStockId} was not found.`,
         },
       };
     }
@@ -507,6 +507,31 @@ const getAllPendingStocks = async () => {
   }
 };
 
+const updateArrivalDate = async ({ pendingStockId, newArrivalDate }) => {
+  try {
+    const pendingStock = await PendingStock.findByPk(pendingStockId);
+    if (!pendingStock) {
+      throw {
+        status: 404,
+        data: {
+          message: `Pending stock with id ${pendingStockId} was not found.`,
+        },
+      };
+    }
+
+    pendingStock.arrivalDate = newArrivalDate;
+    await pendingStock.save();
+
+    return {
+      status: 200,
+      message: "Arrival date updated successfully",
+      pendingStock,
+    };
+  } catch (error) {
+    console.error("Error in updateArrivalDate service:", error);
+    throw error;
+  }
+};
 module.exports = {
   addProduct,
   getAllProducts,
@@ -524,4 +549,5 @@ module.exports = {
   confirmStock,
   cancelPendingStock,
   getAllPendingStocks,
+  updateArrivalDate,
 };

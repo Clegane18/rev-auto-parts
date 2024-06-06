@@ -18,22 +18,5 @@ const buyProductsOnPhysicalStore = async (req, res) => {
     );
   }
 };
-const returnProduct = async (req, res) => {
-  try {
-    const result = await transactionService.returnProduct({
-      receiptNumber: req.params.receiptNumber,
-      productIdToReturn: req.body.productIdToReturn,
-      quantityToReturn: req.body.quantityToReturn,
-    });
-    return res.status(result.status).json(result);
-  } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "transactionController",
-      "Error returning products."
-    );
-  }
-};
 
-module.exports = { buyProductsOnPhysicalStore, returnProduct };
+module.exports = { buyProductsOnPhysicalStore };

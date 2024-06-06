@@ -267,6 +267,23 @@ const getAllPendingStocks = async (req, res) => {
   }
 };
 
+const updateArrivalDate = async (req, res) => {
+  try {
+    const result = await inventoryService.updateArrivalDate({
+      pendingStockId: req.params.id,
+      newArrivalDate: req.body.newArrivalDate,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return controllerErrorHandlerUtils(
+      res,
+      error,
+      "inventoryController",
+      "Error updating arrival date."
+    );
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -284,4 +301,5 @@ module.exports = {
   confirmStock,
   cancelPendingStock,
   getAllPendingStocks,
+  updateArrivalDate,
 };

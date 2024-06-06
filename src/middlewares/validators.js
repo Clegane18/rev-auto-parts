@@ -22,15 +22,6 @@ const buyProductsOnPhysicalStoreValidation = (req, res, next) => {
   next();
 };
 
-const returnProductValidation = (req, res, next) => {
-  const { error } = returnProductSchema.validate({
-    ...req.body,
-    receiptNumber: req.params.receiptNumber,
-  });
-  if (error) return res.status(400).json({ error: error.details[0].message });
-
-  next();
-};
 const addPendingStockValidation = (req, res, next) => {
   const { error } = addPendingStockSchema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
@@ -47,6 +38,16 @@ const confirmStockValidation = (req, res, next) => {
 
 const cancelStockValidation = (req, res, next) => {
   const { error } = cancelPendingStockSchema.validate({ id: req.params.id });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const updateArrivalDateValidation = (req, res, next) => {
+  const { error } = updateArrivalDateSchema.validate({
+    pendingStockId: req.params.id,
+    newArrivalDate: req.body.newArrivalDate,
+  });
   if (error) return res.status(400).json({ error: error.details[0].message });
 
   next();
@@ -87,12 +88,6 @@ const buyProductsOnPhysicalStoreSchema = Joi.object({
   paymentAmount: Joi.number().positive().required(),
 });
 
-const returnProductSchema = Joi.object({
-  receiptNumber: Joi.string().required(),
-  productIdToReturn: Joi.number().integer().min(1).required(),
-  quantityToReturn: Joi.number().integer().min(1).required(),
-});
-
 const addPendingStockSchema = Joi.object({
   productId: Joi.number().integer().required(),
   quantity: Joi.number().integer().min(1).required(),
@@ -112,12 +107,19 @@ const cancelPendingStockSchema = Joi.object({
   id: Joi.number().integer().required(),
 });
 
+const updateArrivalDateSchema = Joi.object({
+  pendingStockId: Joi.number().integer().required(),
+  newArrivalDate: Joi.string()
+    .pattern(/^(\d{4})-(\d{2})-(\d{2})$/)
+    .required(),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
   buyProductsOnPhysicalStoreValidation,
-  returnProductValidation,
   addPendingStockValidation,
   confirmStockValidation,
   cancelStockValidation,
+  updateArrivalDateValidation,
 };
