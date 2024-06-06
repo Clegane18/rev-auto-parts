@@ -14,8 +14,8 @@ const updateProductValidation = (req, res, next) => {
   next();
 };
 
-const buyProductsValidation = (req, res, next) => {
-  const { error } = buyProductsSchema.validate(req.body);
+const buyProductsOnPhysicalStoreValidation = (req, res, next) => {
+  const { error } = buyProductsOnPhysicalStoreSchema.validate(req.body);
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
@@ -27,6 +27,26 @@ const returnProductValidation = (req, res, next) => {
     ...req.body,
     receiptNumber: req.params.receiptNumber,
   });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+const addPendingStockValidation = (req, res, next) => {
+  const { error } = addPendingStockSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const confirmStockValidation = (req, res, next) => {
+  const { error } = confirmStockSchema.validate({ id: req.params.id });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const cancelStockValidation = (req, res, next) => {
+  const { error } = cancelPendingStockSchema.validate({ id: req.params.id });
   if (error) return res.status(400).json({ error: error.details[0].message });
 
   next();
@@ -54,17 +74,17 @@ const updateProductSchema = Joi.object({
   supplierName: Joi.string().min(3).max(15),
 });
 
-const buyProductsSchema = Joi.object({
+const buyProductsOnPhysicalStoreSchema = Joi.object({
   items: Joi.array()
     .items(
       Joi.object({
-        productId: Joi.number().required(),
+        productId: Joi.number().integer().required(),
         quantity: Joi.number().integer().min(1).required(),
       })
     )
     .min(1)
     .required(),
-  amountPaid: Joi.number().positive().required(),
+  paymentAmount: Joi.number().positive().required(),
 });
 
 const returnProductSchema = Joi.object({
@@ -73,9 +93,31 @@ const returnProductSchema = Joi.object({
   quantityToReturn: Joi.number().integer().min(1).required(),
 });
 
+const addPendingStockSchema = Joi.object({
+  productId: Joi.number().integer().required(),
+  quantity: Joi.number().integer().min(1).required(),
+  arrivalDate: Joi.string()
+    .pattern(/^(\d{4})-(\d{2})-(\d{2})$/)
+    .required(),
+  status: Joi.string()
+    .valid("pending", "confirmed", "cancelled")
+    .default("pending"),
+});
+
+const confirmStockSchema = Joi.object({
+  id: Joi.number().integer().required(),
+});
+
+const cancelPendingStockSchema = Joi.object({
+  id: Joi.number().integer().required(),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
-  buyProductsValidation,
+  buyProductsOnPhysicalStoreValidation,
   returnProductValidation,
+  addPendingStockValidation,
+  confirmStockValidation,
+  cancelStockValidation,
 };

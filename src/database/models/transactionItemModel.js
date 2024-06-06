@@ -1,9 +1,9 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("./db");
+const sequelize = require("../db");
 const Product = require("./inventoryProductModel");
-const TransactionHistory = require("./transactionHistoryModel");
+const TransactionHistories = require("./transactionHistoryModel");
 
-const TransactionItem = sequelize.define("TransactionItems", {
+const TransactionItems = sequelize.define("TransactionItems", {
   transactionItemId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -13,6 +13,10 @@ const TransactionItem = sequelize.define("TransactionItems", {
   productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: "Product", // Name of the referenced model
+      key: "id", // Primary key in the referenced model
+    },
   },
   productName: {
     type: DataTypes.STRING,
@@ -38,22 +42,10 @@ const TransactionItem = sequelize.define("TransactionItems", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "TransactionHistory", // Name of the referenced model
+      model: "TransactionHistories", // Name of the referenced model
       key: "transactionId", // Primary key in the referenced model
     },
   },
 });
 
-// Define associations
-TransactionHistory.hasMany(TransactionItem, {
-  foreignKey: "transactionId",
-});
-TransactionItem.belongsTo(TransactionHistory, {
-  foreignKey: "transactionId",
-});
-
-TransactionItem.belongsTo(Product, {
-  foreignKey: "productId",
-});
-
-module.exports = TransactionItem;
+module.exports = TransactionItems;

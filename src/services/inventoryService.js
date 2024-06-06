@@ -1,4 +1,5 @@
-const Product = require("../database/inventoryProductModel");
+const Product = require("../database/models/inventoryProductModel");
+const PendingStock = require("../database/models/pendingStockModel");
 const { Op } = require("sequelize");
 
 const addProduct = async ({
@@ -393,6 +394,119 @@ const deleteProductById = async ({ productId }) => {
   }
 };
 
+const addPendingStock = async ({ productId, quantity, arrivalDate }) => {
+  try {
+    const newPendingStock = await PendingStock.create({
+      productId,
+      quantity,
+      arrivalDate,
+      status: "pending",
+    });
+    return {
+      status: 200,
+      message: "Pending stock added successfully",
+      pendingStock: newPendingStock,
+    };
+  } catch (error) {
+    console.error("Error in addPendingStock service:", error);
+    throw error;
+  }
+};
+
+const confirmStock = async (pendingStockId) => {
+  try {
+    const pendingStock = await PendingStock.findByPk(pendingStockId);
+    if (!pendingStock) {
+      throw {
+        status: 404,
+        data: {
+          message: `Pending stock with the id of ${pendingStockId} not found.`,
+        },
+      };
+    }
+
+    if (pendingStock.status === "arrived") {
+      throw {
+        status: 400,
+        data: { message: "Pending stock already confirmed" },
+      };
+    }
+
+    const product = await Product.findByPk(pendingStock.productId);
+    if (!product) {
+      throw {
+        status: 404,
+        data: {
+          message: `Product not found with ID: ${pendingStock.productId}`,
+        },
+      };
+    }
+
+    product.stock += pendingStock.quantity;
+    await product.save();
+
+    pendingStock.status = "arrived";
+    await pendingStock.save();
+
+    return {
+      status: 200,
+      message: "Stock confirmed successfully",
+      product,
+    };
+  } catch (error) {
+    console.error("Error in confirmStock service:", error);
+    throw error;
+  }
+};
+
+const cancelPendingStock = async (pendingStockId) => {
+  try {
+    const pendingStock = await PendingStock.findByPk(pendingStockId);
+    if (!pendingStock) {
+      throw {
+        status: 404,
+        data: {
+          message: `Pending stock with the id of ${pendingStockId} not found.`,
+        },
+      };
+    }
+
+    if (pendingStock.status === "arrived") {
+      throw {
+        status: 400,
+        data: { message: "Cannot cancel a stock that has already arrived" },
+      };
+    }
+
+    pendingStock.status = "canceled";
+    await pendingStock.save();
+
+    return {
+      status: 200,
+      message: "Pending stock canceled successfully",
+      pendingStock,
+    };
+  } catch (error) {
+    console.error("Error in cancelPendingStock service:", error);
+    throw error;
+  }
+};
+
+const getAllPendingStocks = async () => {
+  try {
+    const pendingStocks = await PendingStock.findAll({
+      where: { status: "pending" },
+    });
+    return {
+      status: 200,
+      pendingStocks,
+    };
+  } catch (error) {
+    console.error("Error in getAllPendingStocks service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -406,4 +520,8 @@ module.exports = {
   getProductById,
   updateProductById,
   deleteProductById,
+  addPendingStock,
+  confirmStock,
+  cancelPendingStock,
+  getAllPendingStocks,
 };

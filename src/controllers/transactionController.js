@@ -1,23 +1,23 @@
 const transactionService = require("../services/transactionService");
 const controllerErrorHandlerUtils = require("../utils/controllerErrorHandlerUtils");
 
-const buyProducts = async (req, res) => {
+const buyProductsOnPhysicalStore = async (req, res) => {
   try {
-    const result = await transactionService.buyProducts({
+    const result = await transactionService.buyProductsOnPhysicalStore({
       items: req.body.items,
-      amountPaid: req.body.amountPaid,
+      totalAmount: req.body.totalAmount,
+      paymentAmount: req.body.paymentAmount,
     });
-    return res.status(result.status).json(result);
+    return res.status(result.status).json(result.data);
   } catch (error) {
     return controllerErrorHandlerUtils(
       res,
       error,
-      "transactionController",
-      "Error buying products."
+      "buyProductsOnPhysicalStoreController",
+      "Error processing purchase."
     );
   }
 };
-
 const returnProduct = async (req, res) => {
   try {
     const result = await transactionService.returnProduct({
@@ -36,4 +36,4 @@ const returnProduct = async (req, res) => {
   }
 };
 
-module.exports = { buyProducts, returnProduct };
+module.exports = { buyProductsOnPhysicalStore, returnProduct };

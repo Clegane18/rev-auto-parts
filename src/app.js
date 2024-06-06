@@ -12,7 +12,7 @@ app.use(express.json());
 
 (async () => {
   try {
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: false, alter: false });
     console.log("Database synchronized successfully.");
   } catch (error) {
     console.error("Error synchronizing database:", error);

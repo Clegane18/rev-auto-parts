@@ -1,141 +1,90 @@
-// const Product = require("../database/inventoryProductModel");
-// const TransactionHistory = require("../database/transactionHistoryModel");
-// const {
-//   generateTransactionReceipt,
-//   createTransactionHistory,
-// } = require("../utils/transactionUtils");
+const Product = require("../database/models/inventoryProductModel");
+const TransactionHistories = require("../database/models/transactionHistoryModel");
+const { createTransaction } = require("../utils/transactionUtils");
 
-// const buyProducts = async ({ items, amountPaid }) => {
-//   try {
-//     // Validate products, stock, and amount paid
-//     let totalPaid = 0;
-//     const transactionItems = [];
+const buyProductsOnPhysicalStore = async ({ items, paymentAmount }) => {
+  try {
+    const { receipt } = await createTransaction(items, paymentAmount);
 
-//     for (const item of items) {
-//       const product = await Product.findByPk(item.productId);
+    return {
+      status: 201,
+      data: {
+        receipt,
+      },
+    };
+  } catch (error) {
+    console.error("Error in buyProductsOnPhysicalStore service:", error);
+    throw error;
+  }
+};
 
-//       // Validation logic...
+const returnProduct = async ({
+  receiptNumber,
+  productIdToReturn,
+  quantityToReturn,
+}) => {
+  try {
+    // Find the transaction based on the receipt number
+    const transaction = await TransactionHistories.findOne({
+      where: { transactionReceipt: receiptNumber },
+    });
 
-//       // Store transaction item for history
-//       const costForItems = product.price * item.quantity;
-//       totalPaid += costForItems;
-//       product.stock -= item.quantity;
-//       await product.save();
+    if (!transaction) {
+      throw {
+        status: 404,
+        data: {
+          message: `Transaction not found with receipt number: ${receiptNumber}`,
+        },
+      };
+    }
 
-//       transactionItems.push({
-//         productId: product.id,
-//         productName: product.name,
-//         quantity: item.quantity,
-//         unitPrice: product.price,
-//         subtotalAmount: costForItems,
-//       });
-//     }
+    // Retrieve the product associated with the transaction
+    const product = await Product.findByPk(transaction.productId);
 
-//     // Generate a unique transaction number
-//     const transactionNo = 23925972389;
+    if (!product) {
+      throw {
+        status: 404,
+        data: {
+          message: `Product not found with ID: ${transaction.productId}`,
+        },
+      };
+    }
 
-//     // Create transaction history record
-//     const transaction = await TransactionHistory.create({
-//       transactionNo,
-//       transactionType: "purchase",
-//       transactionStatus: "completed",
-//       totalAmount: totalPaid,
-//       totalItemsBought: items.length,
-//     });
+    // Ensure the requested product to return matches the transaction
+    if (productIdToReturn !== transaction.productId) {
+      throw {
+        status: 400,
+        data: {
+          message: `Product ID to return does not match the transaction`,
+        },
+      };
+    }
 
-//     // Associate transaction items with the transaction history
-//     // await TransactionItem.bulkCreate(
-//     //   transactionItems.map((item) => ({
-//     //     ...item,
-//     //     transactionId: transaction.transactionId,
-//     //     amountPaid: amountPaid,
-//     //   }))
-//     // );
+    // Ensure the requested quantity to return is not more than the purchased quantity
+    if (quantityToReturn > transaction.quantity) {
+      throw {
+        status: 400,
+        data: {
+          message: `Quantity to return exceeds the purchased quantity`,
+        },
+      };
+    }
 
-//     // Generate transaction receipt
-//     const receipt = await generateTransactionReceipt(transaction.transactionId);
+    // Update product stock to reflect the return
+    product.stock += quantityToReturn;
+    await product.save();
 
-//     // Print receipt (redirecting to printer service)
-//     // await printReceipt(receipt);
+    // Update the transaction status to indicate the return
+    await transaction.update({ transactionStatus: "returned" });
 
-//     return {
-//       status: 200,
-//       message: "Products purchased successfully",
-//       receipt: receipt,
-//     };
-//   } catch (error) {
-//     console.error("Error in buyProducts service:", error);
-//     throw error;
-//   }
-// };
+    return {
+      status: 200,
+      message: "Product return processed successfully",
+    };
+  } catch (error) {
+    console.error("Error in returnProduct service:", error);
+    throw error;
+  }
+};
 
-// const returnProduct = async ({
-//   receiptNumber,
-//   productIdToReturn,
-//   quantityToReturn,
-// }) => {
-//   try {
-//     // Find the transaction based on the receipt number
-//     const transaction = await TransactionHistory.findOne({
-//       where: { transactionReceipt: receiptNumber },
-//     });
-
-//     if (!transaction) {
-//       throw {
-//         status: 404,
-//         data: {
-//           message: `Transaction not found with receipt number: ${receiptNumber}`,
-//         },
-//       };
-//     }
-
-//     // Retrieve the product associated with the transaction
-//     const product = await Product.findByPk(transaction.productId);
-
-//     if (!product) {
-//       throw {
-//         status: 404,
-//         data: {
-//           message: `Product not found with ID: ${transaction.productId}`,
-//         },
-//       };
-//     }
-
-//     // Ensure the requested product to return matches the transaction
-//     if (productIdToReturn !== transaction.productId) {
-//       throw {
-//         status: 400,
-//         data: {
-//           message: `Product ID to return does not match the transaction`,
-//         },
-//       };
-//     }
-
-//     // Ensure the requested quantity to return is not more than the purchased quantity
-//     if (quantityToReturn > transaction.quantity) {
-//       throw {
-//         status: 400,
-//         data: {
-//           message: `Quantity to return exceeds the purchased quantity`,
-//         },
-//       };
-//     }
-
-//     // Update product stock to reflect the return
-//     product.stock += quantityToReturn;
-//     await product.save();
-
-//     // Update the transaction status to indicate the return
-//     await transaction.update({ transactionStatus: "returned" });
-
-//     return {
-//       status: 200,
-//       message: "Product return processed successfully",
-//     };
-//   } catch (error) {
-//     console.error("Error in returnProduct service:", error);
-//     throw error;
-//   }
-// };
-
-// module.exports = { buyProducts, returnProduct };
+module.exports = { buyProductsOnPhysicalStore, returnProduct };

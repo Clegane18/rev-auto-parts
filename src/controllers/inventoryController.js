@@ -207,6 +207,66 @@ const deleteProductById = async (req, res) => {
   }
 };
 
+const addPendingStock = async (req, res) => {
+  try {
+    const result = await inventoryService.addPendingStock({
+      productId: req.body.productId,
+      quantity: req.body.quantity,
+      arrivalDate: req.body.arrivalDate,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return controllerErrorHandlerUtils(
+      res,
+      error,
+      "inventoryController",
+      "Error adding pending stock."
+    );
+  }
+};
+
+const confirmStock = async (req, res) => {
+  try {
+    const result = await inventoryService.confirmStock(req.params.id);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return controllerErrorHandlerUtils(
+      res,
+      error,
+      "inventoryController",
+      "Error confirming stock."
+    );
+  }
+};
+
+const cancelPendingStock = async (req, res) => {
+  try {
+    const result = await inventoryService.cancelPendingStock(req.params.id);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return controllerErrorHandlerUtils(
+      res,
+      error,
+      "inventoryController",
+      "Error canceling pending stock."
+    );
+  }
+};
+
+const getAllPendingStocks = async (req, res) => {
+  try {
+    const result = await inventoryService.getAllPendingStocks();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    return controllerErrorHandlerUtils(
+      res,
+      error,
+      "inventoryController",
+      "Error retrieving pending stocks."
+    );
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -220,4 +280,8 @@ module.exports = {
   getProductById,
   updateProductById,
   deleteProductById,
+  addPendingStock,
+  confirmStock,
+  cancelPendingStock,
+  getAllPendingStocks,
 };
