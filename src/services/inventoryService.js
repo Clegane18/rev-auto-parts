@@ -261,15 +261,6 @@ const getProductByPriceRange = async ({ minPrice, maxPrice }) => {
 
 const getProductByNameOrDescription = async ({ name, description }) => {
   try {
-    const products = await Product.findAll({
-      where: {
-        [Op.or]: [
-          { name: { [Op.like]: `%${name}%` } },
-          { description: { [Op.like]: `%${description}%` } },
-        ],
-      },
-    });
-
     if (!name && !description) {
       throw {
         status: 400,
@@ -277,13 +268,24 @@ const getProductByNameOrDescription = async ({ name, description }) => {
       };
     }
 
+    const products = await Product.findAll({
+      where: {
+        [Op.or]: [
+          name ? { name: { [Op.iLike]: `%${name}%` } } : null,
+          description
+            ? { description: { [Op.iLike]: `%${description}%` } }
+            : null,
+        ].filter(Boolean),
+      },
+    });
+
     if (!products || products.length === 0) {
       throw {
         status: 404,
         data: {
           message: `Product not found with name: ${
             name || "any"
-          } and  description: ${description || "any"}`,
+          } and description: ${description || "any"}`,
         },
       };
     }

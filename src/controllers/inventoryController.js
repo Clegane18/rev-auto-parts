@@ -150,7 +150,7 @@ const getProductByNameOrDescription = async (req, res) => {
       name: req.query.name,
       description: req.query.description,
     });
-    return res.status(result.status).json(result);
+    return res.status(result.status).json(result.data);
   } catch (error) {
     return controllerErrorHandlerUtils(
       res,
