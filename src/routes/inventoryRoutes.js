@@ -9,6 +9,7 @@ const {
   confirmStockValidation,
   cancelStockValidation,
   updateArrivalDateValidation,
+  deleteProductByIdValidation,
 } = require("../middlewares/validators");
 
 router.post(
@@ -57,7 +58,11 @@ router.get(
   inventoryController.getLowStockProducts
 );
 
-router.delete("/products/:productId", inventoryController.deleteProductById);
+router.delete(
+  "/products/:productId",
+  deleteProductByIdValidation,
+  inventoryController.deleteProductById
+);
 
 router.post(
   "/products/pendingStocks/add-pendingStock",

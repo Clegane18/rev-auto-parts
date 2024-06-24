@@ -53,6 +53,15 @@ const updateArrivalDateValidation = (req, res, next) => {
   next();
 };
 
+const deleteProductByIdValidation = (req, res, next) => {
+  const { error } = deleteProductByIdStockSchema.validate({
+    productId: parseInt(req.params.productId, 10), // Ensure productId is parsed as integer
+  });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -73,7 +82,7 @@ const updateProductSchema = Joi.object({
   price: Joi.number().min(0),
   stock: Joi.number().integer().min(0),
   supplierName: Joi.string().min(3).max(15),
-});
+}).unknown(true); // Allow unspecified fields
 
 const buyProductsOnPhysicalStoreSchema = Joi.object({
   items: Joi.array()
@@ -114,6 +123,10 @@ const updateArrivalDateSchema = Joi.object({
     .required(),
 });
 
+const deleteProductByIdStockSchema = Joi.object({
+  id: Joi.number().integer().required(),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -122,4 +135,5 @@ module.exports = {
   confirmStockValidation,
   cancelStockValidation,
   updateArrivalDateValidation,
+  deleteProductByIdValidation,
 };
