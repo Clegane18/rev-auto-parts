@@ -375,12 +375,24 @@ const getLowStockProducts = async () => {
 
 const deleteProductById = async ({ productId }) => {
   try {
-    const product = await Product.findByPk(productId);
+    const id = parseInt(productId, 10);
+    const product = await Product.findByPk(id);
 
     if (!product) {
       throw {
         status: 404,
-        data: { message: `Product not found with ID: ${productId}` },
+        message: `Product not found with ID: ${id}`,
+      };
+    }
+
+    const pendingStock = await PendingStock.findOne({
+      where: { productId: id },
+    });
+
+    if (pendingStock) {
+      throw {
+        status: 400,
+        message: `Cannot delete product with ID ${id} because it has pending stock.`,
       };
     }
 
@@ -388,11 +400,11 @@ const deleteProductById = async ({ productId }) => {
 
     return {
       status: 200,
-      message: `Product with ID ${productId} successfully deleted from the inventory.`,
+      message: `Product with ID ${id} successfully deleted from the inventory.`,
     };
   } catch (error) {
     console.error("Error in deleteProductById service:", error);
-    throw error;
+    throw error; // This will propagate the error to the controller
   }
 };
 

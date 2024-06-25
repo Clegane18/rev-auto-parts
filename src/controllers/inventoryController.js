@@ -198,12 +198,9 @@ const deleteProductById = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error deleting product."
-    );
+    console.error("Error deleting product:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 

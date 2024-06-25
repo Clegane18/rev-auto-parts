@@ -55,7 +55,7 @@ const updateArrivalDateValidation = (req, res, next) => {
 
 const deleteProductByIdValidation = (req, res, next) => {
   const { error } = deleteProductByIdStockSchema.validate({
-    productId: parseInt(req.params.productId, 10), // Ensure productId is parsed as integer
+    productId: parseInt(req.params.productId, 10),
   });
   if (error) return res.status(400).json({ error: error.details[0].message });
 
@@ -124,7 +124,7 @@ const updateArrivalDateSchema = Joi.object({
 });
 
 const deleteProductByIdStockSchema = Joi.object({
-  id: Joi.number().integer().required(),
+  productId: Joi.number().integer().required(),
 });
 
 module.exports = {
