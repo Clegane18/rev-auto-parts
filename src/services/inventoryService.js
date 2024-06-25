@@ -385,16 +385,24 @@ const deleteProductById = async ({ productId }) => {
       };
     }
 
-    const pendingStock = await PendingStock.findOne({
+    const pendingStocks = await PendingStock.findAll({
       where: { productId: id },
     });
 
-    if (pendingStock) {
+    const hasPendingStatus = pendingStocks.some(
+      (stock) => stock.status === "pending"
+    );
+
+    if (hasPendingStatus) {
       throw {
         status: 400,
         message: `Cannot delete product with ID ${id} because it has pending stock.`,
       };
     }
+
+    await PendingStock.destroy({
+      where: { productId: id, status: { [Op.not]: "pending" } },
+    });
 
     await product.destroy();
 
@@ -404,7 +412,7 @@ const deleteProductById = async ({ productId }) => {
     };
   } catch (error) {
     console.error("Error in deleteProductById service:", error);
-    throw error; // This will propagate the error to the controller
+    throw error;
   }
 };
 
