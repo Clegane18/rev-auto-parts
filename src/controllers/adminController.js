@@ -1,5 +1,4 @@
 const adminService = require("../services/adminService");
-const controllerErrorHandlerUtils = require("../utils/controllerErrorHandlerUtils");
 
 const adminLogIn = async (req, res) => {
   try {
@@ -9,30 +8,10 @@ const adminLogIn = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "adminController",
-      "Error in logging Admin account."
-    );
+    console.error("Error logging admin account:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
-const superAdminLogIn = async (req, res) => {
-  try {
-    const result = await adminService.superAdminLogIn({
-      email: req.body.email,
-      password: req.body.password,
-    });
-    return res.status(result.status).json(result);
-  } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "adminController",
-      "Error in logging Super Admin account."
-    );
-  }
-};
-
-module.exports = { adminLogIn, superAdminLogIn };
+module.exports = { adminLogIn };

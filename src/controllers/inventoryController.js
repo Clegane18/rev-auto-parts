@@ -1,5 +1,4 @@
 const inventoryService = require("../services/inventoryService");
-const controllerErrorHandlerUtils = require("../utils/controllerErrorHandlerUtils");
 
 const addProduct = async (req, res) => {
   try {
@@ -15,12 +14,9 @@ const addProduct = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error creating new Product."
-    );
+    console.error("Error adding product:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -32,12 +28,9 @@ const addToProductStock = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error adding new stocks."
-    );
+    console.error("Error adding product stock:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -56,12 +49,9 @@ const updateProductById = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error updating product by ID."
-    );
+    console.error("Error updating product by id:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -70,12 +60,9 @@ const getAllProducts = async (req, res) => {
     const result = await inventoryService.getAllProducts();
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving all products."
-    );
+    console.error("Error fetching all products:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -86,12 +73,9 @@ const getProductById = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving product by ID."
-    );
+    console.error("Error fetching product by product id:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -102,12 +86,9 @@ const getProductByItemCode = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving product by item code."
-    );
+    console.error("Error fetching product by item code:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -118,12 +99,9 @@ const getProductByBrand = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving product by brand."
-    );
+    console.error("Error fetching product by brand:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -135,12 +113,9 @@ const getProductByPriceRange = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving product by price range."
-    );
+    console.error("Error fetching product by price range:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -152,12 +127,12 @@ const getProductByNameOrDescription = async (req, res) => {
     });
     return res.status(result.status).json(result.data);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving product by name or description."
+    console.error(
+      "Error fetching product by name or description:",
+      error.message
     );
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -169,12 +144,9 @@ const getProductsByDateRange = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving product by date range."
-    );
+    console.error("Error fetching product by date range:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 const getLowStockProducts = async (req, res) => {
@@ -182,12 +154,9 @@ const getLowStockProducts = async (req, res) => {
     const result = await inventoryService.getLowStockProducts();
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving low stock products."
-    );
+    console.error("Error fetching low stock products:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -213,12 +182,9 @@ const addPendingStock = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error adding pending stock."
-    );
+    console.error("Error adding pending stock:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -227,12 +193,9 @@ const confirmStock = async (req, res) => {
     const result = await inventoryService.confirmStock(req.params.id);
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error confirming stock."
-    );
+    console.error("Error confirming stock:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -241,12 +204,9 @@ const cancelPendingStock = async (req, res) => {
     const result = await inventoryService.cancelPendingStock(req.params.id);
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error canceling pending stock."
-    );
+    console.error("Error cancelling pending stock:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -255,12 +215,9 @@ const getAllPendingStocks = async (req, res) => {
     const result = await inventoryService.getAllPendingStocks();
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error retrieving pending stocks."
-    );
+    console.error("Error fetching all pending stocks:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 
@@ -272,12 +229,9 @@ const updateArrivalDate = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "inventoryController",
-      "Error updating arrival date."
-    );
+    console.error("Error updating arrival date:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 

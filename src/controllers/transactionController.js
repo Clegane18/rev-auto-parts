@@ -1,5 +1,4 @@
 const transactionService = require("../services/transactionService");
-const controllerErrorHandlerUtils = require("../utils/controllerErrorHandlerUtils");
 
 const buyProductsOnPhysicalStore = async (req, res) => {
   try {
@@ -10,12 +9,9 @@ const buyProductsOnPhysicalStore = async (req, res) => {
     });
     return res.status(result.status).json(result.data);
   } catch (error) {
-    return controllerErrorHandlerUtils(
-      res,
-      error,
-      "buyProductsOnPhysicalStoreController",
-      "Error processing purchase."
-    );
+    console.error("Error buying products on physical store:", error.message);
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 };
 

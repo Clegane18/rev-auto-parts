@@ -49,12 +49,12 @@ const calculateTotalAmount = async (items) => {
           data: { message: `Product not found with ID: ${item.productId}` },
         };
       }
-      const unitPrice = product.price; // Assuming the price property exists in your Product model
+      const unitPrice = product.price;
       const subtotalAmount = unitPrice * item.quantity;
       totalAmount += subtotalAmount;
       return {
         productId: item.productId,
-        productName: product.name, // Assuming the name property exists in your Product model
+        productName: product.name,
         quantity: item.quantity,
         unitPrice: unitPrice,
         subtotalAmount: subtotalAmount,
