@@ -67,10 +67,10 @@ const createProductSchema = Joi.object({
   itemCode: Joi.string().required().min(3),
   brand: Joi.string().required().min(3),
   name: Joi.string().required().min(3),
-  description: Joi.string().required().min(3).max(50),
+  description: Joi.string().required().min(3),
   price: Joi.number().required().min(0),
   stock: Joi.number().integer().required().min(0),
-  supplierName: Joi.string().required().min(3).max(50),
+  supplierName: Joi.string().required().min(3),
 });
 
 const updateProductSchema = Joi.object({
@@ -78,10 +78,10 @@ const updateProductSchema = Joi.object({
   itemCode: Joi.string().min(3),
   brand: Joi.string().min(3),
   name: Joi.string().min(3),
-  description: Joi.string().required().min(3).max(50),
+  description: Joi.string().required().min(3),
   price: Joi.number().min(0),
   stock: Joi.number().integer().min(0),
-  supplierName: Joi.string().required().min(3).max(50),
+  supplierName: Joi.string().required().min(3),
 }).unknown(true); // Allow unspecified fields
 
 const buyProductsOnPhysicalStoreSchema = Joi.object({
