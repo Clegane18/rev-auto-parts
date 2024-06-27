@@ -200,7 +200,9 @@ const getProductByBrand = async ({ productBrand }) => {
   try {
     const products = await Product.findAll({
       where: {
-        brand: productBrand,
+        brand: {
+          [Op.iLike]: `%${productBrand}%`,
+        },
       },
     });
 
@@ -208,7 +210,7 @@ const getProductByBrand = async ({ productBrand }) => {
       throw {
         status: 404,
         data: {
-          message: `product not found with brand: ${productBrand}`,
+          message: `Product not found with brand: ${productBrand}`,
         },
       };
     }
@@ -222,7 +224,6 @@ const getProductByBrand = async ({ productBrand }) => {
     throw error;
   }
 };
-
 const getProductByPriceRange = async ({ minPrice, maxPrice }) => {
   try {
     if (!minPrice || !maxPrice) {
@@ -396,7 +397,7 @@ const deleteProductById = async ({ productId }) => {
     if (hasPendingStatus) {
       throw {
         status: 400,
-        message: `Cannot delete product with ID ${id} because it has pending stock.`,
+        message: `Cannot delete product with ID ${id} because it has incoming pending stock.`,
       };
     }
 
