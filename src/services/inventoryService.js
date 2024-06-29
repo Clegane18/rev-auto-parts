@@ -352,10 +352,10 @@ const getProductsByDateRange = async ({ startDate, endDate }) => {
 const getLowStockProducts = async () => {
   try {
     const products = await Product.findAll();
-    const lowStockProducts = products.filter((product) => {
-      const minimumStockLevel = 15; //number of stocks below this number consider low stocks
-      return product.stock < minimumStockLevel;
-    });
+    const minimumStockLevel = 15;
+    const lowStockProducts = products.filter(
+      (product) => product.stock < minimumStockLevel
+    );
 
     if (lowStockProducts.length === 0) {
       return {
@@ -363,9 +363,9 @@ const getLowStockProducts = async () => {
         data: { message: "No products are currently low in stock." },
       };
     }
+
     return {
       status: 200,
-      message: "These are all the products that are low on stock.",
       data: lowStockProducts,
     };
   } catch (error) {

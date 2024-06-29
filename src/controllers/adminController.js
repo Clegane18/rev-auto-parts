@@ -8,9 +8,10 @@ const adminLogIn = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error logging admin account:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error logging admin account:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 

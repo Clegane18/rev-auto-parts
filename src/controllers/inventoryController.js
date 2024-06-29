@@ -14,9 +14,10 @@ const addProduct = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error adding product:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error adding product:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -28,9 +29,10 @@ const addToProductStock = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error adding product stock:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error adding product stock:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -49,9 +51,10 @@ const updateProductById = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error updating product by id:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error updating product by ID:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -60,9 +63,10 @@ const getAllProducts = async (req, res) => {
     const result = await inventoryService.getAllProducts();
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching all products:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching all products:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -73,22 +77,25 @@ const getProductById = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching product by product id:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching product by ID:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
 const getProductByItemCode = async (req, res) => {
   try {
+    const { productItemCode } = req.query;
     const result = await inventoryService.getProductByItemCode({
-      productItemCode: req.params.productItemCode,
+      productItemCode,
     });
-    return res.status(result.status).json(result);
+    return res.status(result.status).json(result.data);
   } catch (error) {
-    console.error("Error fetching product by item code:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching product by item code:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -99,9 +106,10 @@ const getProductByBrand = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching product by brand:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching product by brand:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -113,9 +121,10 @@ const getProductByPriceRange = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching product by price range:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching product by price range:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -127,12 +136,10 @@ const getProductByNameOrDescription = async (req, res) => {
     });
     return res.status(result.status).json(result.data);
   } catch (error) {
-    console.error(
-      "Error fetching product by name or description:",
-      error.message
-    );
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching product by name or description:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -144,19 +151,22 @@ const getProductsByDateRange = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching product by date range:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching product by date range:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
+
 const getLowStockProducts = async (req, res) => {
   try {
     const result = await inventoryService.getLowStockProducts();
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching low stock products:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching low stock products:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -167,9 +177,10 @@ const deleteProductById = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error deleting product:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error deleting product:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -182,9 +193,10 @@ const addPendingStock = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error adding pending stock:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error adding pending stock:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -193,9 +205,10 @@ const confirmStock = async (req, res) => {
     const result = await inventoryService.confirmStock(req.params.id);
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error confirming stock:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error confirming stock:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -204,9 +217,10 @@ const cancelPendingStock = async (req, res) => {
     const result = await inventoryService.cancelPendingStock(req.params.id);
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error cancelling pending stock:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error cancelling pending stock:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -215,9 +229,10 @@ const getAllPendingStocks = async (req, res) => {
     const result = await inventoryService.getAllPendingStocks();
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching all pending stocks:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error fetching all pending stocks:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 
@@ -229,9 +244,10 @@ const updateArrivalDate = async (req, res) => {
     });
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error updating arrival date:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error updating arrival date:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 

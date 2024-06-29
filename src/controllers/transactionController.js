@@ -9,9 +9,10 @@ const buyProductsOnPhysicalStore = async (req, res) => {
     });
     return res.status(result.status).json(result.data);
   } catch (error) {
-    console.error("Error buying products on physical store:", error.message);
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({ error: error.message });
+    console.error("Error buying products on physical store:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
   }
 };
 

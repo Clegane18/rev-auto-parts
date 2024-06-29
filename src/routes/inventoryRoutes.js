@@ -32,7 +32,7 @@ router.put(
 router.get("/products", inventoryController.getAllProducts);
 router.get("/getProductById/:productId", inventoryController.getProductById);
 router.get(
-  "/products/itemCode/:productItemCode",
+  "/products/filter/itemCode",
   inventoryController.getProductByItemCode
 );
 
