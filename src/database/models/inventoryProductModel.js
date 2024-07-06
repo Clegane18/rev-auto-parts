@@ -33,6 +33,10 @@ const Product = sequelize.define("Product", {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
+  supplierCost: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+  },
   dateAdded: {
     type: DataTypes.DATE,
     allowNull: false,

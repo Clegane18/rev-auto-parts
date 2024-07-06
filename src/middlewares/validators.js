@@ -69,6 +69,9 @@ const createProductSchema = Joi.object({
   name: Joi.string().required().min(3),
   description: Joi.string().required().min(3),
   price: Joi.number().required().min(0),
+  supplierCost: Joi.number().required().min(0).less(Joi.ref("price")).messages({
+    "number.less": '"supplierCost" must be less than "price"',
+  }),
   stock: Joi.number().integer().required().min(0),
   supplierName: Joi.string().required().min(3),
 });
@@ -80,6 +83,9 @@ const updateProductSchema = Joi.object({
   name: Joi.string().min(3),
   description: Joi.string().required().min(3),
   price: Joi.number().min(0),
+  supplierCost: Joi.number().required().min(0).less(Joi.ref("price")).messages({
+    "number.less": '"supplierCost" must be less than "price"',
+  }),
   stock: Joi.number().integer().min(0),
   supplierName: Joi.string().required().min(3),
 }).unknown(true); // Allow unspecified fields

@@ -9,6 +9,7 @@ const addProduct = async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       price: req.body.price,
+      supplierCost: req.body.supplierCost,
       stock: req.body.stock,
       supplierName: req.body.supplierName,
     });
@@ -46,6 +47,7 @@ const updateProductById = async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       price: req.body.price,
+      supplierCost: req.body.supplierCost,
       stock: req.body.stock,
       supplierName: req.body.supplierName,
     });

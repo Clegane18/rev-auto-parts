@@ -9,10 +9,18 @@ const addProduct = async ({
   name,
   description,
   price,
+  supplierCost,
   stock,
   supplierName,
 }) => {
   try {
+    if (supplierCost > price) {
+      return {
+        status: 400,
+        message: "Supplier cost is too high compared to the selling price",
+      };
+    }
+
     const newProduct = await Product.create({
       category: category,
       itemCode: itemCode,
@@ -20,6 +28,7 @@ const addProduct = async ({
       name: name,
       description: description,
       price: price,
+      supplierCost: supplierCost,
       stock: stock,
       supplierName: supplierName,
     });
@@ -80,6 +89,7 @@ const updateProductById = async ({
   name,
   description,
   price,
+  supplierCost,
   stock,
   supplierName,
 }) => {
@@ -92,6 +102,14 @@ const updateProductById = async ({
         data: { message: `Product not found with ID: ${productId}` },
       };
     }
+
+    if (supplierCost > price) {
+      return {
+        status: 400,
+        message: "Supplier cost is too high compared to the selling price",
+      };
+    }
+
     const updates = {
       category,
       itemCode,
@@ -99,6 +117,7 @@ const updateProductById = async ({
       name,
       description,
       price,
+      supplierCost,
       stock,
       supplierName,
     };
@@ -224,6 +243,7 @@ const getProductByBrand = async ({ productBrand }) => {
     throw error;
   }
 };
+
 const getProductByPriceRange = async ({ minPrice, maxPrice }) => {
   try {
     if (!minPrice || !maxPrice) {

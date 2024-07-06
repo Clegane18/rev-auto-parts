@@ -1,5 +1,5 @@
-const Product = require("../database/models/inventoryProductModel");
 const TransactionHistories = require("../database/models/transactionHistoryModel");
+const TransactionItems = require("../database/models/transactionItemModel");
 const { createTransaction } = require("../utils/transactionUtils");
 
 const buyProductsOnPhysicalStore = async ({ items, paymentAmount }) => {
@@ -18,4 +18,25 @@ const buyProductsOnPhysicalStore = async ({ items, paymentAmount }) => {
   }
 };
 
-module.exports = { buyProductsOnPhysicalStore };
+const calculateIncomeInPhysicalStore = async () => {
+  const transactions = await TransactionHistories.findAll({
+    include: [
+      {
+        model: TransactionItems,
+        required: true,
+      },
+    ],
+  });
+
+  let grossIncome = 0;
+  let netIncome = 0;
+
+  transactions.forEach((transaction) => {
+    const totalAmount = parseFloat(transaction.totalAmount);
+    grossIncome += totalAmount;
+
+    let totalExpenses = 0;
+  });
+};
+//calculateIncomeByMonthInPhysicalStore
+module.exports = { buyProductsOnPhysicalStore, calculateIncomeInPhysicalStore };
