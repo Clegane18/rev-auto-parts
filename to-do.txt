@@ -1,1 +1,29 @@
-implement case insensitivity, patrial searches.
+FOR DELETING DATAS IN DATABSE: const {
+  Product,
+  PendingStock,
+  TransactionHistories,
+  TransactionItems,
+  sequelize,
+} = require("./database/models");
+
+async function deleteAllData() {
+  const transaction = await sequelize.transaction();
+  try {
+    // Delete all records from the tables using CASCADE to handle foreign key constraints
+    await TransactionItems.destroy({ where: {}, transaction });
+    await TransactionHistories.destroy({ where: {}, transaction });
+    await PendingStock.destroy({ where: {}, transaction });
+    await Product.destroy({ where: {}, transaction });
+
+    // Commit the transaction
+    await transaction.commit();
+
+    console.log("All data has been deleted.");
+  } catch (error) {
+    // Rollback the transaction in case of an error
+    await transaction.rollback();
+    console.error("Error deleting data:", error);
+  }
+}
+
+deleteAllData();

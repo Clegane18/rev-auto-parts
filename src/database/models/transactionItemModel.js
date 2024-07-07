@@ -1,7 +1,5 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
-const Product = require("./inventoryProductModel");
-const TransactionHistories = require("./transactionHistoryModel");
 
 const TransactionItems = sequelize.define("TransactionItems", {
   transactionItemId: {

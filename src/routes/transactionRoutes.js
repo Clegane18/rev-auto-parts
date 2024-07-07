@@ -12,5 +12,15 @@ router.post(
   transactionController.buyProductsOnPhysicalStore
 );
 
+router.get(
+  "/income/totalIncome",
+  transactionController.calculateTotalIncomeInPhysicalStore
+);
+
+router.get(
+  "/income/monthlyIncome",
+  transactionController.calculateIncomeByMonthInPhysicalStore
+);
+
 router.use(errorHandler);
 module.exports = router;

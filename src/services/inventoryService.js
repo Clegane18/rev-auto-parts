@@ -14,13 +14,6 @@ const addProduct = async ({
   supplierName,
 }) => {
   try {
-    if (supplierCost > price) {
-      return {
-        status: 400,
-        message: "Supplier cost is too high compared to the selling price",
-      };
-    }
-
     const newProduct = await Product.create({
       category: category,
       itemCode: itemCode,
@@ -100,13 +93,6 @@ const updateProductById = async ({
       throw {
         status: 404,
         data: { message: `Product not found with ID: ${productId}` },
-      };
-    }
-
-    if (supplierCost > price) {
-      return {
-        status: 400,
-        message: "Supplier cost is too high compared to the selling price",
       };
     }
 
