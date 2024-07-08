@@ -180,9 +180,10 @@ const deleteProductById = async (req, res) => {
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error deleting product:", error);
-    return res
-      .status(error.status || 500)
-      .json(error.data || { message: "An unexpected error occurred" });
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message || "An unexpected error occurred",
+    });
   }
 };
 
