@@ -87,7 +87,6 @@ const calculateIncomeByMonthInPhysicalStore = async () => {
     });
   });
 
-  // Convert the income values to locale strings
   Object.keys(incomeByMonth).forEach((monthYear) => {
     incomeByMonth[monthYear].totalGrossIncome =
       incomeByMonth[monthYear].totalGrossIncome.toLocaleString();

@@ -1,6 +1,8 @@
 const Product = require("../database/models/inventoryProductModel");
 const PendingStock = require("../database/models/pendingStockModel");
-const { Op } = require("sequelize");
+const TransactionItems = require("../database/models/transactionItemModel");
+const TransactionHistories = require("../database/models/transactionHistoryModel");
+const { Op, fn, col, literal } = require("sequelize");
 
 const addProduct = async ({
   category,
@@ -561,6 +563,82 @@ const updateArrivalDate = async ({ pendingStockId, newArrivalDate }) => {
     throw error;
   }
 };
+
+const getMonthStartAndEnd = (date = new Date()) => {
+  const start = new Date(date.getFullYear(), date.getMonth(), 1);
+  const end = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+  return { start, end };
+};
+
+const getTopBestSellerItems = async () => {
+  const { start, end } = getMonthStartAndEnd();
+
+  try {
+    const result = await TransactionItems.findAll({
+      attributes: [
+        [col("Product.name"), "productName"],
+        [col("Product.price"), "price"],
+        [fn("SUM", col("TransactionItems.quantity")), "totalSold"],
+        [
+          literal(
+            'SUM("TransactionItems"."quantity" * ("TransactionItems"."unitPrice" - "Product"."supplierCost"))'
+          ),
+          "totalProfit",
+        ],
+      ],
+      include: [
+        {
+          model: Product,
+          attributes: [],
+        },
+        {
+          model: TransactionHistories,
+          attributes: [],
+          required: true,
+          where: {
+            transactionDate: {
+              [Op.between]: [start, end],
+            },
+          },
+        },
+      ],
+      group: [
+        "TransactionItems.productId",
+        "Product.id",
+        "Product.name",
+        "Product.price",
+      ],
+      order: [[fn("SUM", col("TransactionItems.quantity")), "DESC"]],
+      limit: 5, // Always fetch top 5 best sellers
+    });
+
+    if (result.length > 0) {
+      return {
+        status: 200,
+        message: "Top best seller items fetched successfully",
+        data: result.map((item) => item.get()),
+      };
+    } else {
+      return {
+        status: 404,
+        message: "No items found",
+        data: [],
+      };
+    }
+  } catch (error) {
+    console.error("Error in getTopBestSellerItems service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -579,4 +657,5 @@ module.exports = {
   cancelPendingStock,
   getAllPendingStocks,
   updateArrivalDate,
+  getTopBestSellerItems,
 };

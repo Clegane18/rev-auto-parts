@@ -41,6 +41,7 @@ const calculateIncomeByMonthInPhysicalStore = async (req, res) => {
       .json(error.data || { message: "An unexpected error occurred" });
   }
 };
+
 module.exports = {
   buyProductsOnPhysicalStore,
   calculateTotalIncomeInPhysicalStore,

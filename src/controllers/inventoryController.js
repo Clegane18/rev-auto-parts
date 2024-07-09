@@ -254,6 +254,18 @@ const updateArrivalDate = async (req, res) => {
   }
 };
 
+const getTopBestSellerItems = async (req, res) => {
+  try {
+    const result = await inventoryService.getTopBestSellerItems();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching top best seller items:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -272,4 +284,5 @@ module.exports = {
   cancelPendingStock,
   getAllPendingStocks,
   updateArrivalDate,
+  getTopBestSellerItems,
 };

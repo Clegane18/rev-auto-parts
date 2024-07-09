@@ -31,8 +31,4 @@ app.use("/api/auth", adminRoutes);
 app.use("/api/auth", inventoryRoutes);
 app.use("/api/auth/transactions", transactionRoutes);
 
-app.get("/api/Jcas", (req, res) => {
-  res.send("Welcome to Gear Track Inventory System");
-});
-
 module.exports = app;

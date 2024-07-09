@@ -90,6 +90,10 @@ router.put(
   inventoryController.updateArrivalDate
 );
 
+router.get(
+  "/products/best-seller-items",
+  inventoryController.getTopBestSellerItems
+);
 router.use(errorHandler);
 
 module.exports = router;
