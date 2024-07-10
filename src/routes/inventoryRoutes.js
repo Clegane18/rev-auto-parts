@@ -94,6 +94,11 @@ router.get(
   "/products/best-seller-items",
   inventoryController.getTopBestSellerItems
 );
+
+router.get("/products/totalNumberOfStocks", inventoryController.getTotalStock);
+
+router.get("/products/totalNumberOfItems", inventoryController.getTotalItems);
+
 router.use(errorHandler);
 
 module.exports = router;

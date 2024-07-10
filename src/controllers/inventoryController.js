@@ -265,6 +265,30 @@ const getTopBestSellerItems = async (req, res) => {
   }
 };
 
+const getTotalStock = async (req, res) => {
+  try {
+    const result = await inventoryService.getTotalStock();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching total number of stocks:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
+const getTotalItems = async (req, res) => {
+  try {
+    const result = await inventoryService.getTotalItems();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching total number of items:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -284,4 +308,6 @@ module.exports = {
   getAllPendingStocks,
   updateArrivalDate,
   getTopBestSellerItems,
+  getTotalStock,
+  getTotalItems,
 };

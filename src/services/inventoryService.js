@@ -641,6 +641,36 @@ const getTopBestSellerItems = async (limit = 5) => {
   }
 };
 
+const getTotalStock = async () => {
+  try {
+    const totalStock = await Product.sum("stock");
+
+    return {
+      status: 200,
+      message: "Successfully fetched the total number of stocks.",
+      totalStocks: totalStock,
+    };
+  } catch (error) {
+    console.error("Error in getTotalStock service:", error);
+    throw error;
+  }
+};
+
+const getTotalItems = async () => {
+  try {
+    const totalItems = await Product.count();
+
+    return {
+      status: 200,
+      message: "Successfully fetched the total number of Items.",
+      totalItems: totalItems,
+    };
+  } catch (error) {
+    console.error("Error in getTotalItems service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -660,4 +690,6 @@ module.exports = {
   getAllPendingStocks,
   updateArrivalDate,
   getTopBestSellerItems,
+  getTotalStock,
+  getTotalItems,
 };
