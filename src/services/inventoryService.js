@@ -85,7 +85,6 @@ const updateProductById = async ({
   description,
   price,
   supplierCost,
-  stock,
   supplierName,
 }) => {
   try {
@@ -106,7 +105,6 @@ const updateProductById = async ({
       description,
       price,
       supplierCost,
-      stock,
       supplierName,
     };
 
@@ -564,22 +562,22 @@ const updateArrivalDate = async ({ pendingStockId, newArrivalDate }) => {
   }
 };
 
-const getMonthStartAndEnd = (date = new Date()) => {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(
-    date.getFullYear(),
-    date.getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999
-  );
-  return { start, end };
-};
+const getTopBestSellerItems = async (limit = 5) => {
+  const getMonthStartAndEnd = async (date = new Date()) => {
+    const start = new Date(date.getFullYear(), date.getMonth(), 1);
+    const end = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+    return { start, end };
+  };
 
-const getTopBestSellerItems = async () => {
-  const { start, end } = getMonthStartAndEnd();
+  const { start, end } = await getMonthStartAndEnd();
 
   try {
     const result = await TransactionItems.findAll({
@@ -593,6 +591,7 @@ const getTopBestSellerItems = async () => {
           ),
           "totalProfit",
         ],
+        [col("TransactionHistory.salesLocation"), "salesLocation"], // Updated alias
       ],
       include: [
         {
@@ -603,21 +602,24 @@ const getTopBestSellerItems = async () => {
           model: TransactionHistories,
           attributes: [],
           required: true,
-          where: {
-            transactionDate: {
-              [Op.between]: [start, end],
-            },
-          },
+          as: "TransactionHistory", // Added alias
         },
       ],
+      where: {
+        "$TransactionHistory.transactionDate$": {
+          // Updated alias
+          [Op.between]: [start, end],
+        },
+      },
       group: [
         "TransactionItems.productId",
         "Product.id",
         "Product.name",
         "Product.price",
+        "TransactionHistory.salesLocation", // Updated alias
       ],
       order: [[fn("SUM", col("TransactionItems.quantity")), "DESC"]],
-      limit: 5, // Always fetch top 5 best sellers
+      limit: limit,
     });
 
     if (result.length > 0) {

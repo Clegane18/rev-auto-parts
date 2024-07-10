@@ -48,7 +48,6 @@ const updateProductById = async (req, res) => {
       description: req.body.description,
       price: req.body.price,
       supplierCost: req.body.supplierCost,
-      stock: req.body.stock,
       supplierName: req.body.supplierName,
     });
     return res.status(result.status).json(result);

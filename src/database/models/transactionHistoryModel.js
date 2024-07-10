@@ -37,6 +37,11 @@ const TransactionHistories = sequelize.define("TransactionHistories", {
     allowNull: false,
     defaultValue: 0,
   },
+  salesLocation: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "physical",
+  },
 });
 
 module.exports = TransactionHistories;

@@ -86,7 +86,6 @@ const updateProductSchema = Joi.object({
   supplierCost: Joi.number().required().min(0).less(Joi.ref("price")).messages({
     "number.less": '"supplierCost" must be less than "price"',
   }),
-  stock: Joi.number().integer().min(0),
   supplierName: Joi.string().required().min(3),
 }).unknown(true); // Allow unspecified fields
 
