@@ -104,10 +104,20 @@ const calculateIncomeByMonthInPhysicalStore = async () => {
         incomeByMonth[monthYear].totalNetIncome.toLocaleString();
     });
 
+    const currentDate = new Date();
+    const currentMonthYear = `${currentDate.getFullYear()}-${
+      currentDate.getMonth() + 1
+    }`;
+
     return {
       status: 200,
       message: "Total income calculated successfully",
-      data: incomeByMonth,
+      data: {
+        [currentMonthYear]: incomeByMonth[currentMonthYear] || {
+          totalGrossIncome: "0",
+          totalNetIncome: "0",
+        },
+      },
     };
   } catch (error) {
     console.error(
