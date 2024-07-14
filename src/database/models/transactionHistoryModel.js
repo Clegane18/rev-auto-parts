@@ -38,9 +38,9 @@ const TransactionHistories = sequelize.define("TransactionHistories", {
     defaultValue: 0,
   },
   salesLocation: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM("POS", "online"),
     allowNull: false,
-    defaultValue: "physical",
+    defaultValue: "POS",
   },
 });
 

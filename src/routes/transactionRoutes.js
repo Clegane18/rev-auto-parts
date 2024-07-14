@@ -22,5 +22,17 @@ router.get(
   transactionController.calculateIncomeByMonthInPhysicalStore
 );
 
+router.get("/today/total", transactionController.getTotalNumberTransactions);
+
+router.get(
+  "/today/total/pos",
+  transactionController.getTotalCountOfTransactionsFromPOS
+);
+
+router.get(
+  "/today/total/online",
+  transactionController.getTotalCountOfTransactionsFromOnline
+);
+
 router.use(errorHandler);
 module.exports = router;
