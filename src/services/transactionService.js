@@ -218,6 +218,40 @@ const getTotalCountOfTransactionsFromOnline = async () => {
   }
 };
 
+const getTodaysTransactions = async () => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const todaysTransactions = await TransactionHistories.findAll({
+      where: {
+        transactionDate: {
+          [Op.between]: [startOfDay, endOfDay],
+        },
+      },
+    });
+
+    if (!todaysTransactions) {
+      throw {
+        status: 404,
+        data: { message: "There's no transaction today." },
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Today's transactions successfully fetched.",
+      TodaysTransactions: todaysTransactions,
+    };
+  } catch (error) {
+    console.error("Error in getTodaysTransactions service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   buyProductsOnPhysicalStore,
   calculateTotalIncomeInPhysicalStore,
@@ -225,4 +259,5 @@ module.exports = {
   getTotalNumberTransactions,
   getTotalCountOfTransactionsFromPOS,
   getTotalCountOfTransactionsFromOnline,
+  getTodaysTransactions,
 };

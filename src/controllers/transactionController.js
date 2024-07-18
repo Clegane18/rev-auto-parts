@@ -83,6 +83,17 @@ const getTotalCountOfTransactionsFromOnline = async (req, res) => {
   }
 };
 
+const getTodaysTransactions = async (req, res) => {
+  try {
+    const result = await transactionService.getTodaysTransactions();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching today's transactions", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
 module.exports = {
   buyProductsOnPhysicalStore,
   calculateTotalIncomeInPhysicalStore,
@@ -90,4 +101,5 @@ module.exports = {
   getTotalNumberTransactions,
   getTotalCountOfTransactionsFromPOS,
   getTotalCountOfTransactionsFromOnline,
+  getTodaysTransactions,
 };

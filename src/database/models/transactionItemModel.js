@@ -12,8 +12,8 @@ const TransactionItems = sequelize.define("TransactionItems", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "Product", // Name of the referenced model
-      key: "id", // Primary key in the referenced model
+      model: "Product",
+      key: "id",
     },
   },
   productName: {
@@ -40,8 +40,8 @@ const TransactionItems = sequelize.define("TransactionItems", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "TransactionHistories", // Name of the referenced model
-      key: "transactionId", // Primary key in the referenced model
+      model: "TransactionHistories",
+      key: "transactionId",
     },
   },
 });

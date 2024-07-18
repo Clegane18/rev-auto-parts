@@ -591,7 +591,7 @@ const getTopBestSellerItems = async (limit = 5) => {
           ),
           "totalProfit",
         ],
-        [col("TransactionHistory.salesLocation"), "salesLocation"], // Updated alias
+        [col("TransactionHistory.salesLocation"), "salesLocation"],
       ],
       include: [
         {
@@ -602,12 +602,11 @@ const getTopBestSellerItems = async (limit = 5) => {
           model: TransactionHistories,
           attributes: [],
           required: true,
-          as: "TransactionHistory", // Added alias
+          as: "TransactionHistory",
         },
       ],
       where: {
         "$TransactionHistory.transactionDate$": {
-          // Updated alias
           [Op.between]: [start, end],
         },
       },
@@ -616,7 +615,7 @@ const getTopBestSellerItems = async (limit = 5) => {
         "Product.id",
         "Product.name",
         "Product.price",
-        "TransactionHistory.salesLocation", // Updated alias
+        "TransactionHistory.salesLocation",
       ],
       order: [[fn("SUM", col("TransactionItems.quantity")), "DESC"]],
       limit: limit,

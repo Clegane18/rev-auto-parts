@@ -34,5 +34,7 @@ router.get(
   transactionController.getTotalCountOfTransactionsFromOnline
 );
 
+router.get("/today", transactionController.getTodaysTransactions);
+
 router.use(errorHandler);
 module.exports = router;
