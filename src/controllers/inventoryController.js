@@ -87,9 +87,8 @@ const getProductById = async (req, res) => {
 
 const getProductByItemCode = async (req, res) => {
   try {
-    const { productItemCode } = req.query;
     const result = await inventoryService.getProductByItemCode({
-      productItemCode,
+      productItemCode: req.query.productItemCode,
     });
     return res.status(result.status).json(result.data);
   } catch (error) {
@@ -289,6 +288,18 @@ const getTotalItems = async (req, res) => {
   }
 };
 
+const getAllItemsByCategory = async (req, res) => {
+  try {
+    const result = await inventoryService.getAllItemsByCategory();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all items by category:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -310,4 +321,5 @@ module.exports = {
   getTopBestSellerItems,
   getTotalStock,
   getTotalItems,
+  getAllItemsByCategory,
 };

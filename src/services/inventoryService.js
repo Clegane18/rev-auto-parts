@@ -670,6 +670,32 @@ const getTotalItems = async () => {
   }
 };
 
+const getAllItemsByCategory = async () => {
+  try {
+    const products = await Product.findAll();
+
+    const groupedProducts = products.reduce((acc, product) => {
+      const category = product.category;
+
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+
+      acc[category].push(product);
+      return acc;
+    }, {});
+
+    return {
+      status: 200,
+      message: "Successfully fetched the all items by category.",
+      groupedProducts: groupedProducts,
+    };
+  } catch (error) {
+    console.error("Error in getAllItemsByCategory service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -691,4 +717,5 @@ module.exports = {
   getTopBestSellerItems,
   getTotalStock,
   getTotalItems,
+  getAllItemsByCategory,
 };

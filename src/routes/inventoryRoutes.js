@@ -99,6 +99,11 @@ router.get("/products/totalNumberOfStocks", inventoryController.getTotalStock);
 
 router.get("/products/totalNumberOfItems", inventoryController.getTotalItems);
 
+router.get(
+  "/products/itemsByCategory",
+  inventoryController.getAllItemsByCategory
+);
+
 router.use(errorHandler);
 
 module.exports = router;
