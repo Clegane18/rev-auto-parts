@@ -4,6 +4,7 @@ const sequelize = require("./database/db");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const onlineStoreFrontRoutes = require("./routes/onlineStoreFrontRoutes");
 const bodyParser = require("body-parser");
 
 const app = express();
@@ -30,5 +31,6 @@ app.use(
 app.use("/api/auth", adminRoutes);
 app.use("/api/auth", inventoryRoutes);
 app.use("/api/auth/transactions", transactionRoutes);
+app.use("/api/auth/online-store-front", onlineStoreFrontRoutes);
 
 module.exports = app;

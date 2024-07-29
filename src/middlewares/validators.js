@@ -62,6 +62,23 @@ const deleteProductByIdValidation = (req, res, next) => {
   next();
 };
 
+const uploadProductPhotosValidation = (req, res, next) => {
+  const { productId } = req.params;
+  const productPhotos = req.files; // Assuming you use `upload.array` middleware
+
+  // Validate the entire request object
+  const { error } = uploadProductPhotosSchema.validate({
+    productId: parseInt(productId, 10),
+    productPhotos,
+  });
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -132,6 +149,29 @@ const deleteProductByIdStockSchema = Joi.object({
   productId: Joi.number().integer().required(),
 });
 
+const uploadProductPhotosSchema = Joi.object({
+  productId: Joi.number().integer().required(),
+  productPhotos: Joi.array()
+    .items(
+      Joi.object({
+        fieldname: Joi.string().required(),
+        originalname: Joi.string().required(),
+        encoding: Joi.string().required(),
+        mimetype: Joi.string()
+          .valid("image/jpeg", "image/png", "image/gif")
+          .required(),
+        destination: Joi.string().required(),
+        filename: Joi.string().required(),
+        path: Joi.string().required(),
+        size: Joi.number()
+          .max(10 * 1024 * 1024)
+          .required(),
+      }).unknown(true)
+    )
+    .max(5)
+    .required(),
+}).unknown(true);
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -141,4 +181,5 @@ module.exports = {
   cancelStockValidation,
   updateArrivalDateValidation,
   deleteProductByIdValidation,
+  uploadProductPhotosValidation,
 };
