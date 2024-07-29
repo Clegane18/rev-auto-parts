@@ -51,6 +51,15 @@ const Product = sequelize.define("Product", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  imageUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM("draft", "published", "ready"),
+    allowNull: false,
+    defaultValue: "draft",
+  },
 });
 
 module.exports = Product;

@@ -62,14 +62,17 @@ const deleteProductByIdValidation = (req, res, next) => {
   next();
 };
 
-const uploadProductPhotosValidation = (req, res, next) => {
+const uploadProductPhotoValidation = (req, res, next) => {
   const { productId } = req.params;
-  const productPhotos = req.files; // Assuming you use `upload.array` middleware
+  const file = req.file;
 
-  // Validate the entire request object
-  const { error } = uploadProductPhotosSchema.validate({
+  const { error } = uploadProductPhotoSchema.validate({
+    file: {
+      originalname: file?.originalname,
+      mimetype: file?.mimetype,
+      size: file?.size,
+    },
     productId: parseInt(productId, 10),
-    productPhotos,
   });
 
   if (error) {
@@ -149,28 +152,19 @@ const deleteProductByIdStockSchema = Joi.object({
   productId: Joi.number().integer().required(),
 });
 
-const uploadProductPhotosSchema = Joi.object({
-  productId: Joi.number().integer().required(),
-  productPhotos: Joi.array()
-    .items(
-      Joi.object({
-        fieldname: Joi.string().required(),
-        originalname: Joi.string().required(),
-        encoding: Joi.string().required(),
-        mimetype: Joi.string()
-          .valid("image/jpeg", "image/png", "image/gif")
-          .required(),
-        destination: Joi.string().required(),
-        filename: Joi.string().required(),
-        path: Joi.string().required(),
-        size: Joi.number()
-          .max(10 * 1024 * 1024)
-          .required(),
-      }).unknown(true)
-    )
-    .max(5)
-    .required(),
-}).unknown(true);
+const uploadProductPhotoSchema = Joi.object({
+  file: Joi.object({
+    originalname: Joi.string().required(),
+    mimetype: Joi.string()
+      .valid("image/jpeg", "image/jpg", "image/png", "image/gif")
+      .required(),
+    buffer: Joi.binary().required(),
+    size: Joi.number()
+      .max(5 * 1024 * 1024)
+      .required(),
+  }).required(),
+  productId: Joi.number().integer().positive().required(),
+});
 
 module.exports = {
   createProductValidation,
@@ -181,5 +175,5 @@ module.exports = {
   cancelStockValidation,
   updateArrivalDateValidation,
   deleteProductByIdValidation,
-  uploadProductPhotosValidation,
+  uploadProductPhotoValidation,
 };
