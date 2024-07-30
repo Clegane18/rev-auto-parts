@@ -31,7 +31,10 @@ const uploadProductImage = async ({ productId, file }) => {
     fs.renameSync(oldPath, newPath);
 
     const imageUrl = path.join("uploads", newFilename);
-    await Product.update({ imageUrl: imageUrl }, { where: { id: productId } });
+    await Product.update(
+      { imageUrl: imageUrl, status: "ready" },
+      { where: { id: productId } }
+    );
 
     return {
       status: 200,
@@ -46,4 +49,142 @@ const uploadProductImage = async ({ productId, file }) => {
   }
 };
 
-module.exports = { uploadProductImage };
+const getProductByIdAndPublish = async (productId) => {
+  try {
+    const product = await Product.findByPk(productId);
+
+    if (!product) {
+      return {
+        status: 404,
+        message: `The product with the ID of ${productId} was not found`,
+      };
+    }
+
+    switch (product.status) {
+      case "published":
+        return {
+          status: 400,
+          message: `The product with the ID of ${productId} has already been published.`,
+        };
+      case "draft":
+        return {
+          status: 400,
+          message: `The product with the ID of ${productId} doesn't have picture, Please upload picture before publishing`,
+        };
+      case "ready":
+        product.status = "published";
+        await product.save();
+        return {
+          status: 200,
+          message: "Product successfully published",
+          product: product,
+        };
+      default:
+        return {
+          status: 400,
+          message: "Invalid product status",
+        };
+    }
+  } catch (error) {
+    console.error("Error in getProductByIdAndPublish service:", error);
+    throw error;
+  }
+};
+
+const getPublishedItemsByCategory = async () => {
+  try {
+    const products = await Product.findAll({
+      where: {
+        status: "published",
+      },
+    });
+
+    const groupedProducts = products.reduce((acc, product) => {
+      const category = product.category;
+
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+
+      acc[category].push(product);
+      return acc;
+    }, {});
+    console.log(groupedProducts);
+    return {
+      status: 200,
+      message: "Successfully fetched all published items by category.",
+      groupedProducts: groupedProducts,
+    };
+  } catch (error) {
+    console.error("Error in getPublishedItemsByCategory service:", error);
+    throw error;
+  }
+};
+
+const unpublishItemByProductId = async ({ productId }) => {
+  try {
+    const product = await Product.findOne({
+      where: {
+        id: productId,
+        status: "published",
+      },
+    });
+
+    if (!product) {
+      return {
+        status: 404,
+        message: "Product not found or already unpublished.",
+      };
+    }
+
+    product.status = "draft";
+    await product.save();
+
+    return {
+      status: 200,
+      message: "Successfully unpublished the product.",
+      product: product,
+    };
+  } catch (error) {
+    console.error("Error in unpublishItemByProductId service:", error);
+    throw error;
+  }
+};
+
+const republishItemByProductId = async ({ productId }) => {
+  try {
+    const product = await Product.findOne({
+      where: {
+        id: productId,
+        status: "draft",
+      },
+    });
+
+    if (!product) {
+      return {
+        status: 404,
+        message: "Product not found or already published.",
+      };
+    }
+
+    product.status = "ready";
+    await product.save();
+
+    return {
+      status: 200,
+      message: "Successfully republished the product.",
+      product: product,
+    };
+  } catch (error) {
+    console.error("Error in republishItemByProductId service:", error);
+    throw error;
+  }
+};
+
+module.exports = {
+  uploadProductImage,
+  getProductByIdAndPublish,
+  getPublishedItemsByCategory,
+  unpublishItemByProductId,
+  republishItemByProductId,
+};

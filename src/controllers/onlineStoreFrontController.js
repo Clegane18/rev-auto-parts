@@ -15,4 +15,65 @@ const uploadProductImage = async (req, res) => {
   }
 };
 
-module.exports = { uploadProductImage };
+const getProductByIdAndPublish = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const result = await onlineStoreFrontService.getProductByIdAndPublish(
+      productId
+    );
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error publishing item by id:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const getPublishedItemsByCategory = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.getPublishedItemsByCategory();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching published items by category:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const unpublishItemByProductId = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.unpublishItemByProductId({
+      productId: req.params.productId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error unpublishing items by id:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const republishItemByProductId = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.republishItemByProductId({
+      productId: req.params.productId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error republishing items by id:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+module.exports = {
+  uploadProductImage,
+  getProductByIdAndPublish,
+  getPublishedItemsByCategory,
+  unpublishItemByProductId,
+  republishItemByProductId,
+};

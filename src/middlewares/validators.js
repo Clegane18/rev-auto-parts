@@ -82,6 +82,33 @@ const uploadProductPhotoValidation = (req, res, next) => {
   next();
 };
 
+const unpublishedItemByIdValidation = (req, res, next) => {
+  const { error } = unpublishItemByProductIdSchema.validate({
+    productId: parseInt(req.params.productId, 10),
+  });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const republishedItemByIdValidation = (req, res, next) => {
+  const { error } = republishItemByProductIdSchema.validate({
+    productId: parseInt(req.params.productId, 10),
+  });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const getProductByIdAndPublishValidation = (req, res, next) => {
+  const { error } = getProductByIdAndPublishSchema.validate({
+    productId: parseInt(req.params.productId, 10),
+  });
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -158,12 +185,23 @@ const uploadProductPhotoSchema = Joi.object({
     mimetype: Joi.string()
       .valid("image/jpeg", "image/jpg", "image/png", "image/gif")
       .required(),
-    buffer: Joi.binary().required(),
     size: Joi.number()
       .max(5 * 1024 * 1024)
       .required(),
   }).required(),
   productId: Joi.number().integer().positive().required(),
+});
+
+const unpublishItemByProductIdSchema = Joi.object({
+  productId: Joi.number().integer().required(),
+});
+
+const republishItemByProductIdSchema = Joi.object({
+  productId: Joi.number().integer().required(),
+});
+
+const getProductByIdAndPublishSchema = Joi.object({
+  productId: Joi.number().integer().required(),
 });
 
 module.exports = {
@@ -176,4 +214,7 @@ module.exports = {
   updateArrivalDateValidation,
   deleteProductByIdValidation,
   uploadProductPhotoValidation,
+  unpublishedItemByIdValidation,
+  republishedItemByIdValidation,
+  getProductByIdAndPublishValidation,
 };
