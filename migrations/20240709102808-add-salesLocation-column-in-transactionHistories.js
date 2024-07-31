@@ -3,7 +3,7 @@ module.exports = {
     await queryInterface.addColumn("TransactionHistories", "salesLocation", {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: "physical", // Default to 'physical' for existing records
+      defaultValue: "physical",
     });
   },
   down: async (queryInterface, Sequelize) => {

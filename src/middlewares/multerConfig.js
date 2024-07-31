@@ -4,14 +4,13 @@ const path = require("path");
 // Configure multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Specify the directory for storing uploaded files
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique filename
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
-// Filter file types (optional)
 const fileFilter = (req, file, cb) => {
   const filetypes = /jpeg|jpg|png|gif/;
   const mimetype = filetypes.test(file.mimetype);

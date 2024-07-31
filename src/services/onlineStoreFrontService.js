@@ -30,7 +30,7 @@ const uploadProductImage = async ({ productId, file }) => {
 
     fs.renameSync(oldPath, newPath);
 
-    const imageUrl = path.join("uploads", newFilename);
+    const imageUrl = newPath.replace(/\\/g, "/");
     await Product.update(
       { imageUrl: imageUrl, status: "ready" },
       { where: { id: productId } }
@@ -109,7 +109,7 @@ const getPublishedItemsByCategory = async () => {
       acc[category].push(product);
       return acc;
     }, {});
-    console.log(groupedProducts);
+
     return {
       status: 200,
       message: "Successfully fetched all published items by category.",
