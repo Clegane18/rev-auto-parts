@@ -137,7 +137,7 @@ const unpublishItemByProductId = async ({ productId }) => {
       };
     }
 
-    product.status = "draft";
+    product.status = "ready";
     await product.save();
 
     return {
