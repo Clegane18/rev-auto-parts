@@ -110,10 +110,17 @@ const getPublishedItemsByCategory = async () => {
       return acc;
     }, {});
 
+    const sortedCategories = Object.keys(groupedProducts).sort();
+
+    const sortedGroupedProducts = sortedCategories.reduce((acc, category) => {
+      acc[category] = groupedProducts[category];
+      return acc;
+    }, {});
+
     return {
       status: 200,
       message: "Successfully fetched all published items by category.",
-      groupedProducts: groupedProducts,
+      groupedProducts: sortedGroupedProducts,
     };
   } catch (error) {
     console.error("Error in getPublishedItemsByCategory service:", error);
