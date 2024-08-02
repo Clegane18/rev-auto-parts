@@ -34,11 +34,5 @@ router.post(
   onlineStoreFrontController.unpublishItemByProductId
 );
 
-router.post(
-  "/products/republishItem/:productId",
-  republishedItemByIdValidation,
-  onlineStoreFrontController.republishItemByProductId
-);
-
 router.use(errorHandler);
 module.exports = router;

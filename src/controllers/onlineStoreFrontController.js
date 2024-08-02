@@ -56,24 +56,9 @@ const unpublishItemByProductId = async (req, res) => {
   }
 };
 
-const republishItemByProductId = async (req, res) => {
-  try {
-    const result = await onlineStoreFrontService.republishItemByProductId({
-      productId: req.params.productId,
-    });
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error("Error republishing items by id:", error);
-    return res
-      .status(error.status || 500)
-      .json(error.data || { message: "An unexpected error occurred" });
-  }
-};
-
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
-  republishItemByProductId,
 };

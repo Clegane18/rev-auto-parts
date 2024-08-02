@@ -151,40 +151,9 @@ const unpublishItemByProductId = async ({ productId }) => {
   }
 };
 
-const republishItemByProductId = async ({ productId }) => {
-  try {
-    const product = await Product.findOne({
-      where: {
-        id: productId,
-        status: "draft",
-      },
-    });
-
-    if (!product) {
-      return {
-        status: 404,
-        message: "Product not found or already published.",
-      };
-    }
-
-    product.status = "ready";
-    await product.save();
-
-    return {
-      status: 200,
-      message: "Successfully republished the product.",
-      product: product,
-    };
-  } catch (error) {
-    console.error("Error in republishItemByProductId service:", error);
-    throw error;
-  }
-};
-
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
-  republishItemByProductId,
 };
