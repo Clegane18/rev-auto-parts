@@ -5,6 +5,7 @@ const inventoryRoutes = require("./routes/inventoryRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const onlineStoreFrontRoutes = require("./routes/onlineStoreFrontRoutes");
+const locationRoutes = require("./routes/locationRoutes");
 const bodyParser = require("body-parser");
 
 const app = express();
@@ -36,5 +37,6 @@ app.use("/api/auth", adminRoutes);
 app.use("/api/auth", inventoryRoutes);
 app.use("/api/auth/transactions", transactionRoutes);
 app.use("/api/auth/online-store-front", onlineStoreFrontRoutes);
+app.use("/api/auth/location", locationRoutes);
 
 module.exports = app;

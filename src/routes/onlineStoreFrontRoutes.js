@@ -4,7 +4,6 @@ const errorHandler = require("../middlewares/errorHandler");
 const {
   uploadProductPhotoValidation,
   unpublishedItemByIdValidation,
-  republishedItemByIdValidation,
   getProductByIdAndPublishValidation,
 } = require("../middlewares/validators");
 const onlineStoreFrontController = require("../controllers/onlineStoreFrontController");

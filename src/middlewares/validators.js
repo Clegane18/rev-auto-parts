@@ -91,15 +91,6 @@ const unpublishedItemByIdValidation = (req, res, next) => {
   next();
 };
 
-const republishedItemByIdValidation = (req, res, next) => {
-  const { error } = republishItemByProductIdSchema.validate({
-    productId: parseInt(req.params.productId, 10),
-  });
-  if (error) return res.status(400).json({ error: error.details[0].message });
-
-  next();
-};
-
 const getProductByIdAndPublishValidation = (req, res, next) => {
   const { error } = getProductByIdAndPublishSchema.validate({
     productId: parseInt(req.params.productId, 10),
@@ -196,10 +187,6 @@ const unpublishItemByProductIdSchema = Joi.object({
   productId: Joi.number().integer().required(),
 });
 
-const republishItemByProductIdSchema = Joi.object({
-  productId: Joi.number().integer().required(),
-});
-
 const getProductByIdAndPublishSchema = Joi.object({
   productId: Joi.number().integer().required(),
 });
@@ -215,6 +202,5 @@ module.exports = {
   deleteProductByIdValidation,
   uploadProductPhotoValidation,
   unpublishedItemByIdValidation,
-  republishedItemByIdValidation,
   getProductByIdAndPublishValidation,
 };

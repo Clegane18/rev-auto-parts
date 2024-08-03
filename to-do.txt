@@ -27,3 +27,57 @@ async function deleteAllData() {
 }
 
 deleteAllData();
+
+
+
+
+
+
+
+User Authentication and Authorization:
+
+POST /api/register: Register a new user.
+POST /api/login: Authenticate a user and return a token.
+POST /api/logout: Log out the user.
+GET /api/profile: Get user profile information.
+Product Management:
+
+GET /api/products: Get a list of all products.
+GET /api/products/:id: Get details of a single product.
+POST /api/products: Create a new product.
+PUT /api/products/:id: Update an existing product.
+DELETE /api/products/:id: Delete a product.
+Category Management:
+
+GET /api/categories: Get a list of all categories.
+GET /api/categories/:id: Get details of a single category.
+POST /api/categories: Create a new category.
+PUT /api/categories/:id: Update an existing category.
+DELETE /api/categories/:id: Delete a category.
+Order Management:
+
+POST /api/orders: Create a new order.
+GET /api/orders/:id: Get details of a single order.
+GET /api/orders/user/:userId: Get all orders for a specific user.
+Cart Management:
+
+GET /api/cart: Get current cart items.
+POST /api/cart: Add an item to the cart.
+PUT /api/cart/:id: Update the quantity of a cart item.
+DELETE /api/cart/:id: Remove an item from the cart.
+Payment Processing:
+
+POST /api/payment: Process a payment.
+GET /api/payment/status/:id: Get the status of a payment.
+Shipping and Delivery:
+
+GET /api/shipping/rates: Get shipping rates.
+POST /api/shipping/address: Save shipping address.
+GET /api/shipping/status/:id: Get the status of a shipment.
+Review and Rating:
+
+POST /api/reviews: Submit a review.
+GET /api/reviews/product/:productId: Get reviews for a product.
+Location Services for Autocomplete/Dropdown:
+
+GET /api/locations/cities: Get a list of cities (for autocomplete/dropdown).
