@@ -6,7 +6,11 @@ const adminRoutes = require("./routes/adminRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const onlineStoreFrontRoutes = require("./routes/onlineStoreFrontRoutes");
 const locationRoutes = require("./routes/locationRoutes");
+const onlineStoreFrontCustomerRoutes = require("./routes/onlineStoreFrontCustomerRoutes");
+const authRoutes = require("./routes/authRoutes");
 const bodyParser = require("body-parser");
+require("dotenv").config();
+require("../config/passport");
 
 const app = express();
 app.use(bodyParser.json());
@@ -38,5 +42,7 @@ app.use("/api/auth", inventoryRoutes);
 app.use("/api/auth/transactions", transactionRoutes);
 app.use("/api/auth/online-store-front", onlineStoreFrontRoutes);
 app.use("/api/auth/location", locationRoutes);
+app.use("/api/auth/customer", onlineStoreFrontCustomerRoutes);
+app.use("/auth", authRoutes);
 
 module.exports = app;

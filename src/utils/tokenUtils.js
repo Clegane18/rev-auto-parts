@@ -20,6 +20,4 @@ const checkAuthorization = (req, res, next) => {
   next();
 };
 
-module.exports = checkAuthorization;
-
 module.exports = { createTokenWithExpiration, checkAuthorization };

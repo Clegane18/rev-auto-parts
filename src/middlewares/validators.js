@@ -100,6 +100,20 @@ const getProductByIdAndPublishValidation = (req, res, next) => {
   next();
 };
 
+const signUpValidation = (req, res, next) => {
+  const { error } = signupSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const loginValidation = (req, res, next) => {
+  const { error } = loginSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -191,6 +205,17 @@ const getProductByIdAndPublishSchema = Joi.object({
   productId: Joi.number().integer().required(),
 });
 
+const signupSchema = Joi.object({
+  username: Joi.string().alphanum().min(3).max(30).required(),
+  email: Joi.string().email().max(30).required(),
+  password: Joi.string().min(6).max(30).required(),
+});
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().max(30).required(),
+  password: Joi.string().min(6).max(30).required(),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -203,4 +228,6 @@ module.exports = {
   uploadProductPhotoValidation,
   unpublishedItemByIdValidation,
   getProductByIdAndPublishValidation,
+  signUpValidation,
+  loginValidation,
 };
