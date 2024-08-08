@@ -177,4 +177,39 @@ const resetPassword = async ({ token, newPassword, confirmPassword }) => {
   }
 };
 
-module.exports = { signUp, login, requestResetPassword, resetPassword };
+const getCustomerProfile = async ({ userId }) => {
+  try {
+    const customer = await Customer.findByPk(userId, {
+      attributes: ["username", "email"],
+    });
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: `Customer with ID ${userId} not found.`,
+      };
+    }
+
+    return {
+      status: 200,
+      data: {
+        username: customer.username,
+        email: customer.email,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getCustomerProfile service:", error);
+    return {
+      status: 500,
+      message: "Server error",
+    };
+  }
+};
+
+module.exports = {
+  signUp,
+  login,
+  requestResetPassword,
+  resetPassword,
+  getCustomerProfile,
+};

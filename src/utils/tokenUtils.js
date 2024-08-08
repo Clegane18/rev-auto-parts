@@ -7,13 +7,14 @@ const createTokenWithExpiration = (payload, expiresIn) => {
 };
 
 const checkAuthorization = (req, res, next) => {
-  if (parseInt(req.user.id) !== parseInt(req.params.id)) {
-    return res.json({
+  const userIdFromToken = parseInt(req.user.id);
+  const userIdFromParams = parseInt(req.params.id);
+
+  if (userIdFromToken !== userIdFromParams) {
+    return res.status(403).json({
       status: 403,
-      data: {
-        message:
-          "Unauthorized: Access Denied. Please check your request parameters and try again.",
-      },
+      message:
+        "Unauthorized: Access Denied. Please check your request parameters and try again.",
     });
   }
 

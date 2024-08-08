@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./database/db");
@@ -7,10 +8,10 @@ const transactionRoutes = require("./routes/transactionRoutes");
 const onlineStoreFrontRoutes = require("./routes/onlineStoreFrontRoutes");
 const locationRoutes = require("./routes/locationRoutes");
 const onlineStoreFrontCustomerRoutes = require("./routes/onlineStoreFrontCustomerRoutes");
-const authRoutes = require("./routes/authRoutes");
 const bodyParser = require("body-parser");
-require("dotenv").config();
-require("../config/passport");
+const session = require("express-session");
+const passport = require("./services/authService");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 app.use(bodyParser.json());
@@ -34,15 +35,27 @@ app.use("/favicon.ico", (req, res) => {
 app.use(
   cors({
     origin: "http://localhost:3000",
+    credentials: true,
   })
 );
 
-app.use("/api/auth", adminRoutes);
-app.use("/api/auth", inventoryRoutes);
-app.use("/api/auth/transactions", transactionRoutes);
-app.use("/api/auth/online-store-front", onlineStoreFrontRoutes);
-app.use("/api/auth/location", locationRoutes);
-app.use("/api/auth/customer", onlineStoreFrontCustomerRoutes);
-app.use("/auth", authRoutes);
+app.use(
+  session({
+    secret: process.env.JWT_SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/transactions", transactionRoutes);
+app.use("/api/online-store-front", onlineStoreFrontRoutes);
+app.use("/api/location", locationRoutes);
+app.use("/api/customer", onlineStoreFrontCustomerRoutes);
 
 module.exports = app;

@@ -25,7 +25,7 @@ const Customer = sequelize.define(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     resetPasswordToken: {
       type: DataTypes.STRING,
@@ -34,6 +34,11 @@ const Customer = sequelize.define(
     resetPasswordExpires: {
       type: DataTypes.DATE,
       allowNull: true,
+    },
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
     },
   },
   {

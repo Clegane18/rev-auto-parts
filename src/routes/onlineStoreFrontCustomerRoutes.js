@@ -6,6 +6,8 @@ const {
   signUpValidation,
   loginValidation,
 } = require("../middlewares/validators");
+const { checkAuthorization } = require("../utils/tokenUtils");
+const { authenticateToken } = require("../middlewares/jwtMiddleware");
 
 router.post(
   "/signUp",
@@ -34,5 +36,11 @@ router.post(
   onlineStoreFrontCustomerController.resetPassword
 );
 
+router.get(
+  "/profile/:id",
+  authenticateToken,
+  checkAuthorization,
+  onlineStoreFrontCustomerController.getCustomerProfile
+);
 router.use(errorHandler);
 module.exports = router;
