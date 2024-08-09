@@ -52,7 +52,7 @@ exports.googleCallback = (req, res) => {
         });
       } catch (err) {
         console.error("Error handling customer record:", err);
-        return res.redirect("/login");
+        return res.redirect("http://localhost:3000/customer-login");
       }
     }
   )(req, res);

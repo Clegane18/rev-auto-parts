@@ -16,7 +16,6 @@ passport.use(
         const existingUser = await Customer.findOne({ where: { email } });
 
         if (existingUser) {
-          // Link Google ID to existing user
           if (!existingUser.googleId) {
             existingUser.googleId = profile.id;
             await existingUser.save();
@@ -24,7 +23,6 @@ passport.use(
           return done(null, existingUser);
         }
 
-        // Create new user if no conflict
         const newUser = await Customer.create({
           username: profile.displayName,
           email,
