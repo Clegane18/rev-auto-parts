@@ -47,7 +47,7 @@ exports.googleCallback = (req, res) => {
           );
 
           return res.redirect(
-            `http://localhost:3000/online-store?token=${token}`
+            `http://localhost:3000/customer-login?token=${token}`
           );
         });
       } catch (err) {
