@@ -16,13 +16,12 @@ const buyProductsOnPhysicalStore = async (req, res) => {
   }
 };
 
-const calculateTotalIncomeInPhysicalStore = async (req, res) => {
+const calculateTotalIncome = async (req, res) => {
   try {
-    const result =
-      await transactionService.calculateTotalIncomeInPhysicalStore();
+    const result = await transactionService.calculateTotalIncome();
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error calculating total income in physical store", error);
+    console.error("Error calculating total income:", error);
     return res
       .status(error.status || 500)
       .json(error.data || { message: "An unexpected error occurred" });
@@ -95,7 +94,7 @@ const getTodaysTransactions = async (req, res) => {
 };
 module.exports = {
   buyProductsOnPhysicalStore,
-  calculateTotalIncomeInPhysicalStore,
+  calculateTotalIncome,
   calculateTotalIncomeByMonth,
   getTotalNumberTransactions,
   getTotalCountOfTransactionsFromPOS,

@@ -12,10 +12,7 @@ router.post(
   transactionController.buyProductsOnPhysicalStore
 );
 
-router.get(
-  "/income/totalIncome",
-  transactionController.calculateTotalIncomeInPhysicalStore
-);
+router.get("/income/totalIncome", transactionController.calculateTotalIncome);
 
 router.get(
   "/income/totalMonthlyIncome",
