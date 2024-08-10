@@ -78,9 +78,9 @@ const calculateIncomeByMonthInPhysicalStore = async () => {
 
     transactions.forEach((transaction) => {
       const transactionDate = new Date(transaction.createdAt);
-      const monthYear = `${transactionDate.getFullYear()}-${
+      const monthYear = `${transactionDate.getFullYear()}-${String(
         transactionDate.getMonth() + 1
-      }`;
+      ).padStart(2, "0")}`;
 
       if (!incomeByMonth[monthYear]) {
         incomeByMonth[monthYear] = { totalGrossIncome: 0, totalNetIncome: 0 };
@@ -97,6 +97,18 @@ const calculateIncomeByMonthInPhysicalStore = async () => {
       });
     });
 
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    for (let month = 1; month <= currentMonth; month++) {
+      const monthYear = `${currentYear}-${String(month).padStart(2, "0")}`;
+      if (!incomeByMonth[monthYear]) {
+        incomeByMonth[monthYear] = {
+          totalGrossIncome: "0",
+          totalNetIncome: "0",
+        };
+      }
+    }
+
     Object.keys(incomeByMonth).forEach((monthYear) => {
       incomeByMonth[monthYear].totalGrossIncome =
         incomeByMonth[monthYear].totalGrossIncome.toLocaleString();
@@ -104,20 +116,17 @@ const calculateIncomeByMonthInPhysicalStore = async () => {
         incomeByMonth[monthYear].totalNetIncome.toLocaleString();
     });
 
-    const currentDate = new Date();
-    const currentMonthYear = `${currentDate.getFullYear()}-${
-      currentDate.getMonth() + 1
-    }`;
+    const sortedData = Object.keys(incomeByMonth)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = incomeByMonth[key];
+        return acc;
+      }, {});
 
     return {
       status: 200,
       message: "Total income calculated successfully",
-      data: {
-        [currentMonthYear]: incomeByMonth[currentMonthYear] || {
-          totalGrossIncome: "0",
-          totalNetIncome: "0",
-        },
-      },
+      data: sortedData,
     };
   } catch (error) {
     console.error(
