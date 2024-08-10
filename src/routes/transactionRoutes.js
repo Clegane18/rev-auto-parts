@@ -18,8 +18,8 @@ router.get(
 );
 
 router.get(
-  "/income/monthlyIncome",
-  transactionController.calculateIncomeByMonthInPhysicalStore
+  "/income/totalMonthlyIncome",
+  transactionController.calculateTotalIncomeByMonth
 );
 
 router.get("/today/total", transactionController.getTotalNumberTransactions);

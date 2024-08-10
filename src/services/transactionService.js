@@ -63,7 +63,7 @@ const calculateTotalIncomeInPhysicalStore = async () => {
   }
 };
 
-const calculateIncomeByMonthInPhysicalStore = async () => {
+const calculateTotalIncomeByMonth = async () => {
   try {
     const transactions = await TransactionHistories.findAll({
       include: [
@@ -129,8 +129,62 @@ const calculateIncomeByMonthInPhysicalStore = async () => {
       data: sortedData,
     };
   } catch (error) {
+    console.error("Error in calculateTotalIncomeByMonth service:", error);
+    throw error;
+  }
+};
+
+const calculateTotalIncomeForCurrentMonth = async () => {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+
+    const transactions = await TransactionHistories.findAll({
+      where: {
+        transactionDate: {
+          [Op.gte]: new Date(
+            `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`
+          ),
+          [Op.lt]: new Date(
+            `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-01`
+          ),
+        },
+      },
+      include: [
+        {
+          model: TransactionItems,
+          include: [Product],
+        },
+      ],
+    });
+
+    let totalGrossIncome = 0;
+    let totalNetIncome = 0;
+
+    transactions.forEach((transaction) => {
+      transaction.TransactionItems.forEach((item) => {
+        const grossIncome = parseFloat(item.subtotalAmount);
+        const supplierCost = parseFloat(item.Product.supplierCost);
+        const quantity = item.quantity;
+        const netIncome = grossIncome - supplierCost * quantity;
+
+        totalGrossIncome += grossIncome;
+        totalNetIncome += netIncome;
+      });
+    });
+
+    return {
+      status: 200,
+      message: "Total income for the current month calculated successfully",
+      data: {
+        totalGrossIncome: totalGrossIncome.toLocaleString(),
+        totalNetIncome: totalNetIncome.toLocaleString(),
+      },
+    };
+  } catch (error) {
     console.error(
-      "Error in calculateIncomeByMonthInPhysicalStore service:",
+      "Error in calculateTotalIncomeForCurrentMonth service:",
       error
     );
     throw error;
@@ -264,7 +318,8 @@ const getTodaysTransactions = async () => {
 module.exports = {
   buyProductsOnPhysicalStore,
   calculateTotalIncomeInPhysicalStore,
-  calculateIncomeByMonthInPhysicalStore,
+  calculateTotalIncomeForCurrentMonth,
+  calculateTotalIncomeByMonth,
   getTotalNumberTransactions,
   getTotalCountOfTransactionsFromPOS,
   getTotalCountOfTransactionsFromOnline,

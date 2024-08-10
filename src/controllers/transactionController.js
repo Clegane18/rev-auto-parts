@@ -29,10 +29,9 @@ const calculateTotalIncomeInPhysicalStore = async (req, res) => {
   }
 };
 
-const calculateIncomeByMonthInPhysicalStore = async (req, res) => {
+const calculateTotalIncomeByMonth = async (req, res) => {
   try {
-    const result =
-      await transactionService.calculateIncomeByMonthInPhysicalStore();
+    const result = await transactionService.calculateTotalIncomeByMonth();
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error calculating total income in by month", error);
@@ -97,7 +96,7 @@ const getTodaysTransactions = async (req, res) => {
 module.exports = {
   buyProductsOnPhysicalStore,
   calculateTotalIncomeInPhysicalStore,
-  calculateIncomeByMonthInPhysicalStore,
+  calculateTotalIncomeByMonth,
   getTotalNumberTransactions,
   getTotalCountOfTransactionsFromPOS,
   getTotalCountOfTransactionsFromOnline,
