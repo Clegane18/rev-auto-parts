@@ -206,10 +206,64 @@ const getCustomerProfile = async ({ userId }) => {
   }
 };
 
+const updateCustomerById = async ({
+  customerId,
+  username,
+  phoneNumber,
+  gender,
+  dateOfBirth,
+}) => {
+  try {
+    const customer = await Customer.findByPk(customerId);
+
+    if (!customer) {
+      throw {
+        status: 404,
+        data: { message: `Customer not found with ID: ${customerId}` },
+      };
+    }
+
+    const updates = {
+      username,
+      phoneNumber,
+      gender,
+      dateOfBirth,
+    };
+
+    let updated = false;
+
+    Object.keys(updates).forEach((key) => {
+      if (updates[key] !== undefined && updates[key] !== "") {
+        customer[key] = updates[key];
+        updated = true;
+      }
+    });
+
+    if (!updated) {
+      throw {
+        status: 400,
+        data: { message: "At least one piece of information must be updated." },
+      };
+    }
+
+    await customer.save();
+
+    return {
+      status: 200,
+      message: `Customer with ID ${customerId} updated successfully.`,
+      updatedCustomer: customer,
+    };
+  } catch (error) {
+    console.error("Error in updateCustomerById service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   signUp,
   login,
   requestResetPassword,
   resetPassword,
   getCustomerProfile,
+  updateCustomerById,
 };

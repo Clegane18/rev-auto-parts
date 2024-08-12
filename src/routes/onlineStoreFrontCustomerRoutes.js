@@ -5,6 +5,7 @@ const onlineStoreFrontCustomerController = require("../controllers/onlineStoreFr
 const {
   signUpValidation,
   loginValidation,
+  updateCustomerValidation,
 } = require("../middlewares/validators");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
@@ -42,5 +43,14 @@ router.get(
   checkAuthorization,
   onlineStoreFrontCustomerController.getCustomerProfile
 );
+
+router.put(
+  "/profile/update/:id",
+  authenticateToken,
+  checkAuthorization,
+  updateCustomerValidation,
+  onlineStoreFrontCustomerController.updateCustomerById
+);
+
 router.use(errorHandler);
 module.exports = router;

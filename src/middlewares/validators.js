@@ -114,6 +114,13 @@ const loginValidation = (req, res, next) => {
   next();
 };
 
+const updateCustomerValidation = (req, res, next) => {
+  const { error } = updateCustomerSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -216,6 +223,22 @@ const loginSchema = Joi.object({
   password: Joi.string().min(6).max(30).required(),
 });
 
+const updateCustomerSchema = Joi.object({
+  username: Joi.string().min(3).optional(),
+  phoneNumber: Joi.string()
+    .pattern(/^\+63[0-9]{10}$/)
+    .optional()
+    .messages({
+      "string.pattern.base":
+        '"phoneNumber" must start with "+63" followed by 10 digits',
+    }),
+  gender: Joi.string().valid("Male", "Female", "Other").optional(),
+  dateOfBirth: Joi.date().iso().optional().messages({
+    "date.format":
+      '"dateOfBirth" must be a valid date in ISO format (YYYY-MM-DD)',
+  }),
+}).unknown(true);
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -230,4 +253,5 @@ module.exports = {
   getProductByIdAndPublishValidation,
   signUpValidation,
   loginValidation,
+  updateCustomerValidation,
 };

@@ -75,10 +75,29 @@ const getCustomerProfile = async (req, res) => {
   }
 };
 
+const updateCustomerById = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.updateCustomerById({
+      customerId: req.params.id,
+      username: req.body.username,
+      phoneNumber: req.body.phoneNumber,
+      gender: req.body.gender,
+      dateOfBirth: req.body.dateOfBirth,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error updating customer's data:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   signUp,
   login,
   requestResetPassword,
   resetPassword,
   getCustomerProfile,
+  updateCustomerById,
 };
