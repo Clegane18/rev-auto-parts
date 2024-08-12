@@ -40,6 +40,22 @@ const Customer = sequelize.define(
       allowNull: true,
       unique: true,
     },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        is: /^(\+63)[0-9]{10}$/,
+      },
+    },
+    gender: {
+      type: DataTypes.ENUM,
+      values: ["Male", "Female", "Other"],
+      allowNull: true,
+    },
+    dateOfBirth: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
