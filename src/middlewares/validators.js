@@ -228,15 +228,24 @@ const updateCustomerSchema = Joi.object({
   phoneNumber: Joi.string()
     .pattern(/^\+63[0-9]{10}$/)
     .optional()
+    .allow(null, "")
     .messages({
       "string.pattern.base":
         '"phoneNumber" must start with "+63" followed by 10 digits',
     }),
-  gender: Joi.string().valid("Male", "Female", "Other").optional(),
-  dateOfBirth: Joi.date().iso().optional().messages({
-    "date.format":
-      '"dateOfBirth" must be a valid date in ISO format (YYYY-MM-DD)',
-  }),
+
+  gender: Joi.string()
+    .valid("Male", "Female", "Other")
+    .optional()
+    .allow(null, ""),
+  dateOfBirth: Joi.date()
+    .iso()
+    .optional()
+    .messages({
+      "date.format":
+        '"dateOfBirth" must be a valid date in ISO format (YYYY-MM-DD)',
+    })
+    .allow(null, ""),
 }).unknown(true);
 
 module.exports = {

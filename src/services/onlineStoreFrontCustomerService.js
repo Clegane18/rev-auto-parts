@@ -180,7 +180,7 @@ const resetPassword = async ({ token, newPassword, confirmPassword }) => {
 const getCustomerProfile = async ({ userId }) => {
   try {
     const customer = await Customer.findByPk(userId, {
-      attributes: ["username", "email"],
+      attributes: ["username", "email", "phoneNumber", "gender", "dateOfBirth"],
     });
 
     if (!customer) {
@@ -190,12 +190,17 @@ const getCustomerProfile = async ({ userId }) => {
       };
     }
 
+    const customerData = {
+      username: customer.username,
+      email: customer.email,
+      phoneNumber: customer.phoneNumber,
+      gender: customer.gender,
+      dateOfBirth: customer.dateOfBirth,
+    };
+
     return {
       status: 200,
-      data: {
-        username: customer.username,
-        email: customer.email,
-      },
+      data: customerData,
     };
   } catch (error) {
     console.error("Error in getCustomerProfile service:", error);
