@@ -3,6 +3,8 @@ const Product = require("./inventoryProductModel");
 const PendingStock = require("./pendingStockModel");
 const TransactionHistories = require("./transactionHistoryModel");
 const TransactionItems = require("./transactionItemModel");
+const Customer = require("./customerModel");
+const Address = require("./Address");
 
 Product.hasMany(PendingStock, {
   foreignKey: "productId",
@@ -24,6 +26,16 @@ TransactionItems.belongsTo(TransactionHistories, {
 });
 TransactionItems.belongsTo(Product, {
   foreignKey: "productId",
+});
+
+Customer.hasMany(Address, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+});
+
+Address.belongsTo(Customer, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
 });
 
 module.exports = {

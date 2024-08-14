@@ -12,6 +12,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const passport = require("./services/authService");
 const authRoutes = require("./routes/authRoutes");
+const addressRoutes = require("./routes/addressRoutes");
 
 const app = express();
 app.use(bodyParser.json());
@@ -57,5 +58,6 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/online-store-front", onlineStoreFrontRoutes);
 app.use("/api/location", locationRoutes);
 app.use("/api/customer", onlineStoreFrontCustomerRoutes);
+app.use("/api/address", addressRoutes);
 
 module.exports = app;

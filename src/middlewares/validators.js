@@ -121,6 +121,29 @@ const updateCustomerValidation = (req, res, next) => {
   next();
 };
 
+const addAddressValidation = (req, res, next) => {
+  const { error } = addAddressSchema.validate({
+    customerId: parseInt(req.params.id),
+    ...req.body,
+  });
+
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
+const updateAddressValidation = (req, res, next) => {
+  const { error } = updateAddressSchema.validate({
+    addressId: parseInt(req.params.addressId),
+    customerId: req.user.id,
+    ...req.body,
+  });
+
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -224,7 +247,7 @@ const loginSchema = Joi.object({
 });
 
 const updateCustomerSchema = Joi.object({
-  username: Joi.string().min(3).optional(),
+  username: Joi.string().min(3).optional().allow(null, ""),
   phoneNumber: Joi.string()
     .pattern(/^\+63[0-9]{10}$/)
     .optional()
@@ -248,6 +271,37 @@ const updateCustomerSchema = Joi.object({
     .allow(null, ""),
 }).unknown(true);
 
+const addAddressSchema = Joi.object({
+  customerId: Joi.number().integer().positive().required(),
+  fullName: Joi.string().min(3).optional().allow(null, ""),
+  region: Joi.string().optional().allow(null, ""),
+  province: Joi.string().optional().allow(null, ""),
+  city: Joi.string().optional().allow(null, ""),
+  barangay: Joi.string().optional().allow(null, ""),
+  postalCode: Joi.string().optional().allow(null, ""),
+  streetName: Joi.string().optional().allow(null, ""),
+  building: Joi.string().optional().allow(null, ""),
+  houseNumber: Joi.string().optional().allow(null, ""),
+  label: Joi.string().optional().allow(null, ""),
+  isSetDefaultAddress: Joi.boolean().optional().allow(null),
+}).unknown(true);
+
+const updateAddressSchema = Joi.object({
+  addressId: Joi.number().integer().positive().required(),
+  customerId: Joi.number().integer().positive().required(),
+  fullName: Joi.string().min(3).optional().allow(null, ""),
+  region: Joi.string().optional().allow(null, ""),
+  province: Joi.string().optional().allow(null, ""),
+  city: Joi.string().optional().allow(null, ""),
+  barangay: Joi.string().optional().allow(null, ""),
+  postalCode: Joi.string().optional().allow(null, ""),
+  streetName: Joi.string().optional().allow(null, ""),
+  building: Joi.string().optional().allow(null, ""),
+  houseNumber: Joi.string().optional().allow(null, ""),
+  label: Joi.string().optional().allow(null, ""),
+  isSetDefaultAddress: Joi.boolean().optional().allow(null),
+}).unknown(true);
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -263,4 +317,6 @@ module.exports = {
   signUpValidation,
   loginValidation,
   updateCustomerValidation,
+  addAddressValidation,
+  updateAddressValidation,
 };
