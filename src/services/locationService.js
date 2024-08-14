@@ -4,7 +4,7 @@ const getRegions = async () => {
   try {
     const response = await axios.get("https://psgc.gitlab.io/api/regions");
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
     };
   } catch (error) {
@@ -17,7 +17,7 @@ const getProvinces = async () => {
   try {
     const response = await axios.get("https://psgc.gitlab.io/api/provinces");
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
     };
   } catch (error) {
@@ -32,7 +32,7 @@ const getCitiesAndMunicipalities = async () => {
       "https://psgc.gitlab.io/api/cities-municipalities"
     );
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
     };
   } catch (error) {
@@ -45,7 +45,7 @@ const getBarangays = async () => {
   try {
     const response = await axios.get("https://psgc.gitlab.io/api/barangays");
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
     };
   } catch (error) {
