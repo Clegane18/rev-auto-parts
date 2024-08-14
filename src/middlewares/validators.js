@@ -144,6 +144,16 @@ const updateAddressValidation = (req, res, next) => {
   next();
 };
 
+const deleteAddressValidation = (req, res, next) => {
+  const { error } = deleteAddressSchema.validate({
+    addressId: parseInt(req.params.addressId),
+  });
+
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -302,6 +312,10 @@ const updateAddressSchema = Joi.object({
   isSetDefaultAddress: Joi.boolean().optional().allow(null),
 }).unknown(true);
 
+const deleteAddressSchema = Joi.object({
+  addressId: Joi.number().integer().positive().required(),
+}).unknown(true);
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -319,4 +333,5 @@ module.exports = {
   updateCustomerValidation,
   addAddressValidation,
   updateAddressValidation,
+  deleteAddressValidation,
 };

@@ -7,6 +7,7 @@ const { authenticateToken } = require("../middlewares/jwtMiddleware");
 const {
   addAddressValidation,
   updateAddressValidation,
+  deleteAddressValidation,
 } = require("../middlewares/validators");
 
 router.post(
@@ -23,6 +24,13 @@ router.put(
   updateAddressValidation,
   checkAuthorization,
   addressController.updateAddress
+);
+router.delete(
+  "/deleteAddress/:addressId",
+  authenticateToken,
+  deleteAddressValidation,
+  checkAuthorization,
+  addressController.deleteAddress
 );
 
 router.use(errorHandler);

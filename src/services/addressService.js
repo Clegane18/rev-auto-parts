@@ -118,7 +118,40 @@ const updateAddressById = async ({
   }
 };
 
+const deleteAddressById = async ({ addressId, customerId }) => {
+  try {
+    const address = await Address.findByPk(addressId);
+
+    if (!address) {
+      throw {
+        status: 404,
+        data: { message: `Address not found with ID: ${addressId}` },
+      };
+    }
+
+    if (address.customerId !== customerId) {
+      throw {
+        status: 403,
+        data: {
+          message:
+            "Unauthorized: Address does not belong to the specified customer.",
+        },
+      };
+    }
+
+    await address.destroy();
+
+    return {
+      status: 200,
+      message: `Address with ID ${addressId} deleted successfully.`,
+    };
+  } catch (error) {
+    console.error("Error in deleteAddressById service:", error);
+    throw error;
+  }
+};
 module.exports = {
   addAddress,
   updateAddressById,
+  deleteAddressById,
 };

@@ -50,4 +50,20 @@ const updateAddress = async (req, res) => {
       .json(error.data || { message: "An unexpected error occurred" });
   }
 };
-module.exports = { addAddress, updateAddress };
+
+const deleteAddress = async (req, res) => {
+  try {
+    const result = await addressService.deleteAddressById({
+      addressId: parseInt(req.params.addressId),
+      customerId: req.user.id,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error deleting address:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+module.exports = { addAddress, updateAddress, deleteAddress };
