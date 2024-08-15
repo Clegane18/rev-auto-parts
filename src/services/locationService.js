@@ -13,12 +13,15 @@ const getRegions = async () => {
   }
 };
 
-const getProvinces = async () => {
+const getProvinces = async (regionCode) => {
   try {
-    const response = await axios.get("https://psgc.gitlab.io/api/provinces");
+    const response = await axios.get(`https://psgc.gitlab.io/api/provinces`);
+    const filteredProvinces = response.data.filter(
+      (province) => province.regionCode === regionCode
+    );
     return {
       status: response.status,
-      data: response.data,
+      data: filteredProvinces,
     };
   } catch (error) {
     console.error("Error in getProvinces service:", error);
@@ -26,30 +29,40 @@ const getProvinces = async () => {
   }
 };
 
-const getCitiesAndMunicipalities = async () => {
+const getCitiesAndMunicipalities = async (provinceCode) => {
   try {
     const response = await axios.get(
       "https://psgc.gitlab.io/api/cities-municipalities"
     );
+    const filteredCities = response.data.filter(
+      (city) => city.provinceCode === provinceCode
+    );
     return {
       status: response.status,
-      data: response.data,
+      data: filteredCities,
     };
   } catch (error) {
-    console.error("Error in getProvinces service:", error);
+    console.error("Error in getCitiesAndMunicipalities service:", error);
     throw error;
   }
 };
 
-const getBarangays = async () => {
+const getBarangays = async (municipalityCode) => {
   try {
     const response = await axios.get("https://psgc.gitlab.io/api/barangays");
+
+    const municipalityCodeStr = String(municipalityCode).trim();
+
+    const filteredBarangays = response.data.filter(
+      (barangay) =>
+        String(barangay.municipalityCode).trim() === municipalityCodeStr
+    );
     return {
       status: response.status,
-      data: response.data,
+      data: filteredBarangays,
     };
   } catch (error) {
-    console.error("Error in getProvinces service:", error);
+    console.error("Error in getBarangays service:", error);
     throw error;
   }
 };

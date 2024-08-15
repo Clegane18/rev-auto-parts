@@ -12,4 +12,5 @@ router.get(
 router.get("/locations/barangays", locationController.getBarangays);
 
 router.use(errorHandler);
+
 module.exports = router;
