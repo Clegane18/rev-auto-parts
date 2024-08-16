@@ -3,9 +3,12 @@ const axios = require("axios");
 const getRegions = async () => {
   try {
     const response = await axios.get("https://psgc.gitlab.io/api/regions");
+    const sortedRegions = response.data.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
     return {
       status: response.status,
-      data: response.data,
+      data: sortedRegions,
     };
   } catch (error) {
     console.error("Error in getRegions service:", error);
@@ -15,13 +18,16 @@ const getRegions = async () => {
 
 const getProvinces = async (regionCode) => {
   try {
-    const response = await axios.get(`https://psgc.gitlab.io/api/provinces`);
+    const response = await axios.get("https://psgc.gitlab.io/api/provinces");
     const filteredProvinces = response.data.filter(
       (province) => province.regionCode === regionCode
     );
+    const sortedProvinces = filteredProvinces.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
     return {
       status: response.status,
-      data: filteredProvinces,
+      data: sortedProvinces,
     };
   } catch (error) {
     console.error("Error in getProvinces service:", error);
@@ -37,9 +43,12 @@ const getCitiesAndMunicipalities = async (provinceCode) => {
     const filteredCities = response.data.filter(
       (city) => city.provinceCode === provinceCode
     );
+    const sortedCities = filteredCities.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
     return {
       status: response.status,
-      data: filteredCities,
+      data: sortedCities,
     };
   } catch (error) {
     console.error("Error in getCitiesAndMunicipalities service:", error);
@@ -50,16 +59,17 @@ const getCitiesAndMunicipalities = async (provinceCode) => {
 const getBarangays = async (municipalityCode) => {
   try {
     const response = await axios.get("https://psgc.gitlab.io/api/barangays");
-
     const municipalityCodeStr = String(municipalityCode).trim();
-
     const filteredBarangays = response.data.filter(
       (barangay) =>
         String(barangay.municipalityCode).trim() === municipalityCodeStr
     );
+    const sortedBarangays = filteredBarangays.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
     return {
       status: response.status,
-      data: filteredBarangays,
+      data: sortedBarangays,
     };
   } catch (error) {
     console.error("Error in getBarangays service:", error);
