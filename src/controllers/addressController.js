@@ -66,4 +66,21 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-module.exports = { addAddress, updateAddress, deleteAddress };
+const getAddressesByCustomerId = async (req, res) => {
+  try {
+    const result = await addressService.getAddressesByCustomerId(req.user.id);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching addresses:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+module.exports = {
+  addAddress,
+  updateAddress,
+  deleteAddress,
+  getAddressesByCustomerId,
+};

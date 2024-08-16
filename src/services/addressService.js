@@ -150,8 +150,35 @@ const deleteAddressById = async ({ addressId, customerId }) => {
     throw error;
   }
 };
+
+const getAddressesByCustomerId = async (customerId) => {
+  try {
+    const addresses = await Address.findAll({
+      where: { customerId },
+    });
+
+    if (!addresses.length) {
+      throw {
+        status: 404,
+        data: {
+          message: `No addresses found for customer with ID: ${customerId}`,
+        },
+      };
+    }
+
+    return {
+      status: 200,
+      data: addresses,
+    };
+  } catch (error) {
+    console.error("Error in getAddressesByCustomerId service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addAddress,
   updateAddressById,
   deleteAddressById,
+  getAddressesByCustomerId,
 };

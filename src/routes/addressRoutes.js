@@ -33,5 +33,12 @@ router.delete(
   addressController.deleteAddress
 );
 
+router.get(
+  "/addresses",
+  authenticateToken,
+  checkAuthorization,
+  addressController.getAddressesByCustomerId
+);
+
 router.use(errorHandler);
 module.exports = router;
