@@ -23,7 +23,6 @@ const addAddress = async ({
       isSetDefaultAddress = false;
     }
 
-    // Create the new address
     const newAddress = await Address.create({
       customerId,
       fullName,
