@@ -150,10 +150,10 @@ const getAddressesByCustomerId = async (customerId) => {
     });
 
     if (!addresses.length) {
-      throw {
+      return {
         status: 404,
         data: {
-          message: `No addresses found for customer with ID: ${customerId}`,
+          message: "You don't have addresses yet.",
         },
       };
     }
