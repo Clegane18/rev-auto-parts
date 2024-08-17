@@ -13,6 +13,17 @@ const addAddress = async ({
   isSetDefaultAddress,
 }) => {
   try {
+    const existingAddress = await Address.findOne({
+      where: { customerId },
+    });
+
+    if (!existingAddress) {
+      isSetDefaultAddress = true;
+    } else {
+      isSetDefaultAddress = false;
+    }
+
+    // Create the new address
     const newAddress = await Address.create({
       customerId,
       fullName,
@@ -25,6 +36,7 @@ const addAddress = async ({
       label,
       isSetDefaultAddress,
     });
+
     return {
       status: 200,
       message: "Address added successfully",
