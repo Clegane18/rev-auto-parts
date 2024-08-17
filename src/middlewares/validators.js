@@ -289,10 +289,8 @@ const addAddressSchema = Joi.object({
   city: Joi.string().optional().allow(null, ""),
   barangay: Joi.string().optional().allow(null, ""),
   postalCode: Joi.string().optional().allow(null, ""),
-  streetName: Joi.string().optional().allow(null, ""),
-  building: Joi.string().optional().allow(null, ""),
-  houseNumber: Joi.string().optional().allow(null, ""),
-  label: Joi.string().optional().allow(null, ""),
+  addressLine: Joi.string().optional().allow(null, ""),
+  label: Joi.string().valid("Home", "Work").optional().allow(null, ""),
   isSetDefaultAddress: Joi.boolean().optional().allow(null),
 }).unknown(true);
 

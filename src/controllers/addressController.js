@@ -10,9 +10,7 @@ const addAddress = async (req, res) => {
       city: req.body.city,
       barangay: req.body.barangay,
       postalCode: req.body.postalCode,
-      streetName: req.body.streetName,
-      building: req.body.building,
-      houseNumber: req.body.houseNumber,
+      addressLine: req.body.addressLine,
       label: req.body.label,
       isSetDefaultAddress: req.body.isSetDefaultAddress,
     });
@@ -36,9 +34,7 @@ const updateAddress = async (req, res) => {
       city: req.body.city,
       barangay: req.body.barangay,
       postalCode: req.body.postalCode,
-      streetName: req.body.streetName,
-      building: req.body.building,
-      houseNumber: req.body.houseNumber,
+      addressLine: req.body.addressLine,
       label: req.body.label,
       isSetDefaultAddress: req.body.isSetDefaultAddress,
     });
