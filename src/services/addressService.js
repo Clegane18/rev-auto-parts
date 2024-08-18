@@ -1,4 +1,5 @@
-const Address = require("../database/models/Address");
+const Address = require("../database/models/addressModel");
+const Customer = require("../database/models/customerModel");
 
 const addAddress = async ({
   customerId,
@@ -158,6 +159,12 @@ const getAddressesByCustomerId = async (customerId) => {
   try {
     const addresses = await Address.findAll({
       where: { customerId },
+      include: [
+        {
+          model: Customer,
+          attributes: ["phoneNumber"],
+        },
+      ],
     });
 
     if (!addresses.length) {

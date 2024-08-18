@@ -4,7 +4,7 @@ const PendingStock = require("./pendingStockModel");
 const TransactionHistories = require("./transactionHistoryModel");
 const TransactionItems = require("./transactionItemModel");
 const Customer = require("./customerModel");
-const Address = require("./Address");
+const Address = require("./addressModel");
 
 Product.hasMany(PendingStock, {
   foreignKey: "productId",

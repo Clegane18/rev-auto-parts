@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { SecretKey } = require("../middlewares/jwtMiddleware");
 const secretKey = SecretKey;
-const Address = require("../database/models/Address");
+const Address = require("../database/models/addressModel");
 
 const createTokenWithExpiration = (payload, expiresIn) => {
   return jwt.sign(payload, secretKey, { expiresIn });
