@@ -4,6 +4,7 @@ const addAddress = async (req, res) => {
   try {
     const result = await addressService.addAddress({
       customerId: req.params.id,
+      phoneNumber: req.body.phoneNumber,
       fullName: req.body.fullName,
       region: req.body.region,
       province: req.body.province,
@@ -28,6 +29,7 @@ const updateAddress = async (req, res) => {
     const result = await addressService.updateAddressById({
       addressId: req.params.addressId,
       customerId: req.user.id,
+      phoneNumber: req.body.phoneNumber,
       fullName: req.body.fullName,
       region: req.body.region,
       province: req.body.province,

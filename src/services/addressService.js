@@ -1,8 +1,8 @@
 const Address = require("../database/models/addressModel");
-const Customer = require("../database/models/customerModel");
 
 const addAddress = async ({
   customerId,
+  phoneNumber,
   fullName,
   region,
   province,
@@ -26,6 +26,7 @@ const addAddress = async ({
 
     const newAddress = await Address.create({
       customerId,
+      phoneNumber,
       fullName,
       region,
       province,
@@ -51,6 +52,7 @@ const addAddress = async ({
 const updateAddressById = async ({
   addressId,
   customerId,
+  phoneNumber,
   fullName,
   region,
   province,
