@@ -159,12 +159,6 @@ const getAddressesByCustomerId = async (customerId) => {
   try {
     const addresses = await Address.findAll({
       where: { customerId },
-      include: [
-        {
-          model: Customer,
-          attributes: ["phoneNumber"],
-        },
-      ],
     });
 
     if (!addresses.length) {

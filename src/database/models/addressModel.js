@@ -19,6 +19,10 @@ const Address = sequelize.define(
         key: "id",
       },
     },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     fullName: {
       type: DataTypes.STRING,
       allowNull: false,
