@@ -14,14 +14,17 @@ const addAddress = async ({
   isSetDefaultAddress,
 }) => {
   try {
-    const existingAddress = await Address.findOne({
+    const existingAddresses = await Address.findAll({
       where: { customerId },
     });
 
-    if (!existingAddress) {
+    if (existingAddresses.length === 0) {
       isSetDefaultAddress = true;
-    } else {
-      isSetDefaultAddress = false;
+    } else if (isSetDefaultAddress) {
+      await Address.update(
+        { isSetDefaultAddress: false },
+        { where: { customerId } }
+      );
     }
 
     const newAddress = await Address.create({
@@ -84,6 +87,7 @@ const updateAddressById = async ({
     }
 
     const updates = {
+      phoneNumber,
       fullName,
       region,
       province,

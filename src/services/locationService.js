@@ -2,7 +2,9 @@ const axios = require("axios");
 
 const getRegions = async () => {
   try {
-    const response = await axios.get("https://psgc.gitlab.io/api/regions");
+    const response = await axios.get("https://psgc.gitlab.io/api/regions", {
+      timeout: 5000,
+    });
     const sortedRegions = response.data.sort((a, b) =>
       a.name.localeCompare(b.name)
     );
@@ -18,7 +20,9 @@ const getRegions = async () => {
 
 const getProvinces = async (regionCode) => {
   try {
-    const response = await axios.get("https://psgc.gitlab.io/api/provinces");
+    const response = await axios.get("https://psgc.gitlab.io/api/provinces", {
+      timeout: 5000,
+    });
     const filteredProvinces = response.data.filter(
       (province) => province.regionCode === regionCode
     );
@@ -38,7 +42,8 @@ const getProvinces = async (regionCode) => {
 const getCitiesAndMunicipalities = async (provinceCode) => {
   try {
     const response = await axios.get(
-      "https://psgc.gitlab.io/api/cities-municipalities"
+      "https://psgc.gitlab.io/api/cities-municipalities",
+      { timeout: 5000 }
     );
     const filteredCities = response.data.filter(
       (city) => city.provinceCode === provinceCode
@@ -58,7 +63,9 @@ const getCitiesAndMunicipalities = async (provinceCode) => {
 
 const getBarangays = async (municipalityCode) => {
   try {
-    const response = await axios.get("https://psgc.gitlab.io/api/barangays");
+    const response = await axios.get("https://psgc.gitlab.io/api/barangays", {
+      timeout: 5000,
+    });
     const municipalityCodeStr = String(municipalityCode).trim();
     const filteredBarangays = response.data.filter(
       (barangay) =>
