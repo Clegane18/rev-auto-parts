@@ -76,9 +76,25 @@ const getAddressesByCustomerId = async (req, res) => {
   }
 };
 
+const setDefaultAddress = async (req, res) => {
+  try {
+    const result = await addressService.setDefaultAddress({
+      customerId: req.user.id,
+      addressId: req.params.addressId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching addresses:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addAddress,
   updateAddress,
   deleteAddress,
   getAddressesByCustomerId,
+  setDefaultAddress,
 };

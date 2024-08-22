@@ -40,5 +40,12 @@ router.get(
   addressController.getAddressesByCustomerId
 );
 
+router.post(
+  "/set-default-address/:addressId",
+  authenticateToken,
+  checkAuthorization,
+  addressController.setDefaultAddress
+);
+
 router.use(errorHandler);
 module.exports = router;

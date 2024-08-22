@@ -20,11 +20,6 @@ const addAddress = async ({
 
     if (existingAddresses.length === 0) {
       isSetDefaultAddress = true;
-    } else if (isSetDefaultAddress) {
-      await Address.update(
-        { isSetDefaultAddress: false },
-        { where: { customerId } }
-      );
     }
 
     const newAddress = await Address.create({
@@ -186,9 +181,32 @@ const getAddressesByCustomerId = async (customerId) => {
   }
 };
 
+const setDefaultAddress = async ({ customerId, addressId }) => {
+  try {
+    await Address.update(
+      { isSetDefaultAddress: false },
+      { where: { customerId } }
+    );
+
+    await Address.update(
+      { isSetDefaultAddress: true },
+      { where: { id: addressId, customerId } }
+    );
+
+    return {
+      status: 200,
+      message: "Default address updated successfully",
+    };
+  } catch (error) {
+    console.error("Error in setDefaultAddress service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addAddress,
   updateAddressById,
   deleteAddressById,
   getAddressesByCustomerId,
+  setDefaultAddress,
 };
