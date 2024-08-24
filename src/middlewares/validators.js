@@ -195,7 +195,7 @@ const buyProductsOnPhysicalStoreSchema = Joi.object({
 });
 
 const addPendingStockSchema = Joi.object({
-  productId: Joi.number().integer().required(),
+  productName: Joi.string().min(3).max(50).required(),
   quantity: Joi.number().integer().min(1).required(),
   arrivalDate: Joi.string()
     .pattern(/^(\d{4})-(\d{2})-(\d{2})$/)

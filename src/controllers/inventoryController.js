@@ -188,7 +188,7 @@ const deleteProductById = async (req, res) => {
 const addPendingStock = async (req, res) => {
   try {
     const result = await inventoryService.addPendingStock({
-      productId: req.body.productId,
+      productName: req.body.productName,
       quantity: req.body.quantity,
       arrivalDate: req.body.arrivalDate,
     });

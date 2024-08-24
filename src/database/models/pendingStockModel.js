@@ -11,12 +11,12 @@ const PendingStock = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    productId: {
+    productName: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Product,
-        key: "id",
+        key: "name",
       },
     },
     quantity: {

@@ -423,10 +423,10 @@ const deleteProductById = async ({ productId }) => {
   }
 };
 
-const addPendingStock = async ({ productId, quantity, arrivalDate }) => {
+const addPendingStock = async ({ productName, quantity, arrivalDate }) => {
   try {
     const newPendingStock = await PendingStock.create({
-      productId,
+      productName,
       quantity,
       arrivalDate,
       status: "pending",

@@ -6,18 +6,6 @@ const TransactionItems = require("./transactionItemModel");
 const Customer = require("./customerModel");
 const Address = require("./addressModel");
 
-Product.hasMany(PendingStock, {
-  foreignKey: "productId",
-  sourceKey: "id",
-  onDelete: "CASCADE",
-});
-
-PendingStock.belongsTo(Product, {
-  foreignKey: "productId",
-  targetKey: "id",
-  onDelete: "CASCADE",
-});
-
 TransactionHistories.hasMany(TransactionItems, {
   foreignKey: "transactionId",
 });
