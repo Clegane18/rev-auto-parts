@@ -461,12 +461,14 @@ const confirmStock = async (pendingStockId) => {
       };
     }
 
-    const product = await Product.findByPk(pendingStock.productId);
+    const product = await Product.findOne({
+      where: { name: pendingStock.productName },
+    });
     if (!product) {
       throw {
         status: 404,
         data: {
-          message: `Product not found with ID: ${pendingStock.productId}`,
+          message: `Product not found with name: ${pendingStock.productName}`,
         },
       };
     }
