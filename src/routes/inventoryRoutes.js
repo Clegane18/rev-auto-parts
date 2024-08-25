@@ -30,7 +30,9 @@ router.put(
 );
 
 router.get("/products", inventoryController.getAllProducts);
+
 router.get("/getProductById/:productId", inventoryController.getProductById);
+
 router.get(
   "/products/filter/itemCode",
   inventoryController.getProductByItemCode
@@ -61,7 +63,7 @@ router.get(
 router.delete(
   "/products/:productId",
   deleteProductByIdValidation,
-  inventoryController.deleteProductById
+  inventoryController.permanentlyDeleteArchivedProduct
 );
 
 router.post(
@@ -102,6 +104,18 @@ router.get("/products/totalNumberOfItems", inventoryController.getTotalItems);
 router.get(
   "/products/itemsByCategory",
   inventoryController.getAllItemsByCategory
+);
+
+router.post(
+  "/products/archive/:productId",
+  inventoryController.archiveProductById
+);
+
+router.get("/archive/products", inventoryController.getAllArchivedProducts);
+
+router.post(
+  "/archive/restore/:productId",
+  inventoryController.restoreArchivedProductsById
 );
 
 router.use(errorHandler);

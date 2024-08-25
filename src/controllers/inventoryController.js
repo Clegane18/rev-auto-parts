@@ -170,9 +170,9 @@ const getLowStockProducts = async (req, res) => {
   }
 };
 
-const deleteProductById = async (req, res) => {
+const permanentlyDeleteArchivedProduct = async (req, res) => {
   try {
-    const result = await inventoryService.deleteProductById({
+    const result = await inventoryService.permanentlyDeleteArchivedProduct({
       productId: req.params.productId,
     });
     return res.status(result.status).json(result);
@@ -300,6 +300,47 @@ const getAllItemsByCategory = async (req, res) => {
   }
 };
 
+const archiveProductById = async (req, res) => {
+  try {
+    const result = await inventoryService.archiveProductById({
+      productId: req.params.productId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error archiving product by id:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
+const getAllArchivedProducts = async (req, res) => {
+  try {
+    const result = await inventoryService.getAllArchivedProducts();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all archived products:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const restoreArchivedProductsById = async (req, res) => {
+  try {
+    const result = await inventoryService.restoreArchivedProductById({
+      productId: req.params.productId,
+    });
+
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error restoring archived product(s) by id(s):", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -312,7 +353,7 @@ module.exports = {
   addToProductStock,
   getProductById,
   updateProductById,
-  deleteProductById,
+  permanentlyDeleteArchivedProduct,
   addPendingStock,
   confirmStock,
   cancelPendingStock,
@@ -322,4 +363,7 @@ module.exports = {
   getTotalStock,
   getTotalItems,
   getAllItemsByCategory,
+  archiveProductById,
+  restoreArchivedProductsById,
+  getAllArchivedProducts,
 };

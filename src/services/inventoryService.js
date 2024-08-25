@@ -2,6 +2,7 @@ const Product = require("../database/models/inventoryProductModel");
 const PendingStock = require("../database/models/pendingStockModel");
 const TransactionItems = require("../database/models/transactionItemModel");
 const TransactionHistories = require("../database/models/transactionHistoryModel");
+const ArchivedProduct = require("../database/models/archivedProductModel");
 const { Op, fn, col, literal } = require("sequelize");
 
 const addProduct = async ({
@@ -380,7 +381,7 @@ const getLowStockProducts = async () => {
   }
 };
 
-const deleteProductById = async ({ productId }) => {
+const permanentlyDeleteArchivedProduct = async ({ productId }) => {
   try {
     const id = parseInt(productId, 10);
     const product = await Product.findByPk(id);
@@ -392,8 +393,10 @@ const deleteProductById = async ({ productId }) => {
       };
     }
 
+    const productName = product.name;
+
     const pendingStocks = await PendingStock.findAll({
-      where: { productId: id },
+      where: { productName },
     });
 
     const hasPendingStatus = pendingStocks.some(
@@ -408,17 +411,17 @@ const deleteProductById = async ({ productId }) => {
     }
 
     await PendingStock.destroy({
-      where: { productId: id, status: { [Op.not]: "pending" } },
+      where: { productName, status: { [Op.not]: "pending" } },
     });
 
     await product.destroy();
 
     return {
       status: 200,
-      message: `Product with ID ${id} successfully deleted from the inventory.`,
+      message: `Product with ID ${id} and name ${productName} successfully deleted from the inventory.`,
     };
   } catch (error) {
-    console.error("Error in deleteProductById service:", error);
+    console.error("Error in permanentlyDeleteArchivedProduct service:", error);
     throw error;
   }
 };
@@ -705,6 +708,112 @@ const getAllItemsByCategory = async () => {
   }
 };
 
+const archiveProductById = async ({ productId }) => {
+  try {
+    const id = parseInt(productId, 10);
+    const product = await Product.findByPk(id);
+
+    if (!product) {
+      throw {
+        status: 404,
+        message: `Product not found with ID: ${id}`,
+      };
+    }
+
+    const pendingStocks = await PendingStock.findAll({
+      where: { productName: product.name },
+    });
+
+    const hasPendingStatus = pendingStocks.some(
+      (stock) => stock.status === "pending"
+    );
+
+    if (hasPendingStatus) {
+      throw {
+        status: 400,
+        message: `Cannot archive product with ID ${id} because it has incoming pending stock.`,
+      };
+    }
+
+    await ArchivedProduct.create({
+      ...product.toJSON(),
+      archivedAt: new Date(),
+    });
+
+    await PendingStock.destroy({
+      where: {
+        productName: product.name,
+        status: { [Op.not]: "pending" },
+      },
+    });
+
+    await product.destroy();
+
+    return {
+      status: 200,
+      message: `Product with ID ${id} successfully archived.`,
+    };
+  } catch (error) {
+    console.error("Error in archiveProductById service:", error);
+    throw error;
+  }
+};
+
+const getAllArchivedProducts = async () => {
+  try {
+    const archivedProducts = await ArchivedProduct.findAll({
+      order: [["id", "ASC"]],
+    });
+
+    return {
+      status: 200,
+      data: archivedProducts,
+    };
+  } catch (error) {
+    console.error("Error in getAllArchivedProducts service:", error);
+    throw error;
+  }
+};
+
+const restoreArchivedProductById = async ({ productId }) => {
+  try {
+    const id = parseInt(productId, 10);
+    const archivedProduct = await ArchivedProduct.findByPk(id);
+
+    if (!archivedProduct) {
+      throw {
+        status: 404,
+        message: `Archived product not found with ID: ${id}`,
+      };
+    }
+
+    const existingProduct = await Product.findOne({
+      where: { name: archivedProduct.name },
+    });
+
+    if (existingProduct) {
+      throw {
+        status: 400,
+        message: `Cannot restore archived product with ID ${id} because a product with the same name already exists.`,
+      };
+    }
+
+    await Product.create({
+      ...archivedProduct.toJSON(),
+    });
+
+    await archivedProduct.destroy();
+
+    return {
+      status: 200,
+      message: `Archived product with ID ${id} successfully restored.`,
+    };
+  } catch (error) {
+    console.error("Error in restoreArchivedProductById service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -717,7 +826,7 @@ module.exports = {
   addToProductStock,
   getProductById,
   updateProductById,
-  deleteProductById,
+  permanentlyDeleteArchivedProduct,
   addPendingStock,
   confirmStock,
   cancelPendingStock,
@@ -727,4 +836,7 @@ module.exports = {
   getTotalStock,
   getTotalItems,
   getAllItemsByCategory,
+  archiveProductById,
+  restoreArchivedProductById,
+  getAllArchivedProducts,
 };
