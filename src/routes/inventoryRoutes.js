@@ -60,12 +60,6 @@ router.get(
   inventoryController.getLowStockProducts
 );
 
-router.delete(
-  "/products/:productId",
-  deleteProductByIdValidation,
-  inventoryController.permanentlyDeleteArchivedProduct
-);
-
 router.post(
   "/products/pendingStocks/add-pendingStock",
   addPendingStockValidation,
@@ -104,18 +98,6 @@ router.get("/products/totalNumberOfItems", inventoryController.getTotalItems);
 router.get(
   "/products/itemsByCategory",
   inventoryController.getAllItemsByCategory
-);
-
-router.post(
-  "/products/archive/:productId",
-  inventoryController.archiveProductById
-);
-
-router.get("/archive/products", inventoryController.getAllArchivedProducts);
-
-router.post(
-  "/archive/restore/:productId",
-  inventoryController.restoreArchivedProductsById
 );
 
 router.use(errorHandler);
