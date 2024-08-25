@@ -9,7 +9,7 @@ router.post(
   archiveController.archiveProductById
 );
 
-router.get("/archive/products", archiveController.getAllArchivedProducts);
+router.get("/archived/products", archiveController.getAllArchivedProducts);
 
 router.post(
   "/archive/restore/:productId",

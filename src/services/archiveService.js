@@ -54,10 +54,13 @@ const archiveProductById = async ({ productId }) => {
   }
 };
 
-const getAllArchivedProducts = async () => {
+const getAllArchivedProducts = async ({ sortOrder = "ASC" }) => {
   try {
+    const orderDirection =
+      String(sortOrder).toUpperCase() === "DESC" ? "DESC" : "ASC";
+
     const archivedProducts = await ArchivedProduct.findAll({
-      order: [["id", "ASC"]],
+      order: [["id", orderDirection]],
     });
 
     return {

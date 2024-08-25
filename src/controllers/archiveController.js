@@ -16,7 +16,9 @@ const archiveProductById = async (req, res) => {
 
 const getAllArchivedProducts = async (req, res) => {
   try {
-    const result = await archiveService.getAllArchivedProducts();
+    const result = await archiveService.getAllArchivedProducts({
+      sortOrder: req.query.sortOrder || "ASC",
+    });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching all archived products:", error);
