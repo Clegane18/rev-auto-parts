@@ -1,0 +1,21 @@
+const orderService = require("../services/oderService");
+
+const createOrder = async (req, res) => {
+  try {
+    const result = await orderService.createOrder({
+      customerId: req.user.id,
+      addressId: parseInt(req.params.addressId, 10),
+      items: req.body.items,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error creating order in online store:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+module.exports = {
+  createOrder,
+};

@@ -12,6 +12,7 @@ const passport = require("./services/authService");
 const authRoutes = require("./routes/authRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const archiveRoutes = require("./routes/archiveRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 
@@ -61,5 +62,6 @@ app.use("/api/location", locationRoutes);
 app.use("/api/customer", onlineStoreFrontCustomerRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/archives", archiveRoutes);
+app.use("/api/order", orderRoutes);
 
 module.exports = app;

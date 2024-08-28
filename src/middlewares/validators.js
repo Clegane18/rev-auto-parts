@@ -154,6 +154,22 @@ const deleteAddressValidation = (req, res, next) => {
   next();
 };
 
+const createOrderValidation = (req, res, next) => {
+  const { error } = createOrderSchema.validate({
+    customerId: req.user.id,
+    addressId: req.params.addressId
+      ? parseInt(req.params.addressId, 10)
+      : undefined,
+    items: req.body.items,
+  });
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -314,6 +330,20 @@ const deleteAddressSchema = Joi.object({
   addressId: Joi.number().integer().positive().required(),
 }).unknown(true);
 
+const createOrderSchema = Joi.object({
+  customerId: Joi.number().integer().positive().required(),
+  addressId: Joi.number().integer().positive().optional(),
+  items: Joi.array()
+    .items(
+      Joi.object({
+        productId: Joi.number().integer().positive().required(),
+        quantity: Joi.number().integer().positive().required(),
+      })
+    )
+    .min(1)
+    .required(),
+}).unknown(true);
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -332,4 +362,5 @@ module.exports = {
   addAddressValidation,
   updateAddressValidation,
   deleteAddressValidation,
+  createOrderValidation,
 };
