@@ -1,5 +1,6 @@
 const passport = require("../services/authService");
 const Customer = require("../database/models/customerModel");
+const Address = require("../database/models/addressModel");
 const { createTokenWithExpiration } = require("../utils/tokenUtils");
 
 exports.googleLogin = passport.authenticate("google", {
@@ -20,31 +21,46 @@ exports.googleCallback = (req, res) => {
       }
 
       try {
-        const existingCustomer = await Customer.findOne({
+        let existingCustomer = await Customer.findOne({
           where: { email: user.email },
         });
+
         if (existingCustomer) {
           existingCustomer.username = user.username;
           existingCustomer.googleId = user.googleId;
           await existingCustomer.save();
         } else {
-          await Customer.create({
+          existingCustomer = await Customer.create({
             username: user.username,
             email: user.email,
             googleId: user.googleId,
           });
         }
 
-        req.logIn(user, (err) => {
+        const defaultAddress = await Address.findOne({
+          where: {
+            customerId: existingCustomer.id,
+            isSetDefaultAddress: true,
+          },
+        });
+
+        const defaultAddressId = defaultAddress ? defaultAddress.id : null;
+
+        const token = createTokenWithExpiration(
+          {
+            id: existingCustomer.id,
+            username: existingCustomer.username,
+            email: existingCustomer.email,
+            defaultAddressId,
+          },
+          "1h"
+        );
+
+        req.logIn(existingCustomer, (err) => {
           if (err) {
             console.error("Error during user login:", err);
             return res.redirect("/login");
           }
-
-          const token = createTokenWithExpiration(
-            { id: user.id, username: user.username, email: user.email },
-            "1h"
-          );
 
           return res.redirect(
             `http://localhost:3000/customer-login?token=${token}`

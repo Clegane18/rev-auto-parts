@@ -4,6 +4,7 @@ const { createTokenWithExpiration } = require("../utils/tokenUtils");
 const { Op } = require("sequelize");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const Address = require("../database/models/addressModel");
 require("dotenv").config();
 
 const signUp = async ({ username, email, password }) => {
@@ -69,11 +70,21 @@ const login = async ({ email, password }) => {
       };
     }
 
+    const defaultAddress = await Address.findOne({
+      where: {
+        customerId: customer.id,
+        isSetDefaultAddress: true,
+      },
+    });
+
+    const defaultAddressId = defaultAddress ? defaultAddress.id : null;
+
     const token = createTokenWithExpiration(
       {
         id: customer.id,
         username: customer.username,
         email: customer.email,
+        defaultAddressId,
       },
       "1h"
     );
@@ -82,6 +93,12 @@ const login = async ({ email, password }) => {
       status: 200,
       message: "Successful log in",
       token: token,
+      customer: {
+        id: customer.id,
+        username: customer.username,
+        email: customer.email,
+        defaultAddressId,
+      },
     };
   } catch (error) {
     console.error("Error in login service:", error);

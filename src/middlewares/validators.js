@@ -163,9 +163,7 @@ const createOrderValidation = (req, res, next) => {
     items: req.body.items,
   });
 
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
+  if (error) return res.status(400).json({ error: error.details[0].message });
 
   next();
 };

@@ -7,6 +7,7 @@ const createOrder = async (req, res) => {
       addressId: parseInt(req.params.addressId, 10),
       items: req.body.items,
     });
+
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error creating order in online store:", error);
