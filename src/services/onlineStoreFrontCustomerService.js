@@ -93,12 +93,6 @@ const login = async ({ email, password }) => {
       status: 200,
       message: "Successful log in",
       token: token,
-      customer: {
-        id: customer.id,
-        username: customer.username,
-        email: customer.email,
-        defaultAddressId,
-      },
     };
   } catch (error) {
     console.error("Error in login service:", error);

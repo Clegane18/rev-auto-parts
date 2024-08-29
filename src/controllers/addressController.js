@@ -91,10 +91,26 @@ const setDefaultAddress = async (req, res) => {
   }
 };
 
+const getAddressById = async (req, res) => {
+  try {
+    const result = await addressService.getAddressById({
+      customerId: req.user.id,
+      addressId: req.params.addressId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching address details of address ID:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addAddress,
   updateAddress,
   deleteAddress,
   getAddressesByCustomerId,
   setDefaultAddress,
+  getAddressById,
 };

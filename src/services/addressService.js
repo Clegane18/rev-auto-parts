@@ -203,10 +203,44 @@ const setDefaultAddress = async ({ customerId, addressId }) => {
   }
 };
 
+const getAddressById = async ({ addressId, customerId }) => {
+  try {
+    const address = await Address.findOne({
+      where: { id: addressId },
+    });
+
+    if (!address) {
+      return {
+        status: 404,
+        message: "Address not found",
+      };
+    }
+
+    if (address.customerId !== customerId) {
+      throw {
+        status: 403,
+        data: {
+          message:
+            "Unauthorized: Address does not belong to the specified customer.",
+        },
+      };
+    }
+
+    return {
+      status: 200,
+      data: address,
+    };
+  } catch (error) {
+    console.error("Error in getAddressById service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addAddress,
   updateAddressById,
   deleteAddressById,
   getAddressesByCustomerId,
   setDefaultAddress,
+  getAddressById,
 };
