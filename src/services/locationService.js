@@ -147,18 +147,6 @@ const getBarangays = async (municipalityOrCityCode, regionCode = null) => {
   });
 };
 
-const isWithinMetroManila = (region, city) => {
-  try {
-    const isMetroRegion = region.toLowerCase().includes("ncr");
-    const isMetroCity = metroManilaCities.includes(city);
-
-    return isMetroRegion && isMetroCity;
-  } catch (error) {
-    console.error("Error in isWithinMetroManila service:", error);
-    throw error;
-  }
-};
-
 module.exports = {
   getRegions,
   getProvincesOrCities,

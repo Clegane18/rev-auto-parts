@@ -1,4 +1,5 @@
 const Address = require("../database/models/addressModel");
+const { isWithinMetroManila } = require("../utils/addressUtils");
 
 const addAddress = async ({
   customerId,
@@ -22,6 +23,20 @@ const addAddress = async ({
       isSetDefaultAddress = true;
     }
 
+    if (isSetDefaultAddress == true) {
+      await Address.update(
+        { isSetDefaultAddress: false },
+        {
+          where: {
+            customerId,
+            isSetDefaultAddress: true,
+          },
+        }
+      );
+    }
+
+    const isMetroManila = isWithinMetroManila(region, city);
+
     const newAddress = await Address.create({
       customerId,
       phoneNumber,
@@ -34,6 +49,7 @@ const addAddress = async ({
       addressLine,
       label,
       isSetDefaultAddress,
+      isWithinMetroManila: isMetroManila,
     });
 
     return {
@@ -108,6 +124,18 @@ const updateAddressById = async ({
         status: 400,
         data: { message: "At least one piece of information must be updated." },
       };
+    }
+
+    if (isSetDefaultAddress === true) {
+      await Address.update(
+        { isSetDefaultAddress: false },
+        {
+          where: {
+            customerId,
+            isSetDefaultAddress: true,
+          },
+        }
+      );
     }
 
     await address.save();

@@ -62,6 +62,11 @@ const Address = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    isWithinMetroManila: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     timestamps: true,
