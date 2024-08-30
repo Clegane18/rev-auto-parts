@@ -28,7 +28,6 @@ const getCachedData = async (cacheKey, fetchFunction) => {
   const now = Date.now();
 
   if (cache[cacheKey] && cache[cacheKey].expiration > now) {
-    console.log(`Returning cached data for key: ${cacheKey}`);
     return cache[cacheKey].data;
   }
   const data = await fetchFunction();

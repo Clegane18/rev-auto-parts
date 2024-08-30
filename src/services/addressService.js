@@ -126,18 +126,6 @@ const updateAddressById = async ({
       };
     }
 
-    if (isSetDefaultAddress === true) {
-      await Address.update(
-        { isSetDefaultAddress: false },
-        {
-          where: {
-            customerId,
-            isSetDefaultAddress: true,
-          },
-        }
-      );
-    }
-
     await address.save();
 
     return {
