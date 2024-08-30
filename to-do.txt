@@ -81,3 +81,187 @@ GET /api/reviews/product/:productId: Get reviews for a product.
 Location Services for Autocomplete/Dropdown:
 
 GET /api/locations/cities: Get a list of cities (for autocomplete/dropdown).
+
+
+
+
+
+
+
+
+
+
+
+
+ERROR: Error fetching barangays: AxiosError: timeout of 5000ms exceeded    
+    at RedirectableRequest.handleRequestTimeout (C:\Users\johnr\OneDrive\Desktop\geartrack-api\node_modules\axios\dist\node\axios.cjs:3189:16)
+    at RedirectableRequest.emit (node:events:513:28)
+    at Timeout.<anonymous> (C:\Users\johnr\OneDrive\Desktop\geartrack-api\node_modules\follow-redirects\index.js:210:12)
+    at listOnTimeout (node:internal/timers:569:17)
+    at process.processTimers (node:internal/timers:512:7)
+    at Axios.request (C:\Users\johnr\OneDrive\Desktop\geartrack-api\node_modules\axios\dist\node\axios.cjs:4262:41)
+    at async Object.getBarangays (C:\Users\johnr\OneDrive\Desktop\geartrack-api\src\services\locationService.js:99:22)
+    at async getBarangays (C:\Users\johnr\OneDrive\Desktop\geartrack-api\src\controllers\locationController.js:50:20) {
+  code: 'ECONNABORTED',
+  config: {
+    transitional: {
+      silentJSONParsing: true,    
+      forcedJSONParsing: true,    
+      clarifyTimeoutError: false  
+    },
+    adapter: [ 'xhr', 'http', 'fetch' ],
+    transformRequest: [ [Function: transformRequest] ],
+    transformResponse: [ [Function: transformResponse] ],
+    timeout: 5000,
+    xsrfCookieName: 'XSRF-TOKEN', 
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    maxContentLength: -1,
+    maxBodyLength: -1,
+    env: { FormData: [Function], Blob: [class Blob] },
+    validateStatus: [Function: validateStatus],
+    headers: Object [AxiosHeaders] {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': undefined,  
+      'User-Agent': 'axios/1.7.3',
+      'Accept-Encoding': 'gzip, compress, deflate, br'
+    },
+    method: 'get',
+    url: 'https://psgc.gitlab.io/api/barangays',
+    data: undefined
+  },
+  request: <ref *1> Writable {    
+    _writableState: WritableState {
+      objectMode: false,
+      highWaterMark: 16384,       
+      finalCalled: false,
+      needDrain: false,
+      ending: false,
+      ended: false,
+      finished: false,
+      destroyed: false,
+      decodeStrings: true,        
+      defaultEncoding: 'utf8',    
+      length: 0,
+      writing: false,
+      corked: 0,
+      sync: true,
+      bufferProcessing: false,    
+      onwrite: [Function: bound onwrite],
+      writecb: null,
+      writelen: 0,
+      afterWriteTickInfo: null,   
+      buffered: [],
+      bufferedIndex: 0,
+      allBuffers: true,
+      allNoop: true,
+      pendingcb: 0,
+      constructed: true,
+      prefinished: false,
+      errorEmitted: false,        
+      emitClose: true,
+      autoDestroy: true,
+      errored: null,
+      closed: false,
+      closeEmitted: false,        
+      [Symbol(kOnFinished)]: []   
+    },
+    _events: [Object: null prototype] {
+      response: [Function: handleResponse],
+      error: [Function: handleRequestError],
+      socket: [Array]
+    },
+    _eventsCount: 3,
+    _maxListeners: undefined,     
+    _options: {
+      maxRedirects: 21,
+      maxBodyLength: Infinity,    
+      protocol: 'https:',
+      path: '/api/barangays',     
+      method: 'GET',
+      headers: [Object: null prototype],
+      agents: [Object],
+      auth: undefined,
+      family: undefined,
+      beforeRedirect: [Function: dispatchBeforeRedirect],
+      beforeRedirects: [Object],  
+      hostname: 'psgc.gitlab.io', 
+      port: '',
+      agent: undefined,
+      nativeProtocols: [Object],  
+      pathname: '/api/barangays'  
+    },
+    _ended: true,
+    _ending: true,
+    _redirectCount: 0,
+    _redirects: [],
+    _requestBodyLength: 0,        
+    _requestBodyBuffers: [],      
+    _onNativeResponse: [Function (anonymous)],
+    _currentRequest: ClientRequest {
+      _events: [Object: null prototype],
+      _eventsCount: 7,
+      _maxListeners: undefined,   
+      outputData: [],
+      outputSize: 0,
+      writable: true,
+      destroyed: false,
+      _last: true,
+      chunkedEncoding: false,     
+      shouldKeepAlive: false,     
+      maxRequestsOnConnectionReached: false,
+      _defaultKeepAlive: true,    
+      useChunkedEncodingByDefault:
+ false,
+      sendDate: false,
+      _removedConnection: false,  
+      _removedContLen: false,     
+      _removedTE: false,
+      strictContentLength: false, 
+      _contentLength: 0,
+      _hasBody: true,
+      _trailer: '',
+      finished: true,
+      _headerSent: true,
+      _closed: false,
+      socket: [TLSSocket],        
+      _header: 'GET /api/barangays HTTP/1.1\r\n' +
+        'Accept: application/json, text/plain, */*\r\n' +
+        'User-Agent: axios/1.7.3\r\n' +
+        'Accept-Encoding: gzip, compress, deflate, br\r\n' +        
+        'Host: psgc.gitlab.io\r\n' +
+        'Connection: close\r\n' + 
+        '\r\n',
+      _keepAliveTimeout: 0,       
+      _onPendingData: [Function: nop],
+      agent: [Agent],
+      socketPath: undefined,      
+      method: 'GET',
+      maxHeaderSize: undefined,   
+      insecureHTTPParser: undefined,
+      joinDuplicateHeaders: undefined,
+      path: '/api/barangays',     
+      _ended: false,
+      res: null,
+      aborted: false,
+      timeoutCb: null,
+      upgradeOrConnect: false,    
+      parser: [HTTPParser],       
+      maxHeadersCount: null,      
+      reusedSocket: false,        
+      host: 'psgc.gitlab.io',     
+      protocol: 'https:',
+      _redirectable: [Circular *1],
+      [Symbol(kCapture)]: false,  
+      [Symbol(kBytesWritten)]: 0, 
+      [Symbol(kEndCalled)]: true, 
+      [Symbol(kNeedDrain)]: false,
+      [Symbol(corked)]: 0,        
+      [Symbol(kOutHeaders)]: [Object: null prototype],
+      [Symbol(errored)]: null,    
+      [Symbol(kUniqueHeaders)]: null
+    },
+    _currentUrl: 'https://psgc.gitlab.io/api/barangays',
+    _timeout: null,
+    [Symbol(kCapture)]: false     
+  }
+}

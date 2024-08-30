@@ -12,13 +12,13 @@ const getRegions = async (req, res) => {
   }
 };
 
-const getProvinces = async (req, res) => {
+const getProvincesOrCities = async (req, res) => {
   try {
     const { regionCode } = req.query;
-    const result = await locationService.getProvinces(regionCode);
+    const result = await locationService.getProvincesOrCities(regionCode);
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching provinces:", error);
+    console.error("Error fetching provinces or cities:", error);
     return res
       .status(error.status || 500)
       .json(error.data || { message: "An unexpected error occurred" });
@@ -27,9 +27,9 @@ const getProvinces = async (req, res) => {
 
 const getCitiesAndMunicipalities = async (req, res) => {
   try {
-    const { provinceCode } = req.query;
+    const { provinceOrCityCode } = req.query;
     const result = await locationService.getCitiesAndMunicipalities(
-      provinceCode
+      provinceOrCityCode
     );
     return res.status(result.status).json(result);
   } catch (error) {
@@ -42,8 +42,11 @@ const getCitiesAndMunicipalities = async (req, res) => {
 
 const getBarangays = async (req, res) => {
   try {
-    const { municipalityCode } = req.query;
-    const result = await locationService.getBarangays(municipalityCode);
+    const { municipalityOrCityCode, regionCode } = req.query;
+    const result = await locationService.getBarangays(
+      municipalityOrCityCode,
+      regionCode
+    );
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching barangays:", error);
@@ -55,7 +58,7 @@ const getBarangays = async (req, res) => {
 
 module.exports = {
   getRegions,
-  getProvinces,
+  getProvincesOrCities,
   getCitiesAndMunicipalities,
   getBarangays,
 };

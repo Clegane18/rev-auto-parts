@@ -4,7 +4,10 @@ const errorHandler = require("../middlewares/errorHandler");
 const locationController = require("../controllers/locationController");
 
 router.get("/locations/regions", locationController.getRegions);
-router.get("/locations/provinces", locationController.getProvinces);
+router.get(
+  "/locations/provinces-or-cities",
+  locationController.getProvincesOrCities
+);
 router.get(
   "/locations/cities-municipalities",
   locationController.getCitiesAndMunicipalities
