@@ -67,6 +67,10 @@ const Address = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    distanceFromMetroManila: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,

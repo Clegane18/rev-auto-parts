@@ -1,11 +1,8 @@
-const {
-  Order,
-  OrderItem,
-  Product,
-  Customer,
-  Address,
-  sequelize,
-} = require("../database/models/index");
+const Order = require("../database/models/orderModel");
+const OrderItem = require("../database/models/orderItemModel");
+const Product = require("../database/models/inventoryProductModel");
+const Customer = require("../database/models/customerModel");
+const Address = require("../database/models/addressModel");
 
 const createOrder = async ({ customerId, addressId, items }) => {
   try {
@@ -52,6 +49,16 @@ const createOrder = async ({ customerId, addressId, items }) => {
       };
     }
 
+    let shippingFee = 0;
+    if (address.isWithinMetroManila) {
+      shippingFee = 0;
+    } else {
+      const baseShippingFee = 50;
+      const pricePerKm = 5;
+      const distance = address.distanceFromMetroManila || 0;
+      shippingFee = pricePerKm * distance + baseShippingFee;
+    }
+
     let totalAmount = 0;
     const productUpdates = [];
 
@@ -79,6 +86,8 @@ const createOrder = async ({ customerId, addressId, items }) => {
       });
     }
 
+    totalAmount += shippingFee;
+
     const timestamp = Date.now();
     const orderNumber = `ORD-${customerId}-${timestamp}`;
 
@@ -90,6 +99,7 @@ const createOrder = async ({ customerId, addressId, items }) => {
           totalAmount,
           orderNumber,
           status: "To Pay",
+          shippingFee,
         },
         { transaction: t }
       );

@@ -1,5 +1,12 @@
 const Address = require("../database/models/addressModel");
-const { isWithinMetroManila } = require("../utils/addressUtils");
+const {
+  isWithinMetroManila,
+  convertAddressToLongitudeAndLatitude,
+  calculateDistanceBetweenCoordinatesInKM,
+  constructFullAddress,
+} = require("../utils/addressUtils");
+
+const metroManilaCenter = { latitude: 14.5995, longitude: 120.9842 };
 
 const addAddress = async ({
   customerId,
@@ -23,7 +30,7 @@ const addAddress = async ({
       isSetDefaultAddress = true;
     }
 
-    if (isSetDefaultAddress == true) {
+    if (isSetDefaultAddress) {
       await Address.update(
         { isSetDefaultAddress: false },
         {
@@ -33,6 +40,24 @@ const addAddress = async ({
           },
         }
       );
+    }
+
+    const fullAddress = constructFullAddress({
+      barangay,
+      city,
+      province,
+      region,
+    });
+    const coordinates = await convertAddressToLongitudeAndLatitude(fullAddress);
+
+    let distanceFromMetroManila = null;
+    if (coordinates) {
+      distanceFromMetroManila = calculateDistanceBetweenCoordinatesInKM(
+        metroManilaCenter,
+        coordinates
+      );
+    } else {
+      console.error("Could not geocode address:", fullAddress);
     }
 
     const isMetroManila = isWithinMetroManila(region, city);
@@ -50,6 +75,7 @@ const addAddress = async ({
       label,
       isSetDefaultAddress,
       isWithinMetroManila: isMetroManila,
+      distanceFromMetroManila,
     });
 
     return {
@@ -126,8 +152,27 @@ const updateAddressById = async ({
       };
     }
 
+    const fullAddress = constructFullAddress({
+      barangay,
+      city,
+      province,
+      region,
+    });
+    const coordinates = await convertAddressToLongitudeAndLatitude(fullAddress);
+
+    let distanceFromMetroManila = null;
+    if (coordinates) {
+      distanceFromMetroManila = calculateDistanceBetweenCoordinatesInKM(
+        metroManilaCenter,
+        coordinates
+      );
+    } else {
+      console.error("Could not geocode address:", fullAddress);
+    }
+
     const isMetroManila = isWithinMetroManila(region, city);
     address.isWithinMetroManila = isMetroManila;
+    address.distanceFromMetroManila = distanceFromMetroManila;
 
     if (isSetDefaultAddress === true) {
       await Address.update(
