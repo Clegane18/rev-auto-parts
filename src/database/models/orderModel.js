@@ -36,6 +36,11 @@ const Order = sequelize.define(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
+    shippingFee: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.0,
+    },
     status: {
       type: DataTypes.ENUM,
       values: ["To Pay", "To Ship", "To Receive", "Completed"],

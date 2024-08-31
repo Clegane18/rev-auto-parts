@@ -126,6 +126,21 @@ const updateAddressById = async ({
       };
     }
 
+    const isMetroManila = isWithinMetroManila(region, city);
+    address.isWithinMetroManila = isMetroManila;
+
+    if (isSetDefaultAddress === true) {
+      await Address.update(
+        { isSetDefaultAddress: false },
+        {
+          where: {
+            customerId,
+            isSetDefaultAddress: true,
+          },
+        }
+      );
+    }
+
     await address.save();
 
     return {
