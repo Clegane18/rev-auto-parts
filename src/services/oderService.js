@@ -3,49 +3,15 @@ const OrderItem = require("../database/models/orderItemModel");
 const Product = require("../database/models/inventoryProductModel");
 const Customer = require("../database/models/customerModel");
 const Address = require("../database/models/addressModel");
+const sequelize = require("../database/db");
 
-const createOrder = async ({ customerId, addressId, items }) => {
+const calculateShippingFee = async ({ addressId }) => {
   try {
-    if (!Array.isArray(items) || items.length === 0) {
-      return {
-        status: 400,
-        message: "Invalid items provided. Items should be a non-empty array.",
-      };
-    }
-
-    const customer = await Customer.findByPk(customerId);
-    if (!customer) {
-      return {
-        status: 404,
-        data: `Customer with the id of ${customerId} was not found.`,
-      };
-    }
-
-    if (!addressId) {
-      const defaultAddress = await Address.findOne({
-        where: {
-          customerId: customerId,
-          isSetDefaultAddress: true,
-        },
-      });
-
-      if (!defaultAddress) {
-        return {
-          status: 404,
-          message: "Default address not found for customer",
-        };
-      }
-
-      addressId = defaultAddress.id;
-    }
-
-    const address = await Address.findOne({
-      where: { id: addressId, customerId: customerId },
-    });
+    const address = await Address.findByPk(addressId);
     if (!address) {
-      return {
+      throw {
         status: 404,
-        message: "Address not found or does not belong to customer",
+        data: { message: "Address not found" },
       };
     }
 
@@ -59,22 +25,87 @@ const createOrder = async ({ customerId, addressId, items }) => {
       shippingFee = pricePerKm * distance + baseShippingFee;
     }
 
+    shippingFee = Math.round(shippingFee);
+
+    return {
+      status: 200,
+      data: { shippingFee },
+    };
+  } catch (error) {
+    console.error("Error in calculateShippingFee service:", error);
+    throw error;
+  }
+};
+
+const createOrder = async ({ customerId, addressId, items }) => {
+  try {
+    if (!Array.isArray(items) || items.length === 0) {
+      throw {
+        status: 400,
+        data: {
+          message: "Invalid items provided. Items should be a non-empty array.",
+        },
+      };
+    }
+
+    const customer = await Customer.findByPk(customerId);
+    if (!customer) {
+      throw {
+        status: 404,
+        data: {
+          message: `Customer with the id of ${customerId} was not found.`,
+        },
+      };
+    }
+
+    if (!addressId) {
+      const defaultAddress = await Address.findOne({
+        where: {
+          customerId: customerId,
+          isSetDefaultAddress: true,
+        },
+      });
+
+      if (!defaultAddress) {
+        throw {
+          status: 404,
+          data: { message: "Default address not found for customer" },
+        };
+      }
+
+      addressId = defaultAddress.id;
+    }
+
+    const address = await Address.findOne({
+      where: { id: addressId, customerId: customerId },
+    });
+    if (!address) {
+      throw {
+        status: 404,
+        data: { message: "Address not found or does not belong to customer" },
+      };
+    }
+
+    const {
+      data: { shippingFee },
+    } = await calculateShippingFee({ addressId });
+
     let totalAmount = 0;
     const productUpdates = [];
 
     for (const item of items) {
       const product = await Product.findByPk(item.productId);
       if (!product) {
-        return {
+        throw {
           status: 404,
-          message: `Product with ID ${item.productId} not found`,
+          data: { message: `Product with ID ${item.productId} not found` },
         };
       }
 
       if (product.stock < item.quantity) {
-        return {
+        throw {
           status: 400,
-          message: `Insufficient stock for product: ${product.name}`,
+          data: { message: `Insufficient stock for product: ${product.name}` },
         };
       }
 
@@ -129,15 +160,15 @@ const createOrder = async ({ customerId, addressId, items }) => {
 
     return {
       status: 200,
-      message: "Order created successfully",
-      order: order,
+      data: { order },
     };
   } catch (error) {
     console.error("Error in createOrder service:", error);
-    throw { status: 500, message: "An unexpected error occurred" };
+    throw error;
   }
 };
 
 module.exports = {
+  calculateShippingFee,
   createOrder,
 };

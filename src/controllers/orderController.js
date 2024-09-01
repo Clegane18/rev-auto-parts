@@ -1,5 +1,19 @@
 const orderService = require("../services/oderService");
 
+const calculateShippingFee = async (req, res) => {
+  try {
+    const result = await orderService.calculateShippingFee({
+      addressId: req.params.addressId,
+    });
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error calculating shipping fee:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 const createOrder = async (req, res) => {
   try {
     const result = await orderService.createOrder({
@@ -18,5 +32,6 @@ const createOrder = async (req, res) => {
 };
 
 module.exports = {
+  calculateShippingFee,
   createOrder,
 };

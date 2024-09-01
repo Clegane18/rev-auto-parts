@@ -7,6 +7,13 @@ const { authenticateToken } = require("../middlewares/jwtMiddleware");
 const { createOrderValidation } = require("../middlewares/validators");
 
 router.post(
+  "/calculate-shipping-fee/:addressId",
+  authenticateToken,
+  checkAuthorization,
+  orderController.calculateShippingFee
+);
+
+router.post(
   "/create-order/:addressId",
   authenticateToken,
   createOrderValidation,
