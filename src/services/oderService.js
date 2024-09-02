@@ -222,8 +222,55 @@ const getOrdersByStatus = async ({ status, customerId }) => {
   }
 };
 
+const cancelOrder = async (orderId) => {
+  try {
+    const order = await Order.findByPk(orderId, {
+      include: [{ model: OrderItem }],
+    });
+
+    if (!order) {
+      throw {
+        status: 404,
+        data: { message: `Order with ID ${orderId} not found` },
+      };
+    }
+
+    if (order.status !== "To Pay") {
+      throw {
+        status: 400,
+        data: { message: "Order cannot be canceled once it is processed." },
+      };
+    }
+
+    await sequelize.transaction(async (t) => {
+      for (const item of order.OrderItems) {
+        const product = await Product.findByPk(item.productId, {
+          transaction: t,
+        });
+        if (product) {
+          await product.update(
+            { stock: product.stock + item.quantity },
+            { transaction: t }
+          );
+        }
+      }
+
+      await order.update({ status: "Cancelled" }, { transaction: t });
+    });
+
+    return {
+      status: 200,
+      message: "Order canceled successfully, and stock has been restored.",
+    };
+  } catch (error) {
+    console.error("Error in cancelOrder service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
   getOrdersByStatus,
+  cancelOrder,
 };

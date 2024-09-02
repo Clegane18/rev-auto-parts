@@ -47,8 +47,21 @@ const getOrdersByStatus = async (req, res) => {
   }
 };
 
+const cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const result = await orderService.cancelOrder(orderId);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res
+      .status(error.status || 500)
+      .json({ error: error.data || "Internal Server Error" });
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
   getOrdersByStatus,
+  cancelOrder,
 };

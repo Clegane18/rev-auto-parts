@@ -28,5 +28,7 @@ router.get(
   orderController.getOrdersByStatus
 );
 
+router.post("/orders/:orderId/cancel", orderController.cancelOrder);
+
 router.use(errorHandler);
 module.exports = router;

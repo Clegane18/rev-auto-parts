@@ -43,7 +43,7 @@ const Order = sequelize.define(
     },
     status: {
       type: DataTypes.ENUM,
-      values: ["To Pay", "To Ship", "To Receive", "Completed"],
+      values: ["To Pay", "To Ship", "To Receive", "Completed", "Cancelled"],
       allowNull: false,
       defaultValue: "To Pay",
     },
