@@ -31,16 +31,14 @@ const createOrder = async (req, res) => {
   }
 };
 
-const getOrdersByStatus = async (req, res) => {
+const getToPayOrders = async (req, res) => {
   try {
-    const result = await orderService.getOrdersByStatus({
-      status: req.query.status,
+    const result = await orderService.getToPayOrders({
       customerId: req.user.id,
     });
-
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error fetching orders by status in online store:", error);
+    console.error("Error fetching 'To Pay' orders in online store:", error);
     return res
       .status(error.status || 500)
       .json(error.data || { message: "An unexpected error occurred" });
@@ -62,6 +60,6 @@ const cancelOrder = async (req, res) => {
 module.exports = {
   calculateShippingFee,
   createOrder,
-  getOrdersByStatus,
+  getToPayOrders,
   cancelOrder,
 };

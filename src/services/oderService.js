@@ -169,12 +169,12 @@ const createOrder = async ({ customerId, addressId, items }) => {
   }
 };
 
-const getOrdersByStatus = async ({ status, customerId }) => {
+const getToPayOrders = async ({ customerId }) => {
   try {
-    const whereClause = { customerId };
-    if (status) {
-      whereClause.status = status;
-    }
+    const whereClause = {
+      customerId,
+      status: "To Pay",
+    };
 
     const orders = await Order.findAll({
       where: whereClause,
@@ -194,7 +194,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
     if (!orders || orders.length === 0) {
       return {
         status: 404,
-        data: { message: `No orders found with status: ${status || "any"}` },
+        data: { message: `No orders found with status: to pay` },
       };
     }
 
@@ -213,11 +213,11 @@ const getOrdersByStatus = async ({ status, customerId }) => {
 
     return {
       status: 200,
-      message: `Orders retrieved successfully.`,
+      message: `To pay orders retrieved successfully.`,
       data: orderDetails,
     };
   } catch (error) {
-    console.error("Error in getOrdersByStatus service:", error);
+    console.error("Error in getToPayOrders service:", error);
     throw error;
   }
 };
@@ -271,6 +271,6 @@ const cancelOrder = async (orderId) => {
 module.exports = {
   calculateShippingFee,
   createOrder,
-  getOrdersByStatus,
+  getToPayOrders,
   cancelOrder,
 };

@@ -22,13 +22,18 @@ router.post(
 );
 
 router.get(
-  "/orders/order-status",
+  "/orders/status/To-pay",
   authenticateToken,
   checkAuthorization,
-  orderController.getOrdersByStatus
+  orderController.getToPayOrders
 );
 
-router.post("/orders/:orderId/cancel", orderController.cancelOrder);
+router.post(
+  "/orders/:orderId/cancel",
+  authenticateToken,
+  checkAuthorization,
+  orderController.cancelOrder
+);
 
 router.use(errorHandler);
 module.exports = router;
