@@ -160,7 +160,8 @@ const createOrder = async ({ customerId, addressId, items }) => {
 
     return {
       status: 200,
-      data: { order },
+      message: "Order created successfully!",
+      data: order,
     };
   } catch (error) {
     console.error("Error in createOrder service:", error);
@@ -168,7 +169,61 @@ const createOrder = async ({ customerId, addressId, items }) => {
   }
 };
 
+const getOrdersByStatus = async ({ status, customerId }) => {
+  try {
+    const whereClause = { customerId };
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const orders = await Order.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["name", "imageUrl", "price"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!orders || orders.length === 0) {
+      return {
+        status: 404,
+        data: { message: `No orders found with status: ${status || "any"}` },
+      };
+    }
+
+    const orderDetails = orders.map((order) => ({
+      orderId: order.id,
+      totalAmount: order.OrderItems.reduce(
+        (total, item) => total + item.quantity * item.Product.price,
+        0
+      ),
+      items: order.OrderItems.map((item) => ({
+        productName: item.Product.name,
+        productImage: item.Product.imageUrl,
+        quantity: item.quantity,
+      })),
+    }));
+
+    return {
+      status: 200,
+      message: `Orders retrieved successfully.`,
+      data: orderDetails,
+    };
+  } catch (error) {
+    console.error("Error in getOrdersByStatus service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
+  getOrdersByStatus,
 };

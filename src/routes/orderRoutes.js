@@ -21,5 +21,12 @@ router.post(
   orderController.createOrder
 );
 
+router.get(
+  "/orders/order-status",
+  authenticateToken,
+  checkAuthorization,
+  orderController.getOrdersByStatus
+);
+
 router.use(errorHandler);
 module.exports = router;

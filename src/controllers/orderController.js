@@ -31,7 +31,24 @@ const createOrder = async (req, res) => {
   }
 };
 
+const getOrdersByStatus = async (req, res) => {
+  try {
+    const result = await orderService.getOrdersByStatus({
+      status: req.query.status,
+      customerId: req.user.id,
+    });
+
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching orders by status in online store:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
+  getOrdersByStatus,
 };

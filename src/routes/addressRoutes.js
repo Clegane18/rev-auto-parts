@@ -25,6 +25,7 @@ router.put(
   checkAuthorization,
   addressController.updateAddress
 );
+
 router.delete(
   "/deleteAddress/:addressId",
   authenticateToken,
