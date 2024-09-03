@@ -46,5 +46,9 @@ router.post(
   orderController.cancelOrder
 );
 
+router.get("/orders", orderController.getAllOrders);
+
+router.put("/orders/:orderId/update-status", orderController.updateOrderStatus);
+
 router.use(errorHandler);
 module.exports = router;

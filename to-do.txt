@@ -31,64 +31,7 @@ deleteAllData();
 
 
 
-
-
-
-User Authentication and Authorization:
-
-POST /api/register: Register a new user.
-POST /api/login: Authenticate a user and return a token.
-POST /api/logout: Log out the user.
-GET /api/profile: Get user profile information.
-Product Management:
-
-GET /api/products: Get a list of all products.
-GET /api/products/:id: Get details of a single product.
-POST /api/products: Create a new product.
-PUT /api/products/:id: Update an existing product.
-DELETE /api/products/:id: Delete a product.
-Category Management:
-
-GET /api/categories: Get a list of all categories.
-GET /api/categories/:id: Get details of a single category.
-POST /api/categories: Create a new category.
-PUT /api/categories/:id: Update an existing category.
-DELETE /api/categories/:id: Delete a category.
-Order Management:
-
-POST /api/orders: Create a new order.
-GET /api/orders/:id: Get details of a single order.
-GET /api/orders/user/:userId: Get all orders for a specific user.
-Cart Management:
-
-GET /api/cart: Get current cart items.
-POST /api/cart: Add an item to the cart.
-PUT /api/cart/:id: Update the quantity of a cart item.
-DELETE /api/cart/:id: Remove an item from the cart.
-Payment Processing:
-
-POST /api/payment: Process a payment.
-GET /api/payment/status/:id: Get the status of a payment.
-Shipping and Delivery:
-
-GET /api/shipping/rates: Get shipping rates.
-POST /api/shipping/address: Save shipping address.
-GET /api/shipping/status/:id: Get the status of a shipment.
-Review and Rating:
-
-POST /api/reviews: Submit a review.
-GET /api/reviews/product/:productId: Get reviews for a product.
-Location Services for Autocomplete/Dropdown:
-
-GET /api/locations/cities: Get a list of cities (for autocomplete/dropdown).
-
-
-
-
-
-
-
-
+https://f6f2-111-125-105-228.ngrok-free.app/gcash/webhook
 
 
 
@@ -265,3 +208,71 @@ ERROR: Error fetching barangays: AxiosError: timeout of 5000ms exceeded
     [Symbol(kCapture)]: false     
   }
 }
+
+
+IF MORE DETAILED CANCEL ORDER
+const cancelOrder = async (orderId, reason, requestedBy) => {
+  try {
+    const order = await Order.findByPk(orderId, {
+      include: [{ model: OrderItem }],
+    });
+
+    if (!order) {
+      throw {
+        status: 404,
+        data: { message: `Order with ID ${orderId} not found` },
+      };
+    }
+
+    if (order.status !== "To Pay") {
+      throw {
+        status: 400,
+        data: { message: "Order cannot be canceled once it is processed." },
+      };
+    }
+
+    await sequelize.transaction(async (t) => {
+      for (const item of order.OrderItems) {
+        const product = await Product.findByPk(item.productId, {
+          transaction: t,
+        });
+        if (product) {
+          await product.update(
+            { stock: product.stock + item.quantity },
+            { transaction: t }
+          );
+        }
+      }
+
+      const cancellationDate = new Date();
+
+      // Update the order status, cancellation reason, date, and requestedBy
+      await order.update(
+        {
+          status: "Cancelled",
+          cancellationReason: reason,
+          cancellationDate: cancellationDate,
+          cancellationRequestedBy: requestedBy,
+          // Assuming payment method is already a part of the order model
+          // paymentMethod: order.paymentMethod (if already stored in order)
+        },
+        { transaction: t }
+      );
+    });
+
+    return {
+      status: 200,
+      message: "Order canceled successfully, and stock has been restored.",
+      data: {
+        orderId: orderId,
+        cancellationReason: reason,
+        cancellationDate: cancellationDate,
+        requestedBy: requestedBy,
+        paymentMethod: order.paymentMethod, // Assuming paymentMethod exists
+      },
+    };
+  } catch (error) {
+    console.error("Error in cancelOrder service:", error);
+    throw error;
+  }
+};

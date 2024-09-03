@@ -73,10 +73,38 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const result = await orderService.getAllOrders();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all orders in online store:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const result = await orderService.updateOrderStatus({
+      orderId: req.params.orderId,
+      newStatus: req.body.newStatus,
+    });
+    res.status(result.status).json(result);
+  } catch (error) {
+    res
+      .status(error.status || 500)
+      .json({ error: error.data || "Internal Server Error" });
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
   getOrdersByStatus,
   getToPayOrders,
   cancelOrder,
+  getAllOrders,
+  updateOrderStatus,
 };

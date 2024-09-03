@@ -272,9 +272,155 @@ const cancelOrder = async (orderId) => {
   }
 };
 
+const getAllOrders = async () => {
+  try {
+    const orders = await Order.findAll({
+      include: [
+        {
+          model: Customer,
+          attributes: ["id", "username", "email", "phoneNumber"],
+        },
+        {
+          model: Address,
+          attributes: [
+            "id",
+            "fullName",
+            "region",
+            "province",
+            "city",
+            "barangay",
+            "postalCode",
+            "addressLine",
+            "label",
+            "isSetDefaultAddress",
+          ],
+        },
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "name", "price", "imageUrl"],
+            },
+          ],
+          attributes: ["id", "orderId", "productId", "quantity", "price"],
+        },
+      ],
+    });
+
+    if (!orders || orders.length === 0) {
+      throw {
+        status: 404,
+        data: {
+          message: "No orders found",
+        },
+      };
+    }
+
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customer: {
+        id: order.Customer.id,
+        username: order.Customer.username,
+        email: order.Customer.email,
+        phoneNumber: order.Customer.phoneNumber,
+      },
+      address: {
+        fullName: order.Address.fullName,
+        region: order.Address.region,
+        province: order.Address.province,
+        city: order.Address.city,
+        barangay: order.Address.barangay,
+        postalCode: order.Address.postalCode,
+        addressLine: order.Address.addressLine,
+        label: order.Address.label,
+        isSetDefaultAddress: order.Address.isSetDefaultAddress,
+      },
+      totalAmount: order.totalAmount,
+      shippingFee: order.shippingFee,
+      status: order.status,
+      createdAt: order.createdAt,
+      items: order.OrderItems.map((item) => ({
+        productId: item.Product.id,
+        productName: item.Product.name,
+        quantity: item.quantity,
+        price: item.price,
+        productImage: item.Product.image,
+      })),
+    }));
+
+    return {
+      status: 200,
+      message: "Orders retrieved successfully",
+      data: formattedOrders,
+    };
+  } catch (error) {
+    console.error("Error in getAllOrders service:", error);
+    throw {
+      status: error.status || 500,
+      data: error.data || {
+        message: "Internal server error while retrieving orders",
+      },
+    };
+  }
+};
+
+const updateOrderStatus = async ({ orderId, newStatus }) => {
+  try {
+    const allowedStatuses = [
+      "To Pay",
+      "To Ship",
+      "To Receive",
+      "Completed",
+      "Cancelled",
+    ];
+
+    if (!allowedStatuses.includes(newStatus)) {
+      return {
+        status: 400,
+        data: {
+          message:
+            "Invalid status. Allowed statuses are: To Pay, To Ship, To Receive, Completed, Cancelled.",
+        },
+      };
+    }
+
+    const order = await Order.findByPk(orderId);
+
+    if (!order) {
+      return {
+        status: 404,
+        data: {
+          message: "Order not found",
+        },
+      };
+    }
+
+    order.status = newStatus;
+
+    await order.save();
+
+    return {
+      status: 200,
+      message: `Order status updated to '${newStatus}' successfully`,
+    };
+  } catch (error) {
+    console.error("Error in updateOrderStatus service:", error);
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while updating the order status",
+      },
+    };
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
   getOrdersByStatus,
   cancelOrder,
+  getAllOrders,
+  updateOrderStatus,
 };
