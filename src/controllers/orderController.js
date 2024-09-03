@@ -31,6 +31,22 @@ const createOrder = async (req, res) => {
   }
 };
 
+const getOrdersByStatus = async (req, res) => {
+  try {
+    const { status, customerId } = req.query;
+
+    const result = await orderService.getOrdersByStatus({
+      status,
+      customerId,
+    });
+
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching orders by status:", error);
+    return res.status(500).json({ message: "An unexpected error occurred" });
+  }
+};
+
 const getToPayOrders = async (req, res) => {
   try {
     const result = await orderService.getToPayOrders({
@@ -60,6 +76,7 @@ const cancelOrder = async (req, res) => {
 module.exports = {
   calculateShippingFee,
   createOrder,
+  getOrdersByStatus,
   getToPayOrders,
   cancelOrder,
 };

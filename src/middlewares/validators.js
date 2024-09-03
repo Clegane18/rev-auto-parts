@@ -168,6 +168,19 @@ const createOrderValidation = (req, res, next) => {
   next();
 };
 
+const getOrdersByStatusValidation = (req, res, next) => {
+  const { error } = getOrdersByStatusSchema.validate({
+    status: req.query.status,
+    customerId: parseInt(req.query.customerId, 10),
+  });
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -342,6 +355,21 @@ const createOrderSchema = Joi.object({
     .required(),
 }).unknown(true);
 
+const allowedStatuses = [
+  "All",
+  "To Pay",
+  "To Ship",
+  "To Receive",
+  "Completed",
+  "Cancelled",
+];
+const getOrdersByStatusSchema = Joi.object({
+  status: Joi.string()
+    .valid(...allowedStatuses)
+    .optional(),
+  customerId: Joi.number().integer().positive().required(),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -361,4 +389,5 @@ module.exports = {
   updateAddressValidation,
   deleteAddressValidation,
   createOrderValidation,
+  getOrdersByStatusValidation,
 };

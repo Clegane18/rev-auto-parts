@@ -4,7 +4,10 @@ const orderController = require("../controllers/orderController");
 const errorHandler = require("../middlewares/errorHandler");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
-const { createOrderValidation } = require("../middlewares/validators");
+const {
+  createOrderValidation,
+  getOrdersByStatusValidation,
+} = require("../middlewares/validators");
 
 router.post(
   "/calculate-shipping-fee/:addressId",
@@ -19,6 +22,14 @@ router.post(
   createOrderValidation,
   checkAuthorization,
   orderController.createOrder
+);
+
+router.get(
+  "/orders/status",
+  getOrdersByStatusValidation,
+  authenticateToken,
+  checkAuthorization,
+  orderController.getOrdersByStatus
 );
 
 router.get(
