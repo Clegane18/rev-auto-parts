@@ -1,4 +1,5 @@
-const orderService = require("../services/oderService");
+const { getIoInstance } = require("../websocket");
+const orderService = require("../services/orderService");
 
 const calculateShippingFee = async (req, res) => {
   try {
@@ -87,12 +88,22 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
+    const orderId = req.params.orderId;
+    const newStatus = req.body.newStatus;
+
     const result = await orderService.updateOrderStatus({
-      orderId: req.params.orderId,
-      newStatus: req.body.newStatus,
+      orderId,
+      newStatus,
     });
+
+    if (result.status === 200) {
+      const io = getIoInstance();
+      io.emit("orderStatusUpdated", { orderId, newStatus });
+    }
+
     res.status(result.status).json(result);
   } catch (error) {
+    console.error("Error updating order status:", error);
     res
       .status(error.status || 500)
       .json({ error: error.data || "Internal Server Error" });
