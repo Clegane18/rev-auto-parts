@@ -90,7 +90,7 @@ const createOrder = async ({ customerId, addressId, items }) => {
       data: { shippingFee },
     } = await calculateShippingFee({ addressId });
 
-    let totalAmount = 0;
+    let merchandiseSubtotal = 0;
     const productUpdates = [];
 
     for (const item of items) {
@@ -109,7 +109,7 @@ const createOrder = async ({ customerId, addressId, items }) => {
         };
       }
 
-      totalAmount += product.price * item.quantity;
+      merchandiseSubtotal += product.price * item.quantity;
       productUpdates.push({
         productId: item.productId,
         newStock: product.stock - item.quantity,
@@ -117,7 +117,7 @@ const createOrder = async ({ customerId, addressId, items }) => {
       });
     }
 
-    totalAmount += shippingFee;
+    const totalAmount = merchandiseSubtotal + shippingFee;
 
     const timestamp = Date.now();
     const orderNumber = `ORD-${customerId}-${timestamp}`;
@@ -127,6 +127,7 @@ const createOrder = async ({ customerId, addressId, items }) => {
         {
           customerId,
           addressId,
+          merchandiseSubtotal,
           totalAmount,
           orderNumber,
           status: "To Pay",
@@ -203,10 +204,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
 
     const orderDetails = orders.map((order) => ({
       orderId: order.id,
-      totalAmount: order.OrderItems.reduce(
-        (total, item) => total + item.quantity * item.Product.price,
-        0
-      ),
+      totalAmount: order.totalAmount,
       status: order.status,
       items: order.OrderItems.map((item) => ({
         productName: item.Product.name,
@@ -221,8 +219,13 @@ const getOrdersByStatus = async ({ status, customerId }) => {
       data: orderDetails,
     };
   } catch (error) {
-    console.error("Error in getOrdersByStatus service:", error);
-    throw error;
+    console.error("Error retrieving orders by status:", error);
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while retrieving orders.",
+      },
+    };
   }
 };
 
@@ -337,8 +340,9 @@ const getAllOrders = async () => {
         label: order.Address.label,
         isSetDefaultAddress: order.Address.isSetDefaultAddress,
       },
-      totalAmount: order.totalAmount,
+      merchandiseSubtotal: order.merchandiseSubtotal,
       shippingFee: order.shippingFee,
+      totalAmount: order.totalAmount,
       status: order.status,
       createdAt: order.createdAt,
       items: order.OrderItems.map((item) => ({
@@ -346,7 +350,7 @@ const getAllOrders = async () => {
         productName: item.Product.name,
         quantity: item.quantity,
         price: item.price,
-        productImage: item.Product.image,
+        productImage: item.Product.imageUrl,
       })),
     }));
 

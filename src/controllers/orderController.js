@@ -99,6 +99,7 @@ const updateOrderStatus = async (req, res) => {
     if (result.status === 200) {
       const io = getIoInstance();
       io.emit("orderStatusUpdated", { orderId, newStatus });
+      console.log(`Order status updated and emitted for order ${orderId}`);
     }
 
     res.status(result.status).json(result);

@@ -32,11 +32,16 @@ const Order = sequelize.define(
         key: "id",
       },
     },
-    totalAmount: {
+    merchandiseSubtotal: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
     shippingFee: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.0,
+    },
+    totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0.0,
