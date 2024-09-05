@@ -209,8 +209,8 @@ const getTotalCountOfTransactionsFromOnline = async () => {
     return {
       status: 200,
       message:
-        "The total count of transactions from Online Store Front successfully fetched",
-      TotalTransactions: totalTransactions,
+        "The total count of transactions from Online  Store Front successfully fetched",
+      TotalCountOfTransactions: totalTransactions,
     };
   } catch (error) {
     console.error(
