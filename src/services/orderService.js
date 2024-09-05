@@ -4,6 +4,9 @@ const Product = require("../database/models/inventoryProductModel");
 const Customer = require("../database/models/customerModel");
 const Address = require("../database/models/addressModel");
 const sequelize = require("../database/db");
+const {
+  createOnlineTransactionHistory,
+} = require("../utils/createOnlineTransactionHistory");
 
 const calculateShippingFee = async ({ addressId }) => {
   try {
@@ -155,6 +158,15 @@ const createOrder = async ({ customerId, addressId, items }) => {
           { where: { id: item.productId }, transaction: t }
         );
       }
+
+      const { transaction, transactionItems } =
+        await createOnlineTransactionHistory({
+          items,
+          totalAmount,
+          customerId,
+          salesLocation: "online",
+          t,
+        });
 
       return newOrder;
     });
