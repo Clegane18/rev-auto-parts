@@ -2,6 +2,7 @@ const Product = require("../database/models/inventoryProductModel");
 const PendingStock = require("../database/models/pendingStockModel");
 const TransactionItems = require("../database/models/transactionItemModel");
 const TransactionHistories = require("../database/models/transactionHistoryModel");
+const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const { Op, fn, col, literal } = require("sequelize");
 
 const addProduct = async ({
@@ -522,21 +523,7 @@ const updateArrivalDate = async ({ pendingStockId, newArrivalDate }) => {
 };
 
 const getTopBestSellerItems = async (limit = 5) => {
-  const getMonthStartAndEnd = async (date = new Date()) => {
-    const start = new Date(date.getFullYear(), date.getMonth(), 1);
-    const end = new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999
-    );
-    return { start, end };
-  };
-
-  const { start, end } = await getMonthStartAndEnd();
+  const { start, end } = getMonthStartAndEnd();
 
   try {
     const result = await TransactionItems.findAll({

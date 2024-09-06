@@ -1,6 +1,10 @@
-const { Product } = require("../database/models");
+const Product = require("../database/models/inventoryProductModel");
+const TransactionItems = require("../database/models/transactionItemModel");
+const TransactionHistories = require("../database/models/transactionHistoryModel");
+const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const path = require("path");
 const fs = require("fs");
+const { Op, col, fn, literal } = require("sequelize");
 
 const uploadProductImage = async ({ productId, file }) => {
   try {
@@ -158,9 +162,70 @@ const unpublishItemByProductId = async ({ productId }) => {
   }
 };
 
+const getBestSellingProductsForMonth = async (limit = 5) => {
+  const { start, end } = getMonthStartAndEnd();
+
+  try {
+    const result = await TransactionItems.findAll({
+      attributes: [
+        [col("Product.name"), "productName"],
+        [col("Product.imageUrl"), "imageUrl"],
+        [fn("SUM", col("TransactionItems.quantity")), "totalSold"],
+        [col("Product.price"), "price"],
+      ],
+      include: [
+        {
+          model: Product,
+          attributes: [],
+        },
+        {
+          model: TransactionHistories,
+          attributes: [],
+          required: true,
+          as: "TransactionHistory",
+        },
+      ],
+      where: {
+        "$TransactionHistory.transactionDate$": {
+          [Op.between]: [start, end],
+        },
+        "$TransactionHistory.transactionStatus$": "completed",
+        "$TransactionHistory.salesLocation$": "online",
+      },
+      group: [
+        "TransactionItems.productId",
+        "Product.id",
+        "Product.name",
+        "Product.imageUrl",
+        "Product.price",
+      ],
+      order: [[fn("SUM", col("TransactionItems.quantity")), "DESC"]],
+      limit: limit,
+    });
+
+    if (result.length > 0) {
+      return {
+        status: 200,
+        message: "Top best seller items fetched successfully",
+        data: result.map((item) => item.get()),
+      };
+    } else {
+      return {
+        status: 404,
+        message: "No items found",
+        data: [],
+      };
+    }
+  } catch (error) {
+    console.error("Error in getBestSellingProductsForMonth service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
+  getBestSellingProductsForMonth,
 };

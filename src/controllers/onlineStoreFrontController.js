@@ -56,9 +56,26 @@ const unpublishItemByProductId = async (req, res) => {
   }
 };
 
+const getBestSellingProductsForMonth = async (req, res) => {
+  try {
+    const result =
+      await onlineStoreFrontService.getBestSellingProductsForMonth();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error(
+      "Error fetching best selling products for month in online store:",
+      error
+    );
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
+  getBestSellingProductsForMonth,
 };

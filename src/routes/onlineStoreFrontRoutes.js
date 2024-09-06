@@ -33,5 +33,10 @@ router.post(
   onlineStoreFrontController.unpublishItemByProductId
 );
 
+router.get(
+  "/products/best-sellers-for-month",
+  onlineStoreFrontController.getBestSellingProductsForMonth
+);
+
 router.use(errorHandler);
 module.exports = router;
