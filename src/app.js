@@ -13,6 +13,7 @@ const authRoutes = require("./routes/authRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const archiveRoutes = require("./routes/archiveRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 
@@ -64,5 +65,6 @@ app.use("/api/customer", onlineStoreFrontCustomerRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/archives", archiveRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/cart", cartRoutes);
 
 module.exports = app;

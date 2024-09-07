@@ -7,6 +7,8 @@ const Customer = require("./customerModel");
 const Address = require("./addressModel");
 const Order = require("./orderModel");
 const OrderItem = require("./orderItemModel");
+const Cart = require("../models/cartModel");
+const CartItem = require("../models/cartItemModel");
 
 // Transactions
 TransactionHistories.hasMany(TransactionItems, {
@@ -41,6 +43,16 @@ OrderItem.belongsTo(Order, { foreignKey: "orderId" });
 
 Product.hasMany(OrderItem, { foreignKey: "productId", onDelete: "CASCADE" });
 OrderItem.belongsTo(Product, { foreignKey: "productId" });
+
+// Cart and Cart Items
+Customer.hasMany(Cart, { foreignKey: "customerId", onDelete: "CASCADE" });
+Cart.belongsTo(Customer, { foreignKey: "customerId" });
+
+Cart.hasMany(CartItem, { foreignKey: "cartId", onDelete: "CASCADE" });
+CartItem.belongsTo(Cart, { foreignKey: "cartId" });
+
+Product.hasMany(CartItem, { foreignKey: "productId", onDelete: "CASCADE" });
+CartItem.belongsTo(Product, { foreignKey: "productId" });
 
 module.exports = {
   Product,

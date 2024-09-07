@@ -56,27 +56,9 @@ const createOrder = async ({ customerId, addressId, items }) => {
       throw {
         status: 404,
         data: {
-          message: `Customer with the id of ${customerId} was not found.`,
+          message: `Customer with ID ${customerId} not found.`,
         },
       };
-    }
-
-    if (!addressId) {
-      const defaultAddress = await Address.findOne({
-        where: {
-          customerId: customerId,
-          isSetDefaultAddress: true,
-        },
-      });
-
-      if (!defaultAddress) {
-        throw {
-          status: 404,
-          data: { message: "Default address not found for customer" },
-        };
-      }
-
-      addressId = defaultAddress.id;
     }
 
     const address = await Address.findOne({
@@ -85,103 +67,95 @@ const createOrder = async ({ customerId, addressId, items }) => {
     if (!address) {
       throw {
         status: 404,
-        data: { message: "Address not found or does not belong to customer" },
+        data: {
+          message: `Address with ID ${addressId} not found or doesn't belong to the customer.`,
+        },
       };
     }
+
+    const productUpdates = await Promise.all(
+      items.map(async (item) => {
+        const product = await Product.findByPk(item.productId);
+        if (!product) {
+          throw {
+            status: 404,
+            data: { message: `Product with ID ${item.productId} not found` },
+          };
+        }
+
+        if (product.stock < item.quantity) {
+          throw {
+            status: 400,
+            data: {
+              message: `Insufficient stock for product: ${product.name}`,
+            },
+          };
+        }
+
+        const newStock = product.stock - item.quantity;
+
+        await Product.update(
+          { stock: newStock },
+          { where: { id: product.id } }
+        );
+
+        return {
+          productId: item.productId,
+          newStock,
+          price: product.price,
+          quantity: item.quantity,
+        };
+      })
+    );
+
+    const merchandiseSubtotal = productUpdates.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
 
     const {
       data: { shippingFee },
     } = await calculateShippingFee({ addressId });
 
-    let merchandiseSubtotal = 0;
-    const productUpdates = [];
+    const totalAmount = merchandiseSubtotal + shippingFee;
 
-    for (const item of items) {
-      const product = await Product.findByPk(item.productId);
-      if (!product) {
-        throw {
-          status: 404,
-          data: { message: `Product with ID ${item.productId} not found` },
-        };
-      }
+    const orderNumber = `ORD-${customerId}-${Date.now()}`;
 
-      if (product.stock < item.quantity) {
-        throw {
-          status: 400,
-          data: { message: `Insufficient stock for product: ${product.name}` },
-        };
-      }
+    const newOrder = await Order.create({
+      customerId,
+      addressId,
+      merchandiseSubtotal,
+      shippingFee,
+      totalAmount,
+      orderNumber,
+      status: "To Pay",
+    });
 
-      merchandiseSubtotal += product.price * item.quantity;
-      productUpdates.push({
-        productId: item.productId,
-        newStock: product.stock - item.quantity,
-        price: product.price,
+    for (const productUpdate of productUpdates) {
+      await OrderItem.create({
+        orderId: newOrder.id,
+        productId: productUpdate.productId,
+        quantity: productUpdate.quantity,
+        price: productUpdate.price,
       });
     }
 
-    const totalAmount = merchandiseSubtotal + shippingFee;
-
-    const timestamp = Date.now();
-    const orderNumber = `ORD-${customerId}-${timestamp}`;
-
-    const order = await sequelize.transaction(async (t) => {
-      const newOrder = await Order.create(
-        {
-          customerId,
-          addressId,
-          merchandiseSubtotal,
-          totalAmount,
-          orderNumber,
-          status: "To Pay",
-          shippingFee,
-        },
-        { transaction: t }
-      );
-
-      for (const item of items) {
-        const productUpdate = productUpdates.find(
-          (p) => p.productId === item.productId
-        );
-        await OrderItem.create(
-          {
-            orderId: newOrder.id,
-            productId: item.productId,
-            quantity: item.quantity,
-            price: productUpdate.price,
-          },
-          { transaction: t }
-        );
-
-        await Product.update(
-          { stock: productUpdate.newStock },
-          { where: { id: item.productId }, transaction: t }
-        );
-      }
-
-      const { transaction, transactionItems } =
-        await createOnlineTransactionHistory({
-          items,
-          totalAmount,
-          customerId,
-          salesLocation: "online",
-          t,
-        });
-
-      return newOrder;
+    await createOnlineTransactionHistory({
+      customerId,
+      items,
+      totalAmount,
     });
 
     return {
       status: 200,
-      message: "Order created successfully!",
-      data: order,
+      message: "Order created successfully",
+      data: newOrder,
     };
   } catch (error) {
     console.error("Error in createOrder service:", error);
     throw error;
   }
 };
-
 const getOrdersByStatus = async ({ status, customerId }) => {
   try {
     const whereClause = { customerId };
