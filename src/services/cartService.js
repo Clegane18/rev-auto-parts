@@ -2,7 +2,7 @@ const Cart = require("../database/models/cartModel");
 const CartItem = require("../database/models/cartItemModel");
 const Product = require("../database/models/inventoryProductModel");
 
-const addProductToCart = async ({ customerId, productId, quantity }) => {
+const addProductToCart = async ({ customerId, productId }) => {
   try {
     let cart = await Cart.findOne({
       where: {
@@ -36,15 +36,15 @@ const addProductToCart = async ({ customerId, productId, quantity }) => {
     });
 
     if (cartItem) {
-      cartItem.quantity += quantity;
+      cartItem.quantity += 1;
       cartItem.subtotal = cartItem.quantity * product.price;
       await cartItem.save();
     } else {
       await CartItem.create({
         cartId: cart.id,
         productId,
-        quantity,
-        subtotal: quantity * product.price,
+        quantity: 1,
+        subtotal: product.price,
       });
     }
 
@@ -60,9 +60,15 @@ const addProductToCart = async ({ customerId, productId, quantity }) => {
     cart.totalAmount = totalAmount;
     await cart.save();
 
+    const updatedCart = await Cart.findOne({
+      where: { id: cart.id },
+      include: [CartItem],
+    });
+
     return {
       status: 200,
       message: "Product added to cart successfully",
+      data: updatedCart,
     };
   } catch (error) {
     console.error("Error in addProductToCart service:", error);
@@ -80,7 +86,7 @@ const getCartItems = async ({ customerId }) => {
           include: [
             {
               model: Product,
-              attributes: ["id", "name", "price", "imageUrl"],
+              attributes: ["id", "name", "price", "imageUrl", "stock"],
             },
           ],
         },
@@ -287,9 +293,45 @@ const updateCartItemQuantity = async ({
   }
 };
 
+const getCartItemCount = async ({ customerId }) => {
+  try {
+    // Fetch the customer's active cart
+    const cart = await Cart.findOne({
+      where: { customerId, status: "active" },
+      include: [
+        {
+          model: CartItem,
+          attributes: ["quantity"], // Only fetch quantity to minimize data load
+        },
+      ],
+    });
+
+    if (!cart) {
+      throw {
+        status: 404,
+        data: { message: "Active cart not found for the specified customer." },
+      };
+    }
+
+    // Calculate the total quantity of items in the cart
+    const totalQuantity = cart.CartItems.reduce((total, item) => {
+      return total + item.quantity;
+    }, 0);
+
+    return {
+      status: 200,
+      data: totalQuantity,
+    };
+  } catch (error) {
+    console.error("Error in getCartItemCount service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProductToCart,
   getCartItems,
   removeProductFromCart,
   updateCartItemQuantity,
+  getCartItemCount,
 };

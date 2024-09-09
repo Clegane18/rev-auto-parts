@@ -3,7 +3,10 @@ const OrderItem = require("../database/models/orderItemModel");
 const Product = require("../database/models/inventoryProductModel");
 const Customer = require("../database/models/customerModel");
 const Address = require("../database/models/addressModel");
+const CartItem = require("../database/models/cartItemModel");
+const Cart = require("../database/models/cartModel");
 const sequelize = require("../database/db");
+const { Sequelize } = require("sequelize");
 const {
   createOnlineTransactionHistory,
 } = require("../utils/createOnlineTransactionHistory");
@@ -57,6 +60,22 @@ const createOrder = async ({ customerId, addressId, items }) => {
         status: 404,
         data: {
           message: `Customer with ID ${customerId} not found.`,
+        },
+      };
+    }
+
+    const cart = await Cart.findOne({
+      where: {
+        customerId,
+        status: "active",
+      },
+    });
+
+    if (!cart) {
+      throw {
+        status: 404,
+        data: {
+          message: `Active cart not found for customer with ID ${customerId}.`,
         },
       };
     }
@@ -140,6 +159,14 @@ const createOrder = async ({ customerId, addressId, items }) => {
       });
     }
 
+    const purchasedProductIds = items.map((item) => item.productId);
+    await CartItem.destroy({
+      where: {
+        productId: purchasedProductIds,
+        cartId: cart.id,
+      },
+    });
+
     await createOnlineTransactionHistory({
       customerId,
       items,
@@ -156,6 +183,7 @@ const createOrder = async ({ customerId, addressId, items }) => {
     throw error;
   }
 };
+
 const getOrdersByStatus = async ({ status, customerId }) => {
   try {
     const whereClause = { customerId };

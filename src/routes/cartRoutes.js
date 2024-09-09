@@ -33,5 +33,12 @@ router.put(
   cartController.updateCartItemQuantity
 );
 
+router.get(
+  "/my-cart/items-count",
+  authenticateToken,
+  checkAuthorization,
+  cartController.getCartItemCount
+);
+
 router.use(errorHandler);
 module.exports = router;

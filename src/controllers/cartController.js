@@ -5,7 +5,6 @@ const addProductToCart = async (req, res) => {
     const result = await cartService.addProductToCart({
       customerId: req.user.id,
       productId: req.body.productId,
-      quantity: req.body.quantity,
     });
     return res.status(result.status).json(result);
   } catch (error) {
@@ -64,9 +63,24 @@ const updateCartItemQuantity = async (req, res) => {
   }
 };
 
+const getCartItemCount = async (req, res) => {
+  try {
+    const result = await cartService.getCartItemCount({
+      customerId: req.user.id,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching total count of items in the cart:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addProductToCart,
   getCartItems,
   removeProductFromCart,
   updateCartItemQuantity,
+  getCartItemCount,
 };
