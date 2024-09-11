@@ -295,13 +295,12 @@ const updateCartItemQuantity = async ({
 
 const getCartItemCount = async ({ customerId }) => {
   try {
-    // Fetch the customer's active cart
     const cart = await Cart.findOne({
       where: { customerId, status: "active" },
       include: [
         {
           model: CartItem,
-          attributes: ["quantity"], // Only fetch quantity to minimize data load
+          attributes: ["quantity"],
         },
       ],
     });
@@ -313,7 +312,6 @@ const getCartItemCount = async ({ customerId }) => {
       };
     }
 
-    // Calculate the total quantity of items in the cart
     const totalQuantity = cart.CartItems.reduce((total, item) => {
       return total + item.quantity;
     }, 0);
