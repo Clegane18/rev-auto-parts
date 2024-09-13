@@ -38,5 +38,10 @@ router.get(
   onlineStoreFrontController.getBestSellingProductsForMonth
 );
 
+router.get(
+  "/products/categories/",
+  onlineStoreFrontController.getAllCategoriesInOnlineStoreFront
+);
+
 router.use(errorHandler);
 module.exports = router;

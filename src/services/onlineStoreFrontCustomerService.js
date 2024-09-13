@@ -31,18 +31,25 @@ const signUp = async ({ username, email, password }) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    
     const newCustomer = await Customer.create({
       username,
       email,
       password: hashedPassword,
     });
 
+    const token = createTokenWithExpiration(
+      { id: newCustomer.id, username: newCustomer.username, email: newCustomer.email },
+      "1h" 
+    );
+
     return {
       status: 200,
       message: "Account successfully created.",
       accountInfo: newCustomer,
+      token
     };
+    
   } catch (error) {
     console.error("Error in signUp service:", error);
     throw error;

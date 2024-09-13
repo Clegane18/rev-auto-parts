@@ -222,10 +222,40 @@ const getBestSellingProductsForMonth = async (limit = 5) => {
   }
 };
 
+const getAllCategoriesInOnlineStoreFront = async () => {
+  try {
+    const products = await Product.findAll({
+      where: {
+        status: "published",
+      },
+      attributes: ['category'], 
+      group: ['category'], 
+    });
+
+    const categories = products.map(product => product.category);
+    const sortedCategories = categories.sort();
+
+    return {
+      status: 200,
+      message: "Successfully fetched all categories.",
+      categories: sortedCategories,
+    };
+  } catch (error) {
+    console.error("Error in getAllCategories service:", error);
+    throw {
+      status: 500,
+      message: "Failed to fetch categories.",
+      error: error.message,
+    };
+  }
+};
+
+
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
   getBestSellingProductsForMonth,
+  getAllCategoriesInOnlineStoreFront
 };
