@@ -4,7 +4,10 @@ const TransactionHistories = require("../database/models/transactionHistoryModel
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const path = require("path");
 const fs = require("fs");
-const { Op, col, fn, literal } = require("sequelize");
+const { Op, col, fn } = require("sequelize");
+const nodemailer = require("nodemailer");
+const { log } = require("console");
+require("dotenv").config();
 
 const uploadProductImage = async ({ productId, file }) => {
   try {
@@ -228,11 +231,11 @@ const getAllCategoriesInOnlineStoreFront = async () => {
       where: {
         status: "published",
       },
-      attributes: ['category'], 
-      group: ['category'], 
+      attributes: ["category"],
+      group: ["category"],
     });
 
-    const categories = products.map(product => product.category);
+    const categories = products.map((product) => product.category);
     const sortedCategories = categories.sort();
 
     return {
@@ -241,15 +244,48 @@ const getAllCategoriesInOnlineStoreFront = async () => {
       categories: sortedCategories,
     };
   } catch (error) {
-    console.error("Error in getAllCategories service:", error);
-    throw {
-      status: 500,
-      message: "Failed to fetch categories.",
-      error: error.message,
-    };
+    console.error(
+      "Error in getAllCategoriesInOnlineStoreFront service:",
+      error
+    );
+    throw error;
   }
 };
 
+const sendContactUsEmail = async ({ name, email, phone, message }) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: email,
+      to: process.env.EMAIL_USER,
+      subject: `New message from ${name}`,
+      text: `
+        You have a new contact request:
+        Name: ${name}
+        Email: ${email}
+        Phone: ${phone}
+        Message: ${message}
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 200,
+      message: "Email successfully sent!",
+    };
+  } catch (error) {
+    console.error("Error in sendContactUsEmail service:", error);
+    throw error;
+  }
+};
 
 module.exports = {
   uploadProductImage,
@@ -257,5 +293,6 @@ module.exports = {
   getPublishedItemsByCategory,
   unpublishItemByProductId,
   getBestSellingProductsForMonth,
-  getAllCategoriesInOnlineStoreFront
+  getAllCategoriesInOnlineStoreFront,
+  sendContactUsEmail,
 };

@@ -78,10 +78,24 @@ const getAllCategoriesInOnlineStoreFront = async (req, res) => {
       await onlineStoreFrontService.getAllCategoriesInOnlineStoreFront();
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error(
-      "Error fetching categories in online store:",
-      error
-    );
+    console.error("Error fetching categories in online store:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const sendContactUsEmail = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.sendContactUsEmail({
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      message: req.body.message,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error sending email in contact us:", error);
     return res
       .status(error.status || 500)
       .json(error.data || { message: "An unexpected error occurred" });
@@ -94,5 +108,6 @@ module.exports = {
   getPublishedItemsByCategory,
   unpublishItemByProductId,
   getBestSellingProductsForMonth,
-  getAllCategoriesInOnlineStoreFront
+  getAllCategoriesInOnlineStoreFront,
+  sendContactUsEmail,
 };

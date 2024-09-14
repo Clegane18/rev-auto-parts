@@ -181,6 +181,16 @@ const getOrdersByStatusValidation = (req, res, next) => {
   next();
 };
 
+const sendContactUsEmailValidation = (req, res, next) => {
+  const { error } = sendContactUsEmailSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -363,11 +373,19 @@ const allowedStatuses = [
   "Completed",
   "Cancelled",
 ];
+
 const getOrdersByStatusSchema = Joi.object({
   status: Joi.string()
     .valid(...allowedStatuses)
     .optional(),
   customerId: Joi.number().integer().positive().required(),
+});
+
+const sendContactUsEmailSchema = Joi.object({
+  name: Joi.string().min(3).max(50).required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().min(11).max(12).required(),
+  message: Joi.string().min(10).max(500).required(),
 });
 
 module.exports = {
@@ -390,4 +408,5 @@ module.exports = {
   deleteAddressValidation,
   createOrderValidation,
   getOrdersByStatusValidation,
+  sendContactUsEmailValidation,
 };

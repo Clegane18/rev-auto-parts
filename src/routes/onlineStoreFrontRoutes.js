@@ -5,6 +5,7 @@ const {
   uploadProductPhotoValidation,
   unpublishedItemByIdValidation,
   getProductByIdAndPublishValidation,
+  sendContactUsEmailValidation,
 } = require("../middlewares/validators");
 const onlineStoreFrontController = require("../controllers/onlineStoreFrontController");
 const upload = require("../middlewares/multerConfig");
@@ -41,6 +42,12 @@ router.get(
 router.get(
   "/products/categories/",
   onlineStoreFrontController.getAllCategoriesInOnlineStoreFront
+);
+
+router.post(
+  "/contact-us",
+  sendContactUsEmailValidation,
+  onlineStoreFrontController.sendContactUsEmail
 );
 
 router.use(errorHandler);
