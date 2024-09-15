@@ -31,7 +31,7 @@ const signUp = async ({ username, email, password }) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const newCustomer = await Customer.create({
       username,
       email,
@@ -39,17 +39,20 @@ const signUp = async ({ username, email, password }) => {
     });
 
     const token = createTokenWithExpiration(
-      { id: newCustomer.id, username: newCustomer.username, email: newCustomer.email },
-      "1h" 
+      {
+        id: newCustomer.id,
+        username: newCustomer.username,
+        email: newCustomer.email,
+      },
+      "1h"
     );
 
     return {
       status: 200,
       message: "Account successfully created.",
       accountInfo: newCustomer,
-      token
+      token,
     };
-    
   } catch (error) {
     console.error("Error in signUp service:", error);
     throw error;
@@ -128,7 +131,7 @@ const requestResetPassword = async ({ email }) => {
     const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
     const message = `
       <p>You requested a password reset. Please click the button below to reset your password.</p>
-      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #0c619b; text-decoration: none; border-radius: 2px; ">It's me</a>
+      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #bb0000; text-decoration: none; border-radius: 2px; ">It's me</a>
     `;
 
     const transporter = nodemailer.createTransport({

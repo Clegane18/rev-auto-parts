@@ -171,10 +171,13 @@ const getBestSellingProductsForMonth = async (limit = 5) => {
   try {
     const result = await TransactionItems.findAll({
       attributes: [
+        [col("Product.id"), "id"],
         [col("Product.name"), "productName"],
-        [col("Product.imageUrl"), "imageUrl"],
-        [fn("SUM", col("TransactionItems.quantity")), "totalSold"],
+        [col("Product.description"), "description"],
         [col("Product.price"), "price"],
+        [col("Product.imageUrl"), "imageUrl"],
+        [col("Product.stock"), "stock"],
+        [fn("SUM", col("TransactionItems.quantity")), "totalSold"],
       ],
       include: [
         {
