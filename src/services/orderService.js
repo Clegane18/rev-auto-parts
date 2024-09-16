@@ -434,6 +434,36 @@ const updateOrderStatus = async ({ orderId, newStatus }) => {
   }
 };
 
+const deleteOrderById = async ({ orderId }) => {
+  try {
+    const order = await Order.findByPk(orderId);
+
+    if (!order) {
+      return {
+        status: 404,
+        data: {
+          message: `Order with the id of ${orderId} not found`,
+        },
+      };
+    }
+
+    await order.destroy();
+
+    return {
+      status: 200,
+      message: "Order deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error in deleteOrderById service:", error);
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while deleting the order",
+      },
+    };
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
@@ -441,4 +471,5 @@ module.exports = {
   cancelOrder,
   getAllOrders,
   updateOrderStatus,
+  deleteOrderById,
 };

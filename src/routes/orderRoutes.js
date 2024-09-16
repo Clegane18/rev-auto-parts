@@ -50,5 +50,7 @@ router.get("/orders", orderController.getAllOrders);
 
 router.put("/orders/:orderId/update-status", orderController.updateOrderStatus);
 
+router.delete("/orders/:orderId", orderController.deleteOrderById);
+
 router.use(errorHandler);
 module.exports = router;

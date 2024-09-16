@@ -111,6 +111,19 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const deleteOrderById = async (req, res) => {
+  try {
+    const result = await orderService.deleteOrderById({
+      orderId: req.params.orderId,
+    });
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error deleting order by id:", error);
+    res
+      .status(error.status || 500)
+      .json({ error: error.data || "Internal Server Error" });
+  }
+};
 module.exports = {
   calculateShippingFee,
   createOrder,
@@ -119,4 +132,5 @@ module.exports = {
   cancelOrder,
   getAllOrders,
   updateOrderStatus,
+  deleteOrderById,
 };
