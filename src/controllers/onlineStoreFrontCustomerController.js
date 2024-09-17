@@ -93,6 +93,62 @@ const updateCustomerById = async (req, res) => {
   }
 };
 
+const getAllCustomers = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.getAllCustomers();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all customers:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const toggleCustomerStatus = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.toggleCustomerStatus({
+      customerId: req.params.customerId,
+      currentStatus: req.body.currentStatus,
+    });
+
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error toggling customer's status:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const getCustomerOnlinePurchaseHistory = async (req, res) => {
+  try {
+    const result =
+      await onlineStoreFrontCustomerService.getCustomerOnlinePurchaseHistory({
+        customerId: req.params.customerId,
+      });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching customer's order history:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const deleteCustomerById = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.deleteCustomerById({
+      customerId: req.params.customerId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error deleting customer's account:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
 module.exports = {
   signUp,
   login,
@@ -100,4 +156,8 @@ module.exports = {
   resetPassword,
   getCustomerProfile,
   updateCustomerById,
+  getAllCustomers,
+  toggleCustomerStatus,
+  getCustomerOnlinePurchaseHistory,
+  deleteCustomerById,
 };

@@ -52,5 +52,22 @@ router.put(
   onlineStoreFrontCustomerController.updateCustomerById
 );
 
+router.get("/customers", onlineStoreFrontCustomerController.getAllCustomers);
+
+router.put(
+  "/customers/:customerId/account-status/toggle-status",
+  onlineStoreFrontCustomerController.toggleCustomerStatus
+);
+
+router.get(
+  "/order-history/:customerId",
+  onlineStoreFrontCustomerController.getCustomerOnlinePurchaseHistory
+);
+
+router.delete(
+  "/delete-account/:customerId",
+  onlineStoreFrontCustomerController.deleteCustomerById
+);
+
 router.use(errorHandler);
 module.exports = router;

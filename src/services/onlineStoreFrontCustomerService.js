@@ -1,10 +1,13 @@
 const Customer = require("../database/models/customerModel");
+const Address = require("../database/models/addressModel");
+const Order = require("../database/models/orderModel");
+const OrderItem = require("../database/models/orderItemModel");
+const Product = require("../database/models/inventoryProductModel");
 const bcrypt = require("bcrypt");
 const { createTokenWithExpiration } = require("../utils/tokenUtils");
 const { Op } = require("sequelize");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const Address = require("../database/models/addressModel");
 require("dotenv").config();
 
 const signUp = async ({ username, email, password }) => {
@@ -67,6 +70,13 @@ const login = async ({ email, password }) => {
       return {
         status: 404,
         data: `Customer with the email of ${email} was not found.`,
+      };
+    }
+
+    if (customer.accountStatus === "Suspended") {
+      return {
+        status: 403,
+        message: "Your account has been suspended.",
       };
     }
 
@@ -285,6 +295,147 @@ const updateCustomerById = async ({
   }
 };
 
+const getAllCustomers = async () => {
+  try {
+    const customers = await Customer.findAll({
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "phoneNumber",
+        "gender",
+        "dateOfBirth",
+        "createdAt",
+        "accountStatus",
+      ],
+      order: [["id", "ASC"]],
+    });
+
+    if (!customers || customers.length === 0) {
+      throw {
+        status: 404,
+        data: { message: "No customers found." },
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Customers retrieved successfully.",
+      data: customers,
+    };
+  } catch (error) {
+    console.error("Error in getAllCustomers service:", error);
+    throw error;
+  }
+};
+
+const toggleCustomerStatus = async ({ customerId, currentStatus }) => {
+  try {
+    const newStatus = currentStatus === "Active" ? "Suspended" : "Active";
+
+    const updatedCustomer = await Customer.update(
+      { accountStatus: newStatus },
+      { where: { id: customerId }, returning: true, plain: true }
+    );
+
+    if (!updatedCustomer) {
+      throw {
+        status: 404,
+        data: { message: "Customer not found." },
+      };
+    }
+
+    return {
+      status: 200,
+      message: `Customer status updated to ${newStatus}.`,
+      data: updatedCustomer[1],
+    };
+  } catch (error) {
+    console.error("Error in toggleCustomerStatus service:", error);
+    throw {
+      status: 500,
+      data: { message: "Error updating customer status." },
+    };
+  }
+};
+
+const getCustomerOnlinePurchaseHistory = async ({ customerId }) => {
+  try {
+    const orders = await Order.findAll({
+      where: { customerId },
+      include: [
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["name", "price"],
+            },
+          ],
+        },
+        {
+          model: Address,
+          attributes: [
+            "addressLine",
+            "city",
+            "province",
+            "barangay",
+            "postalCode",
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!orders || orders.length === 0) {
+      throw {
+        status: 404,
+        data: { message: "No purchase history found for this customer." },
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Customer purchase history retrieved successfully.",
+      data: orders,
+    };
+  } catch (error) {
+    console.error("Error in getCustomerOnlinePurchaseHistory service:", error);
+    throw {
+      status: 500,
+      data: { message: "Error retrieving customer purchase history." },
+    };
+  }
+};
+
+const deleteCustomerById = async ({ customerId }) => {
+  try {
+    const customer = await Customer.findByPk(customerId);
+
+    if (!customer) {
+      throw {
+        status: 404,
+        data: { message: `Customer with the ${customerId} was not found.` },
+      };
+    }
+
+    await customer.destroy();
+
+    return {
+      status: 200,
+      message: "Customer deleted successfully.",
+      data: { customerId },
+    };
+  } catch (error) {
+    console.error("Error in deleteCustomerById service:", error);
+
+    throw {
+      status: 500,
+      data: { message: "Error deleting customer." },
+    };
+  }
+};
+
 module.exports = {
   signUp,
   login,
@@ -292,4 +443,8 @@ module.exports = {
   resetPassword,
   getCustomerProfile,
   updateCustomerById,
+  getAllCustomers,
+  toggleCustomerStatus,
+  getCustomerOnlinePurchaseHistory,
+  deleteCustomerById,
 };

@@ -26,6 +26,10 @@ exports.googleCallback = (req, res) => {
         });
 
         if (existingCustomer) {
+          if (existingCustomer.accountStatus === "Suspended") {
+            return res.redirect("http://localhost:3000/account-suspended");
+          }
+
           existingCustomer.username = user.username;
           existingCustomer.googleId = user.googleId;
           await existingCustomer.save();
@@ -68,7 +72,7 @@ exports.googleCallback = (req, res) => {
         });
       } catch (err) {
         console.error("Error handling customer record:", err);
-        return res.redirect("http://localhost:3000/customer-login");
+        return res.redirect("/login");
       }
     }
   )(req, res);

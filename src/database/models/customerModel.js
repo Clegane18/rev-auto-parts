@@ -56,6 +56,12 @@ const Customer = sequelize.define(
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
+    accountStatus: {
+      type: DataTypes.ENUM,
+      values: ["Active", "Suspended"],
+      allowNull: false,
+      defaultValue: "Active",
+    },
   },
   {
     timestamps: true,
