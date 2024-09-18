@@ -102,6 +102,21 @@ const sendContactUsEmail = async (req, res) => {
   }
 };
 
+const updateProductPurchaseMethod = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.updateProductPurchaseMethod({
+      productId: req.params.productId,
+      newPurchaseMethod: req.body.newPurchaseMethod,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error updating product purchase method:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
@@ -110,4 +125,5 @@ module.exports = {
   getBestSellingProductsForMonth,
   getAllCategoriesInOnlineStoreFront,
   sendContactUsEmail,
+  updateProductPurchaseMethod,
 };

@@ -60,6 +60,11 @@ const Product = sequelize.define("Product", {
     allowNull: false,
     defaultValue: "draft",
   },
+  purchaseMethod: {
+    type: DataTypes.ENUM("delivery", "in-store-pickup"),
+    allowNull: false,
+    defaultValue: "delivery",
+  },
 });
 
 module.exports = Product;

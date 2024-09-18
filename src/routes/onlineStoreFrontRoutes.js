@@ -50,5 +50,10 @@ router.post(
   onlineStoreFrontController.sendContactUsEmail
 );
 
+router.put(
+  "/products/:productId/purchase-method",
+  onlineStoreFrontController.updateProductPurchaseMethod
+);
+
 router.use(errorHandler);
 module.exports = router;

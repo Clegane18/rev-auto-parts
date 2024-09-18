@@ -86,7 +86,14 @@ const getCartItems = async ({ customerId }) => {
           include: [
             {
               model: Product,
-              attributes: ["id", "name", "price", "imageUrl", "stock"],
+              attributes: [
+                "id",
+                "name",
+                "price",
+                "imageUrl",
+                "stock",
+                "purchaseMethod",
+              ],
             },
           ],
         },

@@ -290,6 +290,45 @@ const sendContactUsEmail = async ({ name, email, phone, message }) => {
   }
 };
 
+const updateProductPurchaseMethod = async ({
+  productId,
+  newPurchaseMethod,
+}) => {
+  try {
+    const product = await Product.findByPk(productId);
+
+    if (!product) {
+      return {
+        status: 404,
+        message: `The product with the ID of ${productId} was not found`,
+      };
+    }
+
+    if (!["delivery", "in-store-pickup"].includes(newPurchaseMethod)) {
+      return {
+        status: 400,
+        message: `Invalid purchase method: ${newPurchaseMethod}. Valid options are "delivery" or "in-store-pickup".`,
+      };
+    }
+
+    product.purchaseMethod = newPurchaseMethod;
+    await product.save();
+
+    return {
+      status: 200,
+      message: `Purchase method for product ID ${productId} successfully updated to ${newPurchaseMethod}`,
+      product: product,
+    };
+  } catch (error) {
+    console.error("Error in updateProductPurchaseMethod service:", error);
+    throw {
+      status: 500,
+      message: "An error occurred while updating the purchase method",
+      data: error.message,
+    };
+  }
+};
+
 module.exports = {
   uploadProductImage,
   getProductByIdAndPublish,
@@ -298,4 +337,5 @@ module.exports = {
   getBestSellingProductsForMonth,
   getAllCategoriesInOnlineStoreFront,
   sendContactUsEmail,
+  updateProductPurchaseMethod,
 };
