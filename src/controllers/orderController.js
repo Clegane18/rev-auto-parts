@@ -21,6 +21,8 @@ const createOrder = async (req, res) => {
       customerId: req.user.id,
       addressId: parseInt(req.params.addressId, 10),
       items: req.body.items,
+      paymentMethod: req.body.paymentMethod,
+      gcashReferenceNumber: req.body.gcashReferenceNumber,
     });
 
     return res.status(result.status).json(result);

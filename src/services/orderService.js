@@ -43,7 +43,13 @@ const calculateShippingFee = async ({ addressId }) => {
   }
 };
 
-const createOrder = async ({ customerId, addressId, items }) => {
+const createOrder = async ({
+  customerId,
+  addressId,
+  items,
+  paymentMethod,
+  gcashReferenceNumber,
+}) => {
   try {
     if (!Array.isArray(items) || items.length === 0) {
       throw {
@@ -148,6 +154,9 @@ const createOrder = async ({ customerId, addressId, items }) => {
       totalAmount,
       orderNumber,
       status: "To Pay",
+      paymentMethod,
+      gcashReferenceNumber:
+        paymentMethod === "G-Cash" ? gcashReferenceNumber : null,
     });
 
     for (const productUpdate of productUpdates) {

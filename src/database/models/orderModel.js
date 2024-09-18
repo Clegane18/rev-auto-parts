@@ -52,6 +52,16 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "To Pay",
     },
+    gcashReferenceNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    paymentMethod: {
+      type: DataTypes.ENUM,
+      values: ["Cash on Delivery", "G-Cash"],
+      allowNull: false,
+      defaultValue: "Cash on Delivery",
+    },
   },
   {
     timestamps: true,
