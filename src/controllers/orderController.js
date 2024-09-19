@@ -126,6 +126,23 @@ const deleteOrderById = async (req, res) => {
       .json({ error: error.data || "Internal Server Error" });
   }
 };
+
+const updateOrderPaymentStatus = async (req, res) => {
+  try {
+    const result = await orderService.updateOrderPaymentStatus({
+      orderId: req.params.orderId,
+      newPaymentStatus: req.body.newPaymentStatus,
+    });
+
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error updating order payment status:", error);
+    res
+      .status(error.status || 500)
+      .json({ error: error.data || "Internal Server Error" });
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
@@ -135,4 +152,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   deleteOrderById,
+  updateOrderPaymentStatus,
 };

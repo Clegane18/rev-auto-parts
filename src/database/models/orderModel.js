@@ -62,6 +62,12 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "Cash on Delivery",
     },
+    paymentStatus: {
+      type: DataTypes.ENUM,
+      values: ["Pending", "Paid"],
+      allowNull: false,
+      defaultValue: "Pending",
+    },
   },
   {
     timestamps: true,

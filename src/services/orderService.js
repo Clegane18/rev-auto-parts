@@ -6,7 +6,6 @@ const Address = require("../database/models/addressModel");
 const CartItem = require("../database/models/cartItemModel");
 const Cart = require("../database/models/cartModel");
 const sequelize = require("../database/db");
-const { Sequelize } = require("sequelize");
 const {
   createOnlineTransactionHistory,
 } = require("../utils/createOnlineTransactionHistory");
@@ -367,6 +366,9 @@ const getAllOrders = async () => {
       shippingFee: order.shippingFee,
       totalAmount: order.totalAmount,
       status: order.status,
+      paymentMethod: order.paymentMethod,
+      gcashReferenceNumber: order.gcashReferenceNumber,
+      paymentStatus: order.paymentStatus,
       createdAt: order.createdAt,
       items: order.OrderItems.map((item) => ({
         productId: item.Product.id,
@@ -473,6 +475,50 @@ const deleteOrderById = async ({ orderId }) => {
   }
 };
 
+const updateOrderPaymentStatus = async ({ orderId, newPaymentStatus }) => {
+  try {
+    const allowedPaymentStatuses = ["Pending", "Paid"];
+
+    if (!allowedPaymentStatuses.includes(newPaymentStatus)) {
+      return {
+        status: 400,
+        data: {
+          message:
+            "Invalid payment status. Allowed statuses are: Pending, Paid.",
+        },
+      };
+    }
+
+    const order = await Order.findByPk(orderId);
+
+    if (!order) {
+      return {
+        status: 404,
+        data: {
+          message: "Order not found",
+        },
+      };
+    }
+
+    order.paymentStatus = newPaymentStatus;
+
+    await order.save();
+
+    return {
+      status: 200,
+      message: `Order payment status updated to '${newPaymentStatus}' successfully`,
+    };
+  } catch (error) {
+    console.error("Error in updateOrderPaymentStatus service:", error);
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while updating the order payment status",
+      },
+    };
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
@@ -481,4 +527,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   deleteOrderById,
+  updateOrderPaymentStatus,
 };
