@@ -1,3 +1,5 @@
+// src/database/models/index.js
+
 const sequelize = require("../db");
 const Product = require("./inventoryProductModel");
 const PendingStock = require("./pendingStockModel");
@@ -7,8 +9,9 @@ const Customer = require("./customerModel");
 const Address = require("./addressModel");
 const Order = require("./orderModel");
 const OrderItem = require("./orderItemModel");
-const Cart = require("../models/cartModel");
-const CartItem = require("../models/cartItemModel");
+const Cart = require("./cartModel"); // Corrected path
+const CartItem = require("./cartItemModel"); // Corrected path
+const ProductImage = require("./productImageModel"); // Corrected path and case
 
 // Transactions
 TransactionHistories.hasMany(TransactionItems, {
@@ -54,6 +57,17 @@ CartItem.belongsTo(Cart, { foreignKey: "cartId" });
 Product.hasMany(CartItem, { foreignKey: "productId", onDelete: "CASCADE" });
 CartItem.belongsTo(Product, { foreignKey: "productId" });
 
+// Product and ProductImage
+Product.hasMany(ProductImage, {
+  foreignKey: "productId",
+  as: "images",
+  onDelete: "CASCADE",
+});
+ProductImage.belongsTo(Product, {
+  foreignKey: "productId",
+  as: "product",
+});
+
 module.exports = {
   Product,
   PendingStock,
@@ -63,5 +77,8 @@ module.exports = {
   Address,
   Order,
   OrderItem,
+  Cart,
+  CartItem,
+  ProductImage,
   sequelize,
 };
