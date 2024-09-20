@@ -1,6 +1,7 @@
 const Cart = require("../database/models/cartModel");
 const CartItem = require("../database/models/cartItemModel");
 const Product = require("../database/models/inventoryProductModel");
+const { ProductImage } = require("../database/models");
 
 const addProductToCart = async ({ customerId, productId }) => {
   try {
@@ -86,13 +87,15 @@ const getCartItems = async ({ customerId }) => {
           include: [
             {
               model: Product,
-              attributes: [
-                "id",
-                "name",
-                "price",
-                "imageUrl",
-                "stock",
-                "purchaseMethod",
+              attributes: ["id", "name", "price", "stock", "purchaseMethod"],
+              include: [
+                {
+                  model: ProductImage,
+                  as: "images",
+                  attributes: ["imageUrl"],
+                  where: { isPrimary: true },
+                  required: false,
+                },
               ],
             },
           ],

@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
+const Product = require("./inventoryProductModel");
 
 const ProductImage = sequelize.define(
   "ProductImage",
@@ -18,6 +19,15 @@ const ProductImage = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Product,
+        key: "id",
+      },
+      onDelete: "CASCADE",
     },
   },
   {

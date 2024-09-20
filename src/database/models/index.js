@@ -1,5 +1,3 @@
-// src/database/models/index.js
-
 const sequelize = require("../db");
 const Product = require("./inventoryProductModel");
 const PendingStock = require("./pendingStockModel");
@@ -9,9 +7,9 @@ const Customer = require("./customerModel");
 const Address = require("./addressModel");
 const Order = require("./orderModel");
 const OrderItem = require("./orderItemModel");
-const Cart = require("./cartModel"); // Corrected path
-const CartItem = require("./cartItemModel"); // Corrected path
-const ProductImage = require("./productImageModel"); // Corrected path and case
+const Cart = require("./cartModel");
+const CartItem = require("./cartItemModel");
+const ProductImage = require("./productImageModel");
 
 // Transactions
 TransactionHistories.hasMany(TransactionItems, {

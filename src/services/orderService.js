@@ -5,6 +5,7 @@ const Customer = require("../database/models/customerModel");
 const Address = require("../database/models/addressModel");
 const CartItem = require("../database/models/cartItemModel");
 const Cart = require("../database/models/cartModel");
+const { ProductImage } = require("../database/models");
 const sequelize = require("../database/db");
 const {
   createOnlineTransactionHistory,
@@ -99,7 +100,18 @@ const createOrder = async ({
 
     const productUpdates = await Promise.all(
       items.map(async (item) => {
-        const product = await Product.findByPk(item.productId);
+        const product = await Product.findByPk(item.productId, {
+          include: [
+            {
+              model: ProductImage,
+              as: "images",
+              attributes: ["imageUrl"],
+              where: { isPrimary: true },
+              required: false,
+            },
+          ],
+        });
+
         if (!product) {
           throw {
             status: 404,
@@ -128,6 +140,7 @@ const createOrder = async ({
           newStock,
           price: product.price,
           quantity: item.quantity,
+          imageUrl: product.images?.[0]?.imageUrl || "default-image.jpg",
         };
       })
     );
@@ -164,6 +177,7 @@ const createOrder = async ({
         productId: productUpdate.productId,
         quantity: productUpdate.quantity,
         price: productUpdate.price,
+        imageUrl: productUpdate.imageUrl,
       });
     }
 
@@ -208,7 +222,16 @@ const getOrdersByStatus = async ({ status, customerId }) => {
           include: [
             {
               model: Product,
-              attributes: ["name", "imageUrl", "price"],
+              attributes: ["name", "price"],
+              include: [
+                {
+                  model: ProductImage,
+                  as: "images",
+                  attributes: ["imageUrl"],
+                  where: { isPrimary: true },
+                  required: false,
+                },
+              ],
             },
           ],
         },
@@ -230,8 +253,9 @@ const getOrdersByStatus = async ({ status, customerId }) => {
       status: order.status,
       items: order.OrderItems.map((item) => ({
         productName: item.Product.name,
-        productImage: item.Product.imageUrl,
+        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg", // Use the primary image or default
         quantity: item.quantity,
+        price: item.Product.price,
       })),
     }));
 
@@ -325,7 +349,16 @@ const getAllOrders = async () => {
           include: [
             {
               model: Product,
-              attributes: ["id", "name", "price", "imageUrl"],
+              attributes: ["id", "name", "price"],
+              include: [
+                {
+                  model: ProductImage,
+                  as: "images",
+                  attributes: ["imageUrl"],
+                  where: { isPrimary: true },
+                  required: false,
+                },
+              ],
             },
           ],
           attributes: ["id", "orderId", "productId", "quantity", "price"],
@@ -375,7 +408,7 @@ const getAllOrders = async () => {
         productName: item.Product.name,
         quantity: item.quantity,
         price: item.price,
-        productImage: item.Product.imageUrl,
+        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg",
       })),
     }));
 

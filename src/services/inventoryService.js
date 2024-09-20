@@ -2,6 +2,7 @@ const Product = require("../database/models/inventoryProductModel");
 const PendingStock = require("../database/models/pendingStockModel");
 const TransactionItems = require("../database/models/transactionItemModel");
 const TransactionHistories = require("../database/models/transactionHistoryModel");
+const { ProductImage } = require("../database/models/index");
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const { Op, fn, col, literal } = require("sequelize");
 
@@ -156,7 +157,17 @@ const getAllProducts = async () => {
 
 const getProductById = async ({ productId }) => {
   try {
-    const product = await Product.findByPk(productId);
+    const product = await Product.findByPk(productId, {
+      include: [
+        {
+          model: ProductImage,
+          as: "images",
+          attributes: ["imageUrl"],
+          where: { isPrimary: true },
+          required: false,
+        },
+      ],
+    });
 
     if (!product) {
       throw {

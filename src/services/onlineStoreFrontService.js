@@ -1,6 +1,9 @@
-const Product = require("../database/models/inventoryProductModel");
-const TransactionItems = require("../database/models/transactionItemModel");
-const TransactionHistories = require("../database/models/transactionHistoryModel");
+const {
+  Product,
+  TransactionItems,
+  TransactionHistories,
+  ProductImage,
+} = require("../database/models/index");
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const path = require("path");
 const fs = require("fs");
@@ -104,6 +107,15 @@ const getPublishedItemsByCategory = async () => {
       where: {
         status: "published",
       },
+      include: [
+        {
+          model: ProductImage,
+          as: "images",
+          attributes: ["imageUrl"],
+          where: { isPrimary: true },
+          required: false,
+        },
+      ],
     });
 
     const groupedProducts = products.reduce((acc, product) => {
@@ -175,45 +187,60 @@ const getBestSellingProductsForMonth = async (limit = 5) => {
         [col("Product.name"), "productName"],
         [col("Product.description"), "description"],
         [col("Product.price"), "price"],
-        [col("Product.imageUrl"), "imageUrl"],
+        [col("Product.images.imageUrl"), "imageUrl"],
         [col("Product.stock"), "stock"],
         [fn("SUM", col("TransactionItems.quantity")), "totalSold"],
       ],
       include: [
         {
           model: Product,
+          as: "Product",
           attributes: [],
+          include: [
+            {
+              model: ProductImage,
+              as: "images",
+              attributes: [],
+              where: { isPrimary: true },
+              required: false,
+            },
+          ],
         },
         {
           model: TransactionHistories,
+          as: "TransactionHistory",
           attributes: [],
           required: true,
-          as: "TransactionHistory",
+          where: {
+            transactionDate: {
+              [Op.between]: [start, end],
+            },
+            transactionStatus: "completed",
+            salesLocation: "online",
+          },
         },
       ],
-      where: {
-        "$TransactionHistory.transactionDate$": {
-          [Op.between]: [start, end],
-        },
-        "$TransactionHistory.transactionStatus$": "completed",
-        "$TransactionHistory.salesLocation$": "online",
-      },
+      where: {},
       group: [
         "TransactionItems.productId",
         "Product.id",
         "Product.name",
-        "Product.imageUrl",
+        "Product.description",
         "Product.price",
+        "Product.images.imageUrl",
+        "Product.stock",
       ],
       order: [[fn("SUM", col("TransactionItems.quantity")), "DESC"]],
       limit: limit,
+      raw: true,
+      subQuery: false,
     });
 
     if (result.length > 0) {
       return {
         status: 200,
         message: "Top best seller items fetched successfully",
-        data: result.map((item) => item.get()),
+        data: result,
       };
     } else {
       return {
