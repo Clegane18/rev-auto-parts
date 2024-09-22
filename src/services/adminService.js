@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const { createTokenWithExpiration } = require("../utils/tokenUtils");
-const { adminUsername, adminPassword } = require("../utils/passwordUtils");
 const Admin = require("../database/models/adminModel");
 
 const adminLogIn = async ({ email, password }) => {
@@ -27,7 +26,6 @@ const adminLogIn = async ({ email, password }) => {
       {
         id: admin.id,
         email: admin.email,
-        role: "admin",
       },
       "1h"
     );
