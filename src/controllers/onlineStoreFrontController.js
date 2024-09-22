@@ -1,14 +1,15 @@
 const onlineStoreFrontService = require("../services/onlineStoreFrontService");
 
-const uploadProductImage = async (req, res) => {
+const uploadProductImages = async (req, res) => {
   try {
-    const result = await onlineStoreFrontService.uploadProductImage({
+    const result = await onlineStoreFrontService.uploadProductImages({
       productId: req.params.productId,
-      file: req.file,
+      files: req.files,
     });
+
     return res.status(result.status).json(result);
   } catch (error) {
-    console.error("Error uploading product photo:", error);
+    console.error("Error uploading product photos:", error);
     return res
       .status(error.status || 500)
       .json(error.data || { message: "An unexpected error occurred" });
@@ -117,8 +118,52 @@ const updateProductPurchaseMethod = async (req, res) => {
   }
 };
 
+const deleteProductImageById = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.deleteProductImageById({
+      productImageId: req.params.productImageId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error deleting product image:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const changePrimaryProductImageById = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.changePrimaryProductImageById({
+      productImageId: req.params.productImageId,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error changing primary product image:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const getAllProductImagesByProductId = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.getAllProductImagesByProductId(
+      {
+        productId: req.params.productId,
+      }
+    );
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all product images:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
-  uploadProductImage,
+  uploadProductImages,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
@@ -126,4 +171,7 @@ module.exports = {
   getAllCategoriesInOnlineStoreFront,
   sendContactUsEmail,
   updateProductPurchaseMethod,
+  deleteProductImageById,
+  changePrimaryProductImageById,
+  getAllProductImagesByProductId,
 };

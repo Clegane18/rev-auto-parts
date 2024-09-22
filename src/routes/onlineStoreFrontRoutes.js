@@ -11,10 +11,10 @@ const onlineStoreFrontController = require("../controllers/onlineStoreFrontContr
 const upload = require("../middlewares/multerConfig");
 
 router.post(
-  "/uploadPhoto/:productId",
-  upload.single("file"),
+  "/uploadPhotos/:productId",
+  upload.array("files", 10),
   uploadProductPhotoValidation,
-  onlineStoreFrontController.uploadProductImage
+  onlineStoreFrontController.uploadProductImages
 );
 
 router.post(
@@ -53,6 +53,21 @@ router.post(
 router.put(
   "/products/:productId/purchase-method",
   onlineStoreFrontController.updateProductPurchaseMethod
+);
+
+router.delete(
+  "/products/:productImageId/delete-product-image",
+  onlineStoreFrontController.deleteProductImageById
+);
+
+router.put(
+  "/products/:productImageId/change-primary-product-image",
+  onlineStoreFrontController.changePrimaryProductImageById
+);
+
+router.get(
+  "/products/:productId/images",
+  onlineStoreFrontController.getAllProductImagesByProductId
 );
 
 router.use(errorHandler);

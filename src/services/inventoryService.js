@@ -162,9 +162,7 @@ const getProductById = async ({ productId }) => {
         {
           model: ProductImage,
           as: "images",
-          attributes: ["imageUrl"],
-          where: { isPrimary: true },
-          required: false,
+          attributes: ["imageUrl", "isPrimary"],
         },
       ],
     });

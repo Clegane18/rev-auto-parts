@@ -12,7 +12,7 @@ const nodemailer = require("nodemailer");
 const { log } = require("console");
 require("dotenv").config();
 
-const uploadProductImage = async ({ productId, file }) => {
+const uploadProductImages = async ({ productId, files }) => {
   try {
     const product = await Product.findByPk(productId);
 
@@ -23,38 +23,48 @@ const uploadProductImage = async ({ productId, file }) => {
       };
     }
 
-    if (!file) {
+    if (!files || files.length === 0) {
       throw {
         status: 400,
-        data: { message: "No file uploaded" },
+        data: { message: "No files uploaded" },
       };
     }
 
-    const productName = product.name.replace(/\s+/g, "_").toLowerCase();
-    const extname = path.extname(file.originalname);
-    const timestamp = Date.now();
-    const newFilename = `${productName}_${productId}_${timestamp}${extname}`;
+    const imagePaths = [];
 
-    const oldPath = path.join("uploads", file.filename);
-    const newPath = path.join("uploads", newFilename);
+    for (const file of files) {
+      const productName = product.name.replace(/\s+/g, "_").toLowerCase();
+      const extname = path.extname(file.originalname);
+      const timestamp = Date.now();
+      const newFilename = `${productName}_${productId}_${timestamp}${extname}`;
 
-    fs.renameSync(oldPath, newPath);
+      const oldPath = path.join("uploads", file.filename);
+      const newPath = path.join("uploads", newFilename);
 
-    const imageUrl = newPath.replace(/\\/g, "/");
-    await Product.update(
-      { imageUrl: imageUrl, status: "ready" },
-      { where: { id: productId } }
-    );
+      fs.renameSync(oldPath, newPath);
+
+      const imageUrl = newPath.replace(/\\/g, "/");
+
+      await ProductImage.create({
+        imageUrl: imageUrl,
+        productId: productId,
+        isPrimary: false,
+      });
+
+      imagePaths.push(imageUrl);
+    }
+
+    await Product.update({ status: "ready" }, { where: { id: productId } });
 
     return {
       status: 200,
       data: {
-        message: "Product photo uploaded successfully",
-        imageUrl: imageUrl,
+        message: "Product photos uploaded successfully",
+        imageUrls: imagePaths,
       },
     };
   } catch (error) {
-    console.error("Error in uploadProductImage service:", error);
+    console.error("Error in uploadProductImages service:", error);
     throw error;
   }
 };
@@ -196,6 +206,9 @@ const getBestSellingProductsForMonth = async (limit = 5) => {
           model: Product,
           as: "Product",
           attributes: [],
+          where: {
+            status: "published",
+          },
           include: [
             {
               model: ProductImage,
@@ -356,8 +369,141 @@ const updateProductPurchaseMethod = async ({
   }
 };
 
+const deleteProductImageById = async ({ productImageId }) => {
+  try {
+    const productImage = await ProductImage.findByPk(productImageId);
+
+    if (!productImage) {
+      throw {
+        status: 404,
+        data: {
+          message: `Product photo with ID ${productImageId} was not found.`,
+        },
+      };
+    }
+
+    if (productImage.isPrimary === true) {
+      throw {
+        status: 400,
+        data: { message: "Cannot delete a primary product photo." },
+      };
+    }
+
+    await productImage.destroy();
+
+    return {
+      status: 200,
+      message: `Product photo with ID ${productImageId} deleted successfully.`,
+    };
+  } catch (error) {
+    console.error("Error in deleteProductImageById service:", error);
+    if (error.status && error.data && error.data.message) {
+      throw error;
+    }
+    throw {
+      status: 500,
+      data: { message: "An error occurred while deleting the product image." },
+    };
+  }
+};
+
+const changePrimaryProductImageById = async ({ productImageId }) => {
+  try {
+    const productImage = await ProductImage.findByPk(productImageId);
+
+    if (!productImage) {
+      throw {
+        status: 404,
+        data: {
+          message: `Product photo with ID ${productImageId} was not found.`,
+        },
+      };
+    }
+
+    if (productImage.isPrimary === true) {
+      return {
+        status: 200,
+        message: `Product photo with ID ${productImageId} is already the primary image.`,
+      };
+    }
+
+    await ProductImage.sequelize.transaction(async (transaction) => {
+      await ProductImage.update(
+        { isPrimary: false },
+        {
+          where: {
+            productId: productImage.productId,
+            isPrimary: true,
+          },
+          transaction,
+        }
+      );
+
+      productImage.isPrimary = true;
+      await productImage.save({ transaction });
+    });
+
+    return {
+      status: 200,
+      message: `Product photo with ID ${productImageId} has been set as the primary image.`,
+    };
+  } catch (error) {
+    console.error("Error in changePrimaryProductImageById service:", error);
+
+    if (error.status && error.data) {
+      throw error;
+    } else {
+      throw {
+        status: 500,
+        message: "An error occurred while changing the primary product image.",
+        data: error.message,
+      };
+    }
+  }
+};
+
+const getAllProductImagesByProductId = async ({ productId }) => {
+  try {
+    const product = await Product.findByPk(productId, {
+      include: {
+        model: ProductImage,
+        as: "images",
+        attributes: ["id", "imageUrl", "isPrimary", "createdAt", "updatedAt"],
+      },
+    });
+
+    if (!product) {
+      throw {
+        status: 404,
+        data: {
+          message: `Product with ID ${productId} was not found.`,
+        },
+      };
+    }
+
+    const images = product.images;
+
+    return {
+      status: 200,
+      data: images,
+    };
+  } catch (error) {
+    console.error("Error in getAllProductImagesByProductId service:", error);
+
+    if (error.status && error.data) {
+      throw error;
+    } else {
+      throw {
+        status: 500,
+        message: "An error occurred while retrieving product images.",
+        data: error.message || error,
+      };
+    }
+  }
+};
+
 module.exports = {
-  uploadProductImage,
+  uploadProductImages,
   getProductByIdAndPublish,
   getPublishedItemsByCategory,
   unpublishItemByProductId,
@@ -365,4 +511,7 @@ module.exports = {
   getAllCategoriesInOnlineStoreFront,
   sendContactUsEmail,
   updateProductPurchaseMethod,
+  deleteProductImageById,
+  changePrimaryProductImageById,
+  getAllProductImagesByProductId,
 };

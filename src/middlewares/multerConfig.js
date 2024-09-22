@@ -1,7 +1,6 @@
 const multer = require("multer");
 const path = require("path");
 
-// Configure multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -22,6 +21,9 @@ const fileFilter = (req, file, cb) => {
   cb(new Error("Only images are allowed!"));
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+});
 
 module.exports = upload;

@@ -64,19 +64,25 @@ const deleteProductByIdValidation = (req, res, next) => {
 
 const uploadProductPhotoValidation = (req, res, next) => {
   const { productId } = req.params;
-  const file = req.file;
+  const files = req.files;
 
-  const { error } = uploadProductPhotoSchema.validate({
-    file: {
-      originalname: file?.originalname,
-      mimetype: file?.mimetype,
-      size: file?.size,
-    },
-    productId: parseInt(productId, 10),
-  });
+  if (!files || files.length === 0) {
+    return res.status(400).json({ error: "No files uploaded" });
+  }
 
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+  for (let file of files) {
+    const { error } = uploadProductPhotoSchema.validate({
+      file: {
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+      },
+      productId: parseInt(productId, 10),
+    });
+
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
   }
 
   next();
