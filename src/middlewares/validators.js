@@ -208,7 +208,10 @@ const adminLogInValidation = (req, res, next) => {
 };
 
 const updateAdminEmailValidation = (req, res, next) => {
-  const { error } = updateAdminEmailSchema.validate(req.body);
+  const { error } = updateAdminEmailSchema.validate({
+    adminId: req.params.adminId,
+    newEmail: req.body.newEmail,
+  });
 
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
@@ -218,7 +221,10 @@ const updateAdminEmailValidation = (req, res, next) => {
 };
 
 const updateAdminPasswordValidation = (req, res, next) => {
-  const { error } = updateAdminPasswordSchema.validate(req.body);
+  const { error } = updateAdminPasswordSchema.validate({
+    adminId: req.params.adminId,
+    newPassword: req.body.newPassword,
+  });
 
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
@@ -226,6 +232,7 @@ const updateAdminPasswordValidation = (req, res, next) => {
 
   next();
 };
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
