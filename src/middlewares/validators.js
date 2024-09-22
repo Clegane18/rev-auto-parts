@@ -197,6 +197,35 @@ const sendContactUsEmailValidation = (req, res, next) => {
   next();
 };
 
+const adminLogInValidation = (req, res, next) => {
+  const { error } = adminLogInSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
+const updateAdminEmailValidation = (req, res, next) => {
+  const { error } = updateAdminEmailSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
+const updateAdminPasswordValidation = (req, res, next) => {
+  const { error } = updateAdminPasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -394,6 +423,47 @@ const sendContactUsEmailSchema = Joi.object({
   message: Joi.string().min(10).max(500).required(),
 });
 
+const adminLogInSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.email": "Invalid email format.",
+    "any.required": "Email is required.",
+  }),
+  password: Joi.string().min(8).max(50).required().messages({
+    "string.min": "Password should have a minimum length of 8 characters.",
+    "any.required": "Password is required.",
+  }),
+});
+
+const updateAdminEmailSchema = Joi.object({
+  adminId: Joi.number().integer().required().messages({
+    "number.base": "Admin ID must be a valid number.",
+    "any.required": "Admin ID is required.",
+  }),
+  newEmail: Joi.string().email().required().messages({
+    "string.email": "Invalid email format.",
+    "any.required": "New email is required.",
+  }),
+});
+
+const updateAdminPasswordSchema = Joi.object({
+  adminId: Joi.number().integer().required().messages({
+    "number.base": "Admin ID must be a valid number.",
+    "any.required": "Admin ID is required.",
+  }),
+  newPassword: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must have at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.",
+      "any.required": "New password is required.",
+    }),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -415,4 +485,7 @@ module.exports = {
   createOrderValidation,
   getOrdersByStatusValidation,
   sendContactUsEmailValidation,
+  adminLogInValidation,
+  updateAdminEmailValidation,
+  updateAdminPasswordValidation,
 };

@@ -1,40 +1,104 @@
 const bcrypt = require("bcrypt");
 const { createTokenWithExpiration } = require("../utils/tokenUtils");
 const { adminUsername, adminPassword } = require("../utils/passwordUtils");
+const Admin = require("../database/models/adminModel");
 
 const adminLogIn = async ({ email, password }) => {
   try {
-    if (email !== adminUsername) {
-      throw {
-        status: 404,
-        data: { message: "Admin email is incorrect." },
-      };
-    }
-    const saltRounds = 10;
-    const adminHashedPassword = await bcrypt.hash(adminPassword, saltRounds);
-    const isPasswordMatch = await bcrypt.compare(password, adminHashedPassword);
+    const admin = await Admin.findOne({ where: { email } });
 
-    if (isPasswordMatch) {
-      const token = createTokenWithExpiration(
-        { email: adminUsername, role: "admin" },
-        "30m"
-      );
-
+    if (!admin) {
       return {
-        status: 200,
-        message: "Successful log in",
-        token: token,
-      };
-    } else {
-      throw {
-        status: 401,
-        data: { message: "Incorrect password" },
+        status: 404,
+        message: `Incorrect email`,
       };
     }
+
+    const isPasswordMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isPasswordMatch) {
+      return {
+        status: 401,
+        message: "Incorrect password.",
+      };
+    }
+
+    const token = createTokenWithExpiration(
+      {
+        id: admin.id,
+        email: admin.email,
+        role: "admin",
+      },
+      "1h"
+    );
+
+    return {
+      status: 200,
+      message: "Successful log in.",
+      token: token,
+    };
   } catch (error) {
-    console.error("Error in admin log in:", error);
-    throw error;
+    console.error("Error in adminLogIn service:", error);
+    throw {
+      status: 500,
+      message: "An unexpected error occurred during admin login.",
+    };
   }
 };
 
-module.exports = { adminLogIn };
+const updateAdminEmail = async ({ adminId, newEmail }) => {
+  try {
+    const admin = await Admin.findByPk(adminId);
+
+    if (!admin) {
+      return {
+        status: 404,
+        message: "Admin not found.",
+      };
+    }
+
+    admin.email = newEmail;
+    await admin.save();
+
+    return {
+      status: 200,
+      message: "Email updated successfully.",
+    };
+  } catch (error) {
+    console.error("Error in updateAdminEmail service:", error);
+    throw {
+      status: 500,
+      message: "An unexpected error occurred while updating the email.",
+    };
+  }
+};
+
+const updateAdminPassword = async ({ adminId, newPassword }) => {
+  try {
+    const admin = await Admin.findByPk(adminId);
+
+    if (!admin) {
+      return {
+        status: 404,
+        message: "Admin not found.",
+      };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    admin.password = hashedPassword;
+    await admin.save();
+
+    return {
+      status: 200,
+      message: "Password updated successfully.",
+    };
+  } catch (error) {
+    console.error("Error in updateAdminPassword service:", error);
+    throw {
+      status: 500,
+      message: "An unexpected error occurred while updating the password.",
+    };
+  }
+};
+module.exports = { adminLogIn, updateAdminEmail, updateAdminPassword };
