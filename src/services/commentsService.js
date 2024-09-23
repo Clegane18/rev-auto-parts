@@ -101,6 +101,68 @@ const createComment = async ({
   }
 };
 
+const getAllComments = async ({ productId }) => {
+  try {
+    if (!productId) {
+      return {
+        status: 400,
+        message: "Product ID is required.",
+      };
+    }
+
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return {
+        status: 404,
+        message: `Product with ID ${productId} not found.`,
+      };
+    }
+
+    const comments = await Comment.findAll({
+      where: { productId },
+      include: [
+        {
+          model: Customer,
+          attributes: ["id", "username", "email"],
+        },
+        {
+          model: CommentImage,
+          as: "images",
+          attributes: ["imageUrl"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    const formattedComments = comments.map((comment) => ({
+      commentId: comment.commentId,
+      customer: {
+        id: comment.Customer.id,
+        username: comment.Customer.username,
+        email: comment.Customer.email,
+      },
+      rating: comment.rating,
+      commentText: comment.commentText,
+      images: comment.images.map((img) => img.imageUrl),
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+    }));
+
+    return {
+      status: 200,
+      message: "Comments fetched successfully.",
+      data: formattedComments,
+    };
+  } catch (error) {
+    console.error("Error in getComments service:", error);
+    return {
+      status: 500,
+      message: "An error occurred while fetching comments.",
+    };
+  }
+};
+
 module.exports = {
   createComment,
+  getAllComments,
 };
