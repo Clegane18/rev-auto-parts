@@ -14,6 +14,8 @@ const addressRoutes = require("./routes/addressRoutes");
 const archiveRoutes = require("./routes/archiveRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const commentsRoutes = require("./routes/commentsRoutes");
+const errorHandler = require("./middlewares/errorHandler");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 
@@ -66,5 +68,8 @@ app.use("/api/address", addressRoutes);
 app.use("/api/archives", archiveRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/comments", commentsRoutes);
+
+app.use(errorHandler);
 
 module.exports = app;

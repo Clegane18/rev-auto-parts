@@ -233,6 +233,23 @@ const updateAdminPasswordValidation = (req, res, next) => {
   next();
 };
 
+const createCommentValidation = (req, res, next) => {
+  const { productId } = req.params;
+  const { rating, commentText } = req.body;
+
+  const { error } = createCommentSchema.validate({
+    productId: Number(productId),
+    rating: Number(rating),
+    commentText,
+  });
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().required().min(3),
@@ -471,6 +488,28 @@ const updateAdminPasswordSchema = Joi.object({
     }),
 });
 
+const createCommentSchema = Joi.object({
+  productId: Joi.number().integer().positive().required().messages({
+    "number.base": "Product ID must be a valid number.",
+    "number.integer": "Product ID must be an integer.",
+    "number.positive": "Product ID must be a positive number.",
+    "any.required": "Product ID is required.",
+  }),
+
+  rating: Joi.number().integer().min(1).max(5).required().messages({
+    "number.base": "Rating must be a valid number.",
+    "number.integer": "Rating must be an integer.",
+    "number.min": "Rating must be at least 1.",
+    "number.max": "Rating must be at most 5.",
+    "any.required": "Rating is required.",
+  }),
+
+  commentText: Joi.string().max(1000).optional().messages({
+    "string.base": "Comment text must be a string.",
+    "string.max": "Comment text must not exceed 1000 characters.",
+  }),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -495,4 +534,5 @@ module.exports = {
   adminLogInValidation,
   updateAdminEmailValidation,
   updateAdminPasswordValidation,
+  createCommentValidation,
 };

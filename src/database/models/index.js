@@ -10,6 +10,8 @@ const OrderItem = require("./orderItemModel");
 const Cart = require("./cartModel");
 const CartItem = require("./cartItemModel");
 const ProductImage = require("./productImageModel");
+const Comment = require("./commentModel");
+const CommentImage = require("./commentImageModel");
 
 // Transactions
 TransactionHistories.hasMany(TransactionItems, {
@@ -66,6 +68,33 @@ ProductImage.belongsTo(Product, {
   as: "product",
 });
 
+// Comments and Comment Images
+Customer.hasMany(Comment, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+});
+Comment.belongsTo(Customer, {
+  foreignKey: "customerId",
+});
+
+Product.hasMany(Comment, {
+  foreignKey: "productId",
+  onDelete: "CASCADE",
+});
+Comment.belongsTo(Product, {
+  foreignKey: "productId",
+});
+
+Comment.hasMany(CommentImage, {
+  foreignKey: "commentId",
+  as: "images",
+  onDelete: "CASCADE",
+});
+CommentImage.belongsTo(Comment, {
+  foreignKey: "commentId",
+  as: "comment",
+});
+
 module.exports = {
   Product,
   PendingStock,
@@ -78,5 +107,7 @@ module.exports = {
   Cart,
   CartItem,
   ProductImage,
+  Comment,
+  CommentImage,
   sequelize,
 };

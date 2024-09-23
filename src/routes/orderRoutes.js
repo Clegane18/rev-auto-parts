@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orderController");
-const errorHandler = require("../middlewares/errorHandler");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
 const {
@@ -57,5 +56,4 @@ router.put(
   orderController.updateOrderPaymentStatus
 );
 
-router.use(errorHandler);
 module.exports = router;

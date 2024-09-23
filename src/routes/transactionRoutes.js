@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const errorHandler = require("../middlewares/errorHandler");
 const {
   buyProductsOnPhysicalStoreValidation,
 } = require("../middlewares/validators");
@@ -33,5 +32,4 @@ router.get(
 
 router.get("/today", transactionController.getTodaysTransactions);
 
-router.use(errorHandler);
 module.exports = router;

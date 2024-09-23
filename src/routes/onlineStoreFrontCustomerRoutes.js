@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const errorHandler = require("../middlewares/errorHandler");
 const onlineStoreFrontCustomerController = require("../controllers/onlineStoreFrontCustomerController");
 const {
   signUpValidation,
@@ -69,5 +68,4 @@ router.delete(
   onlineStoreFrontCustomerController.deleteCustomerById
 );
 
-router.use(errorHandler);
 module.exports = router;

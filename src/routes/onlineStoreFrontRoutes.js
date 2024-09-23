@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const errorHandler = require("../middlewares/errorHandler");
 const {
   uploadProductPhotoValidation,
   unpublishedItemByIdValidation,
@@ -70,5 +69,4 @@ router.get(
   onlineStoreFrontController.getAllProductImagesByProductId
 );
 
-router.use(errorHandler);
 module.exports = router;

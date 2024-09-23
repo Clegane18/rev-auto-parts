@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const addressController = require("../controllers/addressController");
-const errorHandler = require("../middlewares/errorHandler");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
 const {
@@ -55,5 +54,4 @@ router.post(
   addressController.getAddressById
 );
 
-router.use(errorHandler);
 module.exports = router;

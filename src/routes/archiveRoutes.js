@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const errorHandler = require("../middlewares/errorHandler");
 const archiveController = require("../controllers/archiveController");
 const { deleteProductByIdValidation } = require("../middlewares/validators");
 
@@ -33,7 +32,5 @@ router.delete(
 );
 
 router.post("/archive/delete-all", archiveController.deleteAllArchivedProducts);
-
-router.use(errorHandler);
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const errorHandler = require("../middlewares/errorHandler");
 const cartController = require("../controllers/cartController");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
@@ -40,5 +39,4 @@ router.get(
   cartController.getCartItemCount
 );
 
-router.use(errorHandler);
 module.exports = router;
