@@ -71,7 +71,7 @@ const updateAdminEmail = async ({ adminId, newEmail }) => {
   }
 };
 
-const updateAdminPassword = async ({ adminId, newPassword }) => {
+const updateAdminPassword = async ({ adminId, oldPassword, newPassword }) => {
   try {
     const admin = await Admin.findByPk(adminId);
 
@@ -82,9 +82,18 @@ const updateAdminPassword = async ({ adminId, newPassword }) => {
       };
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const isMatch = await bcrypt.compare(oldPassword, admin.password);
 
-    admin.password = hashedPassword;
+    if (!isMatch) {
+      return {
+        status: 400,
+        message: "Old password is incorrect.",
+      };
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    admin.password = hashedNewPassword;
     await admin.save();
 
     return {
@@ -99,4 +108,5 @@ const updateAdminPassword = async ({ adminId, newPassword }) => {
     };
   }
 };
+
 module.exports = { adminLogIn, updateAdminEmail, updateAdminPassword };

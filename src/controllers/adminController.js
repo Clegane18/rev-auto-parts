@@ -34,6 +34,7 @@ const updateAdminPassword = async (req, res) => {
   try {
     const result = await adminService.updateAdminPassword({
       adminId: req.params.adminId,
+      oldPassword: req.body.oldPassword,
       newPassword: req.body.newPassword,
     });
     return res.status(result.status).json(result);
