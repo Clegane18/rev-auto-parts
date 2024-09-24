@@ -3,6 +3,8 @@ const {
   CommentImage,
   Product,
   Customer,
+  OrderItem,
+  Order,
 } = require("../database/models/index");
 const sequelize = require("../database/db");
 const path = require("path");
@@ -17,21 +19,23 @@ const createComment = async ({
   const transaction = await sequelize.transaction();
   try {
     if (!customerId || !productId || !rating) {
-      return {
+      throw {
         status: 400,
         message: "customerId, productId, and rating are required.",
       };
     }
 
     if (rating < 1 || rating > 5) {
-      return {
+      throw {
         status: 400,
         message: "Rating must be between 1 and 5.",
       };
     }
 
-    if (!commentText && (!images || images.length === 0)) {
-      return {
+    const imagesArray = images && images.images ? images.images : [];
+
+    if (!commentText && imagesArray.length === 0) {
+      throw {
         status: 400,
         message: "Either commentText or images must be provided.",
       };
@@ -39,7 +43,7 @@ const createComment = async ({
 
     const customer = await Customer.findByPk(customerId, { transaction });
     if (!customer) {
-      return {
+      throw {
         status: 404,
         message: `Customer with ID ${customerId} not found.`,
       };
@@ -47,9 +51,32 @@ const createComment = async ({
 
     const product = await Product.findByPk(productId, { transaction });
     if (!product) {
-      return {
+      throw {
         status: 404,
         message: `Product with ID ${productId} not found.`,
+      };
+    }
+
+    const orderItem = await OrderItem.findOne({
+      include: [
+        {
+          model: Order,
+          where: {
+            customerId,
+            status: "Completed",
+          },
+        },
+      ],
+      where: {
+        productId,
+      },
+      transaction,
+    });
+
+    if (!orderItem) {
+      throw {
+        status: 403,
+        message: "You can only comment on products you have purchased.",
       };
     }
 
@@ -63,8 +90,8 @@ const createComment = async ({
       { transaction }
     );
 
-    if (images && images.length > 0) {
-      const imageRecords = images.map((file) => ({
+    if (imagesArray.length > 0) {
+      const imageRecords = imagesArray.map((file) => ({
         commentId: comment.commentId,
         imageUrl: path.join("/uploads/commentsUpload", file.filename),
       }));
@@ -82,11 +109,12 @@ const createComment = async ({
         productId: comment.productId,
         rating: comment.rating,
         commentText: comment.commentText,
-        images: images
-          ? images.map((file) =>
-              path.join("/uploads/commentsUpload", file.filename)
-            )
-          : [],
+        images:
+          imagesArray.length > 0
+            ? imagesArray.map((file) =>
+                path.join("/uploads/commentsUpload", file.filename)
+              )
+            : [],
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
       },
@@ -94,10 +122,7 @@ const createComment = async ({
   } catch (error) {
     await transaction.rollback();
     console.error("Error in createComment service:", error);
-    return {
-      status: 500,
-      message: "An error occurred while creating the comment.",
-    };
+    throw error;
   }
 };
 
@@ -162,7 +187,62 @@ const getAllComments = async ({ productId }) => {
   }
 };
 
+const verifyCustomerProductPurchase = async ({ customerId, productId }) => {
+  try {
+    if (!customerId || !productId) {
+      return {
+        status: 400,
+        message: "Customer ID and Product ID are required.",
+      };
+    }
+
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return {
+        status: 404,
+        message: `Product with ID ${productId} not found.`,
+      };
+    }
+
+    const orderItem = await OrderItem.findOne({
+      include: [
+        {
+          model: Order,
+          where: {
+            customerId,
+            status: "Completed",
+          },
+        },
+      ],
+      where: {
+        productId,
+      },
+    });
+
+    if (!orderItem) {
+      return {
+        status: 200,
+        message: "Customer has not purchased this product.",
+        data: { hasPurchased: false },
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Customer has purchased this product.",
+      data: { hasPurchased: true },
+    };
+  } catch (error) {
+    console.error("Error in verifyCustomerProductPurchase service:", error);
+    return {
+      status: 500,
+      message: "An error occurred while verifying the purchase.",
+    };
+  }
+};
+
 module.exports = {
   createComment,
   getAllComments,
+  verifyCustomerProductPurchase,
 };

@@ -9,13 +9,20 @@ router.post(
   "/products/:productId/comments",
   authenticateToken,
   checkAuthorization,
-  commentUpload.array("images", 5),
+  commentUpload.fields([{ name: "images", maxCount: 5 }]),
   commentsController.createComment
 );
 
 router.get(
   "/products/:productId/all-comments",
   commentsController.getAllComments
+);
+
+router.get(
+  "/verify-purchase/:productId",
+  authenticateToken,
+  checkAuthorization,
+  commentsController.verifyCustomerProductPurchase
 );
 
 module.exports = router;
