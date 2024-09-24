@@ -98,8 +98,19 @@ const createOrder = async ({
       };
     }
 
+    const aggregatedItems = items.reduce((acc, item) => {
+      if (acc[item.productId]) {
+        acc[item.productId].quantity += item.quantity;
+      } else {
+        acc[item.productId] = { ...item };
+      }
+      return acc;
+    }, {});
+
+    const itemsArray = Object.values(aggregatedItems);
+
     const productUpdates = await Promise.all(
-      items.map(async (item) => {
+      itemsArray.map(async (item) => {
         const product = await Product.findByPk(item.productId, {
           include: [
             {
@@ -181,7 +192,7 @@ const createOrder = async ({
       });
     }
 
-    const purchasedProductIds = items.map((item) => item.productId);
+    const purchasedProductIds = itemsArray.map((item) => item.productId);
     await CartItem.destroy({
       where: {
         productId: purchasedProductIds,
@@ -191,7 +202,7 @@ const createOrder = async ({
 
     await createOnlineTransactionHistory({
       customerId,
-      items,
+      items: itemsArray,
       totalAmount,
     });
 
@@ -253,7 +264,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
       status: order.status,
       items: order.OrderItems.map((item) => ({
         productName: item.Product.name,
-        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg", // Use the primary image or default
+        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg",
         quantity: item.quantity,
         price: item.Product.price,
       })),
