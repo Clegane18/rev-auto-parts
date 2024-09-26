@@ -393,6 +393,7 @@ const getAllOrders = async () => {
           attributes: ["id", "orderId", "productId", "quantity", "price"],
         },
       ],
+      order: [["createdAt", "DESC"]],
     });
 
     if (!orders || orders.length === 0) {
