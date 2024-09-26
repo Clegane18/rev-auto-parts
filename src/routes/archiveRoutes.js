@@ -33,4 +33,6 @@ router.delete(
 
 router.post("/archive/delete-all", archiveController.deleteAllArchivedProducts);
 
+router.post("/auto-delete", archiveController.autoDeleteArchivedProducts);
+
 module.exports = router;

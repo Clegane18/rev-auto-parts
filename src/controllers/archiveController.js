@@ -99,6 +99,18 @@ const deleteAllArchivedProducts = async (req, res) => {
   }
 };
 
+const autoDeleteArchivedProducts = async (req, res) => {
+  try {
+    const result = await archiveService.autoDeleteArchivedProducts();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error deleting all archived products:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   archiveProductById,
   restoreArchivedProductsById,
@@ -107,4 +119,5 @@ module.exports = {
   restoreAllArchivedProducts,
   deleteAllArchivedProducts,
   permanentlyDeleteArchivedProduct,
+  autoDeleteArchivedProducts,
 };

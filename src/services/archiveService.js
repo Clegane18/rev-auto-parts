@@ -2,6 +2,7 @@ const ArchivedProduct = require("../database/models/archivedProductModel");
 const Product = require("../database/models/inventoryProductModel");
 const PendingStock = require("../database/models/pendingStockModel");
 const { Op } = require("sequelize");
+const { differenceInDays, addYears } = require("date-fns");
 
 const archiveProductById = async ({ productId }) => {
   try {
@@ -340,6 +341,59 @@ const deleteAllArchivedProducts = async () => {
   }
 };
 
+const autoDeleteArchivedProducts = async () => {
+  try {
+    const now = new Date();
+    const oneYearAgo = addYears(now, -1);
+
+    const productsToDelete = await ArchivedProduct.findAll({
+      where: {
+        archivedAt: {
+          [Op.lte]: oneYearAgo,
+        },
+      },
+    });
+
+    const deletedProducts = [];
+    for (const product of productsToDelete) {
+      await product.destroy();
+      deletedProducts.push({
+        id: product.id,
+        name: product.name,
+        archivedAt: product.archivedAt,
+      });
+    }
+
+    const allArchivedProducts = await ArchivedProduct.findAll();
+
+    const productsWithDaysRemaining = allArchivedProducts.map((product) => {
+      const deleteDate = addYears(product.archivedAt, 1);
+      const daysRemaining = differenceInDays(deleteDate, now);
+      return {
+        id: product.id,
+        name: product.name,
+        archivedAt: product.archivedAt,
+        daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
+      };
+    });
+
+    return {
+      status: 200,
+      message: "Automatic deletion process completed.",
+      deletedCount: deletedProducts.length,
+      deletedProducts,
+      productsWithDaysRemaining,
+    };
+  } catch (error) {
+    console.error("Error in autoDeleteArchivedProducts service:", error);
+    throw {
+      status: 500,
+      message: "An error occurred during the automatic deletion process.",
+      error: error.message,
+    };
+  }
+};
+
 module.exports = {
   archiveProductById,
   restoreArchivedProductById,
@@ -348,4 +402,5 @@ module.exports = {
   restoreAllArchivedProducts,
   deleteAllArchivedProducts,
   permanentlyDeleteArchivedProduct,
+  autoDeleteArchivedProducts,
 };
