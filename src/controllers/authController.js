@@ -57,7 +57,7 @@ exports.googleCallback = (req, res) => {
             email: existingCustomer.email,
             defaultAddressId,
           },
-          "5s"
+          "1h"
         );
 
         req.logIn(existingCustomer, (err) => {

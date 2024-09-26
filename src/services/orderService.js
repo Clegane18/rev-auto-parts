@@ -10,6 +10,11 @@ const sequelize = require("../database/db");
 const {
   createOnlineTransactionHistory,
 } = require("../utils/createOnlineTransactionHistory");
+const {
+  calculateETARange,
+  formatDate,
+  formatDateRange,
+} = require("../utils/etaUtils");
 
 const calculateShippingFee = async ({ addressId }) => {
   try {
@@ -227,6 +232,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
 
     const orders = await Order.findAll({
       where: whereClause,
+      order: [["createdAt", "DESC"]],
       include: [
         {
           model: OrderItem,
@@ -258,17 +264,29 @@ const getOrdersByStatus = async ({ status, customerId }) => {
       };
     }
 
-    const orderDetails = orders.map((order) => ({
-      orderId: order.id,
-      totalAmount: order.totalAmount,
-      status: order.status,
-      items: order.OrderItems.map((item) => ({
-        productName: item.Product.name,
-        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg",
-        quantity: item.quantity,
-        price: item.Product.price,
-      })),
-    }));
+    const orderDetails = orders.map((order) => {
+      const detail = {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        createdAt: formatDate(order.createdAt),
+        items: order.OrderItems.map((item) => ({
+          productName: item.Product.name,
+          productImage:
+            item.Product.images?.[0]?.imageUrl || "default-image.jpg",
+          quantity: item.quantity,
+          price: item.Product.price,
+        })),
+      };
+
+      if (order.status === "To Ship") {
+        const { startDate, endDate } = calculateETARange(order.createdAt);
+        detail.eta = formatDateRange(startDate, endDate);
+      }
+
+      return detail;
+    });
 
     return {
       status: 200,
