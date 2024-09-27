@@ -8,7 +8,6 @@ const {
   confirmStockValidation,
   cancelStockValidation,
   updateArrivalDateValidation,
-  deleteProductByIdValidation,
 } = require("../middlewares/validators");
 
 router.post(

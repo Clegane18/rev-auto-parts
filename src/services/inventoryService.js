@@ -18,17 +18,39 @@ const addProduct = async ({
   supplierName,
 }) => {
   try {
-    const newProduct = await Product.create({
-      category: category,
-      itemCode: itemCode,
-      brand: brand,
-      name: name,
-      description: description,
-      price: price,
-      supplierCost: supplierCost,
-      stock: stock,
-      supplierName: supplierName,
+    const existingProduct = await Product.findOne({
+      where: {
+        category,
+        itemCode,
+        brand,
+        name,
+        description,
+        price,
+        supplierCost,
+        supplierName,
+      },
     });
+
+    if (existingProduct) {
+      return {
+        status: 409,
+        data: { message: "Product with identical information already exists." },
+        product: existingProduct,
+      };
+    }
+
+    const newProduct = await Product.create({
+      category,
+      itemCode,
+      brand,
+      name,
+      description,
+      price,
+      supplierCost,
+      stock,
+      supplierName,
+    });
+
     return {
       status: 200,
       message: "Product added successfully",
@@ -242,11 +264,18 @@ const getProductByBrand = async ({ productBrand }) => {
 
 const getProductByPriceRange = async ({ minPrice, maxPrice }) => {
   try {
-    if (!minPrice || !maxPrice) {
+    if (!maxPrice) {
       throw {
         status: 400,
-        data: { message: "Error: Both minPrice and maxPrice are required." },
+        data: { message: "Error: maxPrice is required." },
       };
+    }
+
+    if (!minPrice) {
+      const productWithLowestPrice = await Product.findOne({
+        attributes: [[sequelize.fn("MIN", sequelize.col("price")), "minPrice"]],
+      });
+      minPrice = productWithLowestPrice.dataValues.minPrice;
     }
 
     const products = await Product.findAll({
@@ -255,7 +284,6 @@ const getProductByPriceRange = async ({ minPrice, maxPrice }) => {
           [Op.between]: [minPrice, maxPrice],
         },
       },
-      logging: console.log,
     });
 
     if (!products || products.length === 0) {
@@ -266,6 +294,7 @@ const getProductByPriceRange = async ({ minPrice, maxPrice }) => {
         },
       };
     }
+
     return {
       status: 200,
       data: products,
