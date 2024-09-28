@@ -8,6 +8,7 @@ const {
 } = require("../middlewares/validators");
 const onlineStoreFrontController = require("../controllers/onlineStoreFrontController");
 const upload = require("../middlewares/multerConfig");
+const showcaseUpload = require("../middlewares/multerConfigShowcaseProducts");
 
 router.post(
   "/uploadPhotos/:productId",
@@ -67,6 +68,12 @@ router.put(
 router.get(
   "/products/:productId/images",
   onlineStoreFrontController.getAllProductImagesByProductId
+);
+
+router.post(
+  "/showcase-upload",
+  showcaseUpload.array("files", 10),
+  onlineStoreFrontController.uploadShowcaseImages
 );
 
 module.exports = router;

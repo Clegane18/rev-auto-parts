@@ -4,6 +4,7 @@ const {
   TransactionHistories,
   ProductImage,
 } = require("../database/models/index");
+const ProductShowcase = require("../database/models/productShowCaseModel");
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const path = require("path");
 const fs = require("fs");
@@ -502,6 +503,42 @@ const getAllProductImagesByProductId = async ({ productId }) => {
   }
 };
 
+const uploadShowcaseImages = async (files) => {
+  try {
+    if (!files || files.length === 0) {
+      throw {
+        status: 400,
+        data: { message: "No files uploaded" },
+      };
+    }
+
+    const imagePaths = [];
+
+    for (const file of files) {
+      const imageUrl = path
+        .join("/uploads/showcase", file.filename)
+        .replace(/\\/g, "/");
+
+      await ProductShowcase.create({
+        imageUrl: imageUrl,
+      });
+
+      imagePaths.push(imageUrl);
+    }
+
+    return {
+      status: 200,
+      data: {
+        message: "Showcase images uploaded successfully",
+        imageUrls: imagePaths,
+      },
+    };
+  } catch (error) {
+    console.error("Error in uploadShowcaseImages service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -514,4 +551,5 @@ module.exports = {
   deleteProductImageById,
   changePrimaryProductImageById,
   getAllProductImagesByProductId,
+  uploadShowcaseImages,
 };
