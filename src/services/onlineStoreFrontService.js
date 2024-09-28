@@ -32,7 +32,7 @@ const uploadProductImages = async ({ productId, files }) => {
 
     const imagePaths = [];
 
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       const productName = product.name.replace(/\s+/g, "_").toLowerCase();
       const extname = path.extname(file.originalname);
       const timestamp = Date.now();
@@ -48,7 +48,7 @@ const uploadProductImages = async ({ productId, files }) => {
       await ProductImage.create({
         imageUrl: imageUrl,
         productId: productId,
-        isPrimary: false,
+        isPrimary: index === 0,
       });
 
       imagePaths.push(imageUrl);
