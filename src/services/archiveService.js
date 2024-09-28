@@ -99,6 +99,7 @@ const restoreArchivedProductById = async ({ productId }) => {
 
     await Product.create({
       ...archivedProduct.toJSON(),
+      status: "draft",
     });
 
     await archivedProduct.destroy();
@@ -153,6 +154,7 @@ const restoreMultipleArchivedProducts = async ({ productIds }) => {
 
         await Product.create({
           ...archivedProduct.toJSON(),
+          status: "draft",
         });
 
         await archivedProduct.destroy();
@@ -215,6 +217,7 @@ const restoreAllArchivedProducts = async () => {
 
         await Product.create({
           ...archivedProduct.toJSON(),
+          status: "draft",
         });
 
         await archivedProduct.destroy();
