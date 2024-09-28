@@ -177,6 +177,18 @@ const uploadShowcaseImages = async (req, res) => {
   }
 };
 
+const getShowcaseImages = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.getShowcaseImages();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching showcase images:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -190,4 +202,5 @@ module.exports = {
   changePrimaryProductImageById,
   getAllProductImagesByProductId,
   uploadShowcaseImages,
+  getShowcaseImages,
 };

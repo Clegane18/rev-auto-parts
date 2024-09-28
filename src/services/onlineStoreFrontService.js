@@ -539,6 +539,30 @@ const uploadShowcaseImages = async (files) => {
   }
 };
 
+const getShowcaseImages = async () => {
+  try {
+    const showcases = await ProductShowcase.findAll({
+      order: [["createdAt", "DESC"]],
+    });
+
+    const imageUrls = showcases.map((showcase) => showcase.imageUrl);
+
+    return {
+      status: 200,
+      data: {
+        message: "Showcase images fetched successfully",
+        imageUrls,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getShowcaseImages service:", error);
+    throw {
+      status: 500,
+      data: { message: "Failed to fetch showcase images" },
+    };
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -552,4 +576,5 @@ module.exports = {
   changePrimaryProductImageById,
   getAllProductImagesByProductId,
   uploadShowcaseImages,
+  getShowcaseImages,
 };

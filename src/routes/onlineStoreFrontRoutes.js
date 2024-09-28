@@ -76,4 +76,6 @@ router.post(
   onlineStoreFrontController.uploadShowcaseImages
 );
 
+router.get("/showcase-images", onlineStoreFrontController.getShowcaseImages);
+
 module.exports = router;
