@@ -120,9 +120,10 @@ const updateProductPurchaseMethod = async (req, res) => {
 
 const deleteProductImageById = async (req, res) => {
   try {
-    const result = await onlineStoreFrontService.deleteProductImageById({
-      productImageId: req.params.productImageId,
-    });
+    const productImageId = req.params.productImageId;
+    const result = await onlineStoreFrontService.deleteProductImageById(
+      productImageId
+    );
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error deleting product image:", error);
@@ -189,6 +190,19 @@ const getShowcaseImages = async (req, res) => {
   }
 };
 
+const deleteShowcase = async (req, res) => {
+  try {
+    const showcaseId = req.params.showcaseId;
+    const result = await onlineStoreFrontService.deleteShowcase(showcaseId);
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error deleting showcase images:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -203,4 +217,5 @@ module.exports = {
   getAllProductImagesByProductId,
   uploadShowcaseImages,
   getShowcaseImages,
+  deleteShowcase,
 };

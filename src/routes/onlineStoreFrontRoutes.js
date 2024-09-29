@@ -78,4 +78,9 @@ router.post(
 
 router.get("/showcase-images", onlineStoreFrontController.getShowcaseImages);
 
+router.delete(
+  "/delete-showcase-images/:showcaseId",
+  onlineStoreFrontController.deleteShowcase
+);
+
 module.exports = router;

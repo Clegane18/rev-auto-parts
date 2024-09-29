@@ -7,7 +7,7 @@ const {
 const ProductShowcase = require("../database/models/productShowCaseModel");
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const path = require("path");
-const fs = require("fs");
+const fs = require("fs").promises;
 const { Op, col, fn } = require("sequelize");
 const nodemailer = require("nodemailer");
 const { log } = require("console");
@@ -31,6 +31,10 @@ const uploadProductImages = async ({ productId, files }) => {
       };
     }
 
+    const hasPrimaryImage = await ProductImage.findOne({
+      where: { productId: productId, isPrimary: true },
+    });
+
     const imagePaths = [];
 
     for (const [index, file] of files.entries()) {
@@ -42,14 +46,14 @@ const uploadProductImages = async ({ productId, files }) => {
       const oldPath = path.join("uploads", file.filename);
       const newPath = path.join("uploads", newFilename);
 
-      fs.renameSync(oldPath, newPath);
+      await fs.rename(oldPath, newPath);
 
       const imageUrl = newPath.replace(/\\/g, "/");
 
       await ProductImage.create({
         imageUrl: imageUrl,
         productId: productId,
-        isPrimary: index === 0,
+        isPrimary: !hasPrimaryImage && index === 0,
       });
 
       imagePaths.push(imageUrl);
@@ -370,7 +374,7 @@ const updateProductPurchaseMethod = async ({
   }
 };
 
-const deleteProductImageById = async ({ productImageId }) => {
+const deleteProductImageById = async (productImageId) => {
   try {
     const productImage = await ProductImage.findByPk(productImageId);
 
@@ -390,11 +394,36 @@ const deleteProductImageById = async ({ productImageId }) => {
       };
     }
 
+    const imageUrl = productImage.imageUrl;
+
+    const relativeImagePath = imageUrl.startsWith("/")
+      ? imageUrl.slice(1)
+      : imageUrl;
+
+    const imagePath = path.join(process.cwd(), relativeImagePath);
+
+    try {
+      await fs.unlink(imagePath);
+      console.log(`Image file deleted: ${imagePath}`);
+    } catch (fileError) {
+      if (fileError.code === "ENOENT") {
+        console.warn(`Image file not found: ${imagePath}`);
+      } else {
+        console.error("Error deleting image file:", fileError);
+        throw {
+          status: 500,
+          data: { message: "Failed to delete image file." },
+        };
+      }
+    }
+
     await productImage.destroy();
 
     return {
       status: 200,
-      message: `Product photo with ID ${productImageId} deleted successfully.`,
+      data: {
+        message: `Product photo with ID ${productImageId} deleted successfully.`,
+      },
     };
   } catch (error) {
     console.error("Error in deleteProductImageById service:", error);
@@ -563,6 +592,58 @@ const getShowcaseImages = async () => {
   }
 };
 
+const deleteShowcase = async (showcaseId) => {
+  try {
+    const showcase = await ProductShowcase.findByPk(showcaseId);
+
+    if (!showcase) {
+      throw {
+        status: 404,
+        data: { message: `Showcase with id of ${showcaseId} was not found.` },
+      };
+    }
+
+    const imageUrl = showcase.imageUrl;
+
+    const relativeImagePath = imageUrl.startsWith("/")
+      ? imageUrl.slice(1)
+      : imageUrl;
+
+    const imagePath = path.join(process.cwd(), relativeImagePath);
+
+    try {
+      await fs.unlink(imagePath);
+      console.log(`Image file deleted: ${imagePath}`);
+    } catch (fileError) {
+      if (fileError.code === "ENOENT") {
+        console.warn(`Image file not found: ${imagePath}`);
+      } else {
+        console.error("Error deleting image file:", fileError);
+        throw {
+          status: 500,
+          data: { message: "Failed to delete image file." },
+        };
+      }
+    }
+
+    await showcase.destroy();
+
+    return {
+      status: 200,
+      data: { message: "Showcase deleted successfully." },
+    };
+  } catch (error) {
+    console.error("Error in deleteShowcase service:", error);
+    if (error.status && error.data) {
+      throw error;
+    }
+    throw {
+      status: 500,
+      data: { message: "Failed to delete showcase." },
+    };
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -577,4 +658,5 @@ module.exports = {
   getAllProductImagesByProductId,
   uploadShowcaseImages,
   getShowcaseImages,
+  deleteShowcase,
 };
