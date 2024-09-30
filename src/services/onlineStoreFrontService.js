@@ -574,13 +574,16 @@ const getShowcaseImages = async () => {
       order: [["createdAt", "DESC"]],
     });
 
-    const imageUrls = showcases.map((showcase) => showcase.imageUrl);
+    const images = showcases.map((showcase) => ({
+      id: showcase.id,
+      imageUrl: showcase.imageUrl,
+    }));
 
     return {
       status: 200,
       data: {
         message: "Showcase images fetched successfully",
-        imageUrls,
+        images,
       },
     };
   } catch (error) {

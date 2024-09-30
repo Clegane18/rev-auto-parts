@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const Product = require("../database/models/inventoryProductModel");
 
 const createProductValidation = (req, res, next) => {
   const { error } = createProductSchema.validate(req.body);
@@ -235,7 +236,7 @@ const updateAdminPasswordValidation = (req, res, next) => {
 
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
-  itemCode: Joi.string().required().min(3),
+  itemCode: Joi.string().min(3).required(),
   brand: Joi.string().required().min(3),
   name: Joi.string().required().min(3),
   description: Joi.string().required().min(3),
