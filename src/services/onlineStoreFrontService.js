@@ -647,6 +647,82 @@ const deleteShowcase = async (showcaseId) => {
   }
 };
 
+const getTopSellingProducts = async (limit = 5) => {
+  try {
+    const result = await TransactionItems.findAll({
+      attributes: [
+        [col("Product.id"), "id"],
+        [col("Product.name"), "productName"],
+        [col("Product.description"), "description"],
+        [col("Product.price"), "price"],
+        [col("Product.images.imageUrl"), "imageUrl"],
+        [col("Product.stock"), "stock"],
+        [fn("SUM", col("TransactionItems.quantity")), "totalSold"],
+      ],
+      include: [
+        {
+          model: Product,
+          as: "Product",
+          attributes: [],
+          where: {
+            status: "published",
+          },
+          include: [
+            {
+              model: ProductImage,
+              as: "images",
+              attributes: [],
+              where: { isPrimary: true },
+              required: false,
+            },
+          ],
+        },
+        {
+          model: TransactionHistories,
+          as: "TransactionHistory",
+          attributes: [],
+          required: true,
+          where: {
+            transactionStatus: "completed",
+            salesLocation: "online",
+          },
+        },
+      ],
+      where: {},
+      group: [
+        "TransactionItems.productId",
+        "Product.id",
+        "Product.name",
+        "Product.description",
+        "Product.price",
+        "Product.images.imageUrl",
+        "Product.stock",
+      ],
+      order: [[fn("SUM", col("TransactionItems.quantity")), "DESC"]],
+      limit: limit,
+      raw: true,
+      subQuery: false,
+    });
+
+    if (result.length > 0) {
+      return {
+        status: 200,
+        message: "Top selling products fetched successfully",
+        data: result,
+      };
+    } else {
+      return {
+        status: 200,
+        message: "No top-selling products found",
+        data: [],
+      };
+    }
+  } catch (error) {
+    console.error("Error in getTopSellingProducts service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -662,4 +738,5 @@ module.exports = {
   uploadShowcaseImages,
   getShowcaseImages,
   deleteShowcase,
+  getTopSellingProducts,
 };

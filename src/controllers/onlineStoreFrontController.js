@@ -203,6 +203,21 @@ const deleteShowcase = async (req, res) => {
   }
 };
 
+const getTopSellingProducts = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontService.getTopSellingProducts();
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error(
+      "Error fetching top selling products for online store:",
+      error
+    );
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   uploadProductImages,
   getProductByIdAndPublish,
@@ -218,4 +233,5 @@ module.exports = {
   uploadShowcaseImages,
   getShowcaseImages,
   deleteShowcase,
+  getTopSellingProducts,
 };

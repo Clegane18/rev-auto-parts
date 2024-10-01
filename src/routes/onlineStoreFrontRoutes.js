@@ -83,4 +83,9 @@ router.delete(
   onlineStoreFrontController.deleteShowcase
 );
 
+router.get(
+  "/products/top-sellers",
+  onlineStoreFrontController.getTopSellingProducts
+);
+
 module.exports = router;
