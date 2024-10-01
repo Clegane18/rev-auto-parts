@@ -239,7 +239,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
           include: [
             {
               model: Product,
-              attributes: ["name", "price"],
+              attributes: ["id", "name", "price"], // Include 'id' here
               include: [
                 {
                   model: ProductImage,
@@ -272,6 +272,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
         status: order.status,
         createdAt: formatDate(order.createdAt),
         items: order.OrderItems.map((item) => ({
+          productId: item.Product.id, // **Include productId here**
           productName: item.Product.name,
           productImage:
             item.Product.images?.[0]?.imageUrl || "default-image.jpg",
