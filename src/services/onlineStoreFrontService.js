@@ -262,7 +262,7 @@ const getBestSellingProductsForMonth = async (limit = 5) => {
       };
     } else {
       return {
-        status: 404,
+        status: 200,
         message: "No items found",
         data: [],
       };
