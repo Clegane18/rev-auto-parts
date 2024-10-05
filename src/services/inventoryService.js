@@ -5,6 +5,7 @@ const TransactionHistories = require("../database/models/transactionHistoryModel
 const { ProductImage } = require("../database/models/index");
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const { Op, fn, col, literal } = require("sequelize");
+const sequelize = require("../database/db");
 
 const addProduct = async ({
   category,
