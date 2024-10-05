@@ -8,6 +8,9 @@
     "dev": "nodemon src/index.js",
     "migrate": "node scripts/migrateImageUrl.js"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
