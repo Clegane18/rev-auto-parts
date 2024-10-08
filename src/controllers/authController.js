@@ -10,14 +10,18 @@ exports.googleLogin = passport.authenticate("google", {
 exports.googleCallback = (req, res) => {
   passport.authenticate(
     "google",
-    { failureRedirect: "/login" },
+    { failureRedirect: "https://front-end-rev-auto-parts.onrender.com/login" },
     async (err, user, info) => {
       if (err) {
         console.error("Error during Google authentication:", err);
-        return res.redirect("/login");
+        return res.redirect(
+          "https://front-end-rev-auto-parts.onrender.com/login"
+        );
       }
       if (!user) {
-        return res.redirect("/login");
+        return res.redirect(
+          "https://front-end-rev-auto-parts.onrender.com/login"
+        );
       }
 
       try {
@@ -27,7 +31,9 @@ exports.googleCallback = (req, res) => {
 
         if (existingCustomer) {
           if (existingCustomer.accountStatus === "Suspended") {
-            return res.redirect("http://localhost:3000/account-suspended");
+            return res.redirect(
+              "https://front-end-rev-auto-parts.onrender.com/account-suspended"
+            );
           }
 
           existingCustomer.username = user.username;
@@ -63,16 +69,20 @@ exports.googleCallback = (req, res) => {
         req.logIn(existingCustomer, (err) => {
           if (err) {
             console.error("Error during user login:", err);
-            return res.redirect("/login");
+            return res.redirect(
+              "https://front-end-rev-auto-parts.onrender.com/login"
+            );
           }
 
           return res.redirect(
-            `http://localhost:3000/customer-login?token=${token}`
+            `https://front-end-rev-auto-parts.onrender.com/customer-login?token=${token}`
           );
         });
       } catch (err) {
         console.error("Error handling customer record:", err);
-        return res.redirect("/login");
+        return res.redirect(
+          "https://front-end-rev-auto-parts.onrender.com/login"
+        );
       }
     }
   )(req, res);
