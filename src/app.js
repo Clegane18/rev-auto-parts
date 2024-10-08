@@ -41,7 +41,7 @@ app.use("/favicon.ico", (req, res) => {
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://front-end-rev-auto-parts.onrender.com",
     credentials: true,
   })
 );
