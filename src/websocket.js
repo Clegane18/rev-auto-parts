@@ -5,7 +5,7 @@ let io;
 const initializeWebSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: "https://front-end-rev-auto-parts.onrender.com",
       methods: ["GET", "POST", "PUT"],
       credentials: true,
     },
