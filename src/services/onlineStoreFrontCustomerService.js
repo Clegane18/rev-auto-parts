@@ -69,7 +69,7 @@ const login = async ({ email, password }) => {
     if (!customer) {
       return {
         status: 404,
-        message: `Customer with the email of ${email} was not found.`,
+        message: `Email not found.`,
       };
     }
 

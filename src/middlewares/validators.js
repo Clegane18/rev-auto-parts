@@ -364,6 +364,23 @@ const updateCustomerSchema = Joi.object({
 const addAddressSchema = Joi.object({
   customerId: Joi.number().integer().positive().required(),
   fullName: Joi.string().min(3).optional().allow(null, ""),
+  phoneNumber: Joi.string()
+    .required()
+    .messages({
+      "string.base": "Phone number must be a string of digits.",
+      "string.empty": "Phone number cannot be empty.",
+      "any.required": "Phone number is required.",
+    })
+    .pattern(/^\d+$/)
+    .messages({
+      "string.pattern.base": "Phone number must contain only digits.",
+    })
+    .min(11)
+    .max(12)
+    .messages({
+      "string.min": "Phone number must be at least 10 digits long.",
+      "string.max": "Phone number must be at most 12 digits long.",
+    }),
   region: Joi.string().optional().allow(null, ""),
   province: Joi.string().optional().allow(null, ""),
   city: Joi.string().optional().allow(null, ""),

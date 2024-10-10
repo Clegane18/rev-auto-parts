@@ -2,10 +2,24 @@ const { Server } = require("socket.io");
 
 let io;
 
+// const initializeWebSocket = (server) => {
+//   io = new Server(server, {
+//     cors: {
+//       origin: "https://front-end-rev-auto-parts.onrender.com",
+//       methods: ["GET", "POST", "PUT"],
+//       credentials: true,
+//     },
+//   });
+
+//   io.on("connection", (socket) => {
+//     socket.on("disconnect", () => {});
+//   });
+// };
+
 const initializeWebSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "https://front-end-rev-auto-parts.onrender.com",
+      origin: "http://localhost:3002",
       methods: ["GET", "POST", "PUT"],
       credentials: true,
     },

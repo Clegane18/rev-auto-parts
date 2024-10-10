@@ -21,9 +21,8 @@ if (process.env.NODE_ENV === "production") {
     host: DB_HOST,
     dialect: "postgres",
     timezone: "+08:00",
-    logging: console.log,
+    logging: false,
   });
 }
 
 module.exports = sequelize;
-// New
