@@ -19,17 +19,35 @@ const addProduct = async ({
   supplierName,
 }) => {
   try {
-    const existingProduct = await Product.findOne({
+    const normalize = (str) => str.replace(/[\s\p{P}]/gu, "").toLowerCase();
+
+    const normalizedInput = {
+      category: normalize(category),
+      itemCode: normalize(itemCode),
+      brand: normalize(brand),
+      name: normalize(name),
+      description: normalize(description),
+      supplierName: normalize(supplierName),
+      price,
+      supplierCost,
+    };
+
+    const potentialProducts = await Product.findAll({
       where: {
-        category,
-        itemCode,
-        brand,
-        name,
-        description,
         price,
         supplierCost,
-        supplierName,
       },
+    });
+
+    const existingProduct = potentialProducts.find((product) => {
+      return (
+        normalize(product.category) === normalizedInput.category &&
+        normalize(product.itemCode) === normalizedInput.itemCode &&
+        normalize(product.brand) === normalizedInput.brand &&
+        normalize(product.name) === normalizedInput.name &&
+        normalize(product.description) === normalizedInput.description &&
+        normalize(product.supplierName) === normalizedInput.supplierName
+      );
     });
 
     if (existingProduct) {
