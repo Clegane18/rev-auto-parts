@@ -80,6 +80,22 @@ const createComment = async ({
       };
     }
 
+    // **Check if the customer has already commented on this product**
+    const existingComment = await Comment.findOne({
+      where: {
+        customerId,
+        productId,
+      },
+      transaction,
+    });
+
+    if (existingComment) {
+      throw {
+        status: 409, // Conflict
+        message: "You have already submitted a comment for this product.",
+      };
+    }
+
     const comment = await Comment.create(
       {
         customerId,

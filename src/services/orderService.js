@@ -239,7 +239,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
           include: [
             {
               model: Product,
-              attributes: ["id", "name", "price"], // Include 'id' here
+              attributes: ["id", "name", "price"],
               include: [
                 {
                   model: ProductImage,
@@ -272,7 +272,6 @@ const getOrdersByStatus = async ({ status, customerId }) => {
         status: order.status,
         createdAt: formatDate(order.createdAt),
         items: order.OrderItems.map((item) => ({
-          productId: item.Product.id, // **Include productId here**
           productName: item.Product.name,
           productImage:
             item.Product.images?.[0]?.imageUrl || "default-image.jpg",
@@ -379,7 +378,7 @@ const getAllOrders = async () => {
           include: [
             {
               model: Product,
-              attributes: ["id", "name", "price"],
+              attributes: ["id", "name", "price", "purchaseMethod"],
               include: [
                 {
                   model: ProductImage,
@@ -439,6 +438,7 @@ const getAllOrders = async () => {
         productName: item.Product.name,
         quantity: item.quantity,
         price: item.price,
+        purchaseMethod: item.Product.purchaseMethod,
         productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg",
       })),
     }));
