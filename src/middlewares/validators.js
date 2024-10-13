@@ -442,10 +442,41 @@ const getOrdersByStatusSchema = Joi.object({
 });
 
 const sendContactUsEmailSchema = Joi.object({
-  name: Joi.string().min(3).max(50).required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().min(11).max(12).required(),
-  message: Joi.string().min(10).max(500).required(),
+  name: Joi.string().min(3).max(50).required().messages({
+    "string.empty": "Name is required.",
+    "string.min": "Name must be at least 3 characters long.",
+    "string.max": "Name cannot exceed 50 characters.",
+    "any.required": "Name is required.",
+  }),
+
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required()
+    .messages({
+      "string.empty": "Email is required.",
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email is required.",
+    }),
+
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(11)
+    .max(12)
+    .required()
+    .messages({
+      "string.empty": "Phone number is required.",
+      "string.min": "Phone number must be at least 11 digits.",
+      "string.max": "Phone number cannot exceed 12 digits.",
+      "string.pattern.base": "Phone number must contain only numbers.",
+      "any.required": "Phone number is required.",
+    }),
+
+  message: Joi.string().min(3).max(500).required().messages({
+    "string.empty": "Message is required.",
+    "string.min": "Message must be at least 3 characters long.",
+    "string.max": "Message cannot exceed 500 characters.",
+    "any.required": "Message is required.",
+  }),
 });
 
 const adminLogInSchema = Joi.object({

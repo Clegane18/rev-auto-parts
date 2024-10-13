@@ -331,10 +331,9 @@ const sendContactUsEmail = async ({ name, email, phone, message }) => {
     };
   } catch (error) {
     console.error("Error in sendContactUsEmail service:", error);
-    throw error;
+    throw new Error("Failed to send email. Please try again later.");
   }
 };
-
 const updateProductPurchaseMethod = async ({
   productId,
   newPurchaseMethod,
