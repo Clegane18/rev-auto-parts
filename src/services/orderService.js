@@ -272,6 +272,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
         status: order.status,
         createdAt: formatDate(order.createdAt),
         items: order.OrderItems.map((item) => ({
+          productId: item.Product.id,
           productName: item.Product.name,
           productImage:
             item.Product.images?.[0]?.imageUrl || "default-image.jpg",
@@ -479,7 +480,9 @@ const updateOrderStatus = async ({ orderId, newStatus }) => {
       };
     }
 
-    const order = await Order.findByPk(orderId);
+    const order = await Order.findByPk(orderId, {
+      include: [{ model: OrderItem }],
+    });
 
     if (!order) {
       return {
@@ -490,14 +493,43 @@ const updateOrderStatus = async ({ orderId, newStatus }) => {
       };
     }
 
-    order.status = newStatus;
+    if (newStatus === "Cancelled") {
+      if (order.status !== "To Pay") {
+        return {
+          status: 400,
+          data: { message: "Order cannot be canceled once it is processed." },
+        };
+      }
 
-    await order.save();
+      await sequelize.transaction(async (t) => {
+        for (const item of order.OrderItems) {
+          const product = await Product.findByPk(item.productId, {
+            transaction: t,
+          });
+          if (product) {
+            await product.update(
+              { stock: product.stock + item.quantity },
+              { transaction: t }
+            );
+          }
+        }
 
-    return {
-      status: 200,
-      message: `Order status updated to '${newStatus}' successfully`,
-    };
+        await order.update({ status: "Cancelled" }, { transaction: t });
+      });
+
+      return {
+        status: 200,
+        message: "Order canceled successfully, and stock has been restored.",
+      };
+    } else {
+      order.status = newStatus;
+      await order.save();
+
+      return {
+        status: 200,
+        message: `Order status updated to '${newStatus}' successfully`,
+      };
+    }
   } catch (error) {
     console.error("Error in updateOrderStatus service:", error);
     return {
