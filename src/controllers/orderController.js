@@ -143,6 +143,34 @@ const updateOrderPaymentStatus = async (req, res) => {
   }
 };
 
+const getAllOrdersByStatus = async (req, res) => {
+  try {
+    const result = await orderService.getAllOrdersByStatus({
+      status: req.query.status,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all orders by status:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const getAllOrdersByPaymentStatus = async (req, res) => {
+  try {
+    const result = await orderService.getAllOrdersByPaymentStatus({
+      paymentStatus: req.query.paymentStatus,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all orders by payment status:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
@@ -153,4 +181,6 @@ module.exports = {
   updateOrderStatus,
   deleteOrderById,
   updateOrderPaymentStatus,
+  getAllOrdersByStatus,
+  getAllOrdersByPaymentStatus,
 };

@@ -56,4 +56,11 @@ router.put(
   orderController.updateOrderPaymentStatus
 );
 
+router.get("/orders-list/status", orderController.getAllOrdersByStatus);
+
+router.get(
+  "/orders-list/payment-status",
+  orderController.getAllOrdersByPaymentStatus
+);
+
 module.exports = router;

@@ -583,6 +583,247 @@ const updateOrderPaymentStatus = async ({ orderId, newPaymentStatus }) => {
   }
 };
 
+const getAllOrdersByStatus = async ({ status }) => {
+  try {
+    if (!status) {
+      throw {
+        status: 400,
+        data: {
+          message: "Order status is required",
+        },
+      };
+    }
+
+    const orders = await Order.findAll({
+      where: { status },
+      include: [
+        {
+          model: Customer,
+          attributes: ["id", "username", "email", "phoneNumber"],
+        },
+        {
+          model: Address,
+          attributes: [
+            "id",
+            "fullName",
+            "region",
+            "province",
+            "city",
+            "barangay",
+            "postalCode",
+            "addressLine",
+            "label",
+            "isSetDefaultAddress",
+          ],
+        },
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "name", "price", "purchaseMethod"],
+              include: [
+                {
+                  model: ProductImage,
+                  as: "images",
+                  attributes: ["imageUrl"],
+                  where: { isPrimary: true },
+                  required: false,
+                },
+              ],
+            },
+          ],
+          attributes: ["id", "orderId", "productId", "quantity", "price"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!orders || orders.length === 0) {
+      throw {
+        status: 404,
+        data: {
+          message: `No orders found with status "${status}"`,
+        },
+      };
+    }
+
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customer: {
+        id: order.Customer.id,
+        username: order.Customer.username,
+        email: order.Customer.email,
+        phoneNumber: order.Customer.phoneNumber,
+      },
+      address: {
+        fullName: order.Address.fullName,
+        region: order.Address.region,
+        province: order.Address.province,
+        city: order.Address.city,
+        barangay: order.Address.barangay,
+        postalCode: order.Address.postalCode,
+        addressLine: order.Address.addressLine,
+        label: order.Address.label,
+        isSetDefaultAddress: order.Address.isSetDefaultAddress,
+      },
+      merchandiseSubtotal: order.merchandiseSubtotal,
+      shippingFee: order.shippingFee,
+      totalAmount: order.totalAmount,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      gcashReferenceNumber: order.gcashReferenceNumber,
+      paymentStatus: order.paymentStatus,
+      createdAt: order.createdAt,
+      items: order.OrderItems.map((item) => ({
+        productId: item.Product.id,
+        productName: item.Product.name,
+        quantity: item.quantity,
+        price: item.price,
+        purchaseMethod: item.Product.purchaseMethod,
+        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg",
+      })),
+    }));
+
+    return {
+      status: 200,
+      message: `Orders with status "${status}" retrieved successfully`,
+      data: formattedOrders,
+    };
+  } catch (error) {
+    console.error("Error in getOrdersByStatus service:", error);
+
+    throw {
+      status: error.status || 500,
+      data: error.data || {
+        message: "Internal server error while retrieving orders by status",
+      },
+    };
+  }
+};
+
+const getAllOrdersByPaymentStatus = async ({ paymentStatus }) => {
+  try {
+    if (!paymentStatus) {
+      throw {
+        status: 400,
+        data: {
+          message: "Payment status is required",
+        },
+      };
+    }
+
+    const orders = await Order.findAll({
+      where: { paymentStatus },
+      include: [
+        {
+          model: Customer,
+          attributes: ["id", "username", "email", "phoneNumber"],
+        },
+        {
+          model: Address,
+          attributes: [
+            "id",
+            "fullName",
+            "region",
+            "province",
+            "city",
+            "barangay",
+            "postalCode",
+            "addressLine",
+            "label",
+            "isSetDefaultAddress",
+          ],
+        },
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "name", "price", "purchaseMethod"],
+              include: [
+                {
+                  model: ProductImage,
+                  as: "images",
+                  attributes: ["imageUrl"],
+                  where: { isPrimary: true },
+                  required: false,
+                },
+              ],
+            },
+          ],
+          attributes: ["id", "orderId", "productId", "quantity", "price"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!orders || orders.length === 0) {
+      throw {
+        status: 404,
+        data: {
+          message: `No orders found with payment status "${paymentStatus}"`,
+        },
+      };
+    }
+
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customer: {
+        id: order.Customer.id,
+        username: order.Customer.username,
+        email: order.Customer.email,
+        phoneNumber: order.Customer.phoneNumber,
+      },
+      address: {
+        fullName: order.Address.fullName,
+        region: order.Address.region,
+        province: order.Address.province,
+        city: order.Address.city,
+        barangay: order.Address.barangay,
+        postalCode: order.Address.postalCode,
+        addressLine: order.Address.addressLine,
+        label: order.Address.label,
+        isSetDefaultAddress: order.Address.isSetDefaultAddress,
+      },
+      merchandiseSubtotal: order.merchandiseSubtotal,
+      shippingFee: order.shippingFee,
+      totalAmount: order.totalAmount,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      gcashReferenceNumber: order.gcashReferenceNumber,
+      paymentStatus: order.paymentStatus,
+      createdAt: order.createdAt,
+      items: order.OrderItems.map((item) => ({
+        productId: item.Product.id,
+        productName: item.Product.name,
+        quantity: item.quantity,
+        price: item.price,
+        purchaseMethod: item.Product.purchaseMethod,
+        productImage: item.Product.images?.[0]?.imageUrl || "default-image.jpg",
+      })),
+    }));
+
+    return {
+      status: 200,
+      message: `Orders with payment status "${paymentStatus}" retrieved successfully`,
+      data: formattedOrders,
+    };
+  } catch (error) {
+    console.error("Error in getAllOrdersByPaymentStatus service:", error);
+
+    throw {
+      status: error.status || 500,
+      data: error.data || {
+        message:
+          "Internal server error while retrieving orders by payment status",
+      },
+    };
+  }
+};
+
 module.exports = {
   calculateShippingFee,
   createOrder,
@@ -592,4 +833,6 @@ module.exports = {
   updateOrderStatus,
   deleteOrderById,
   updateOrderPaymentStatus,
+  getAllOrdersByStatus,
+  getAllOrdersByPaymentStatus,
 };
