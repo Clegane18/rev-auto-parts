@@ -649,7 +649,7 @@ const getAllOrdersByStatus = async ({ status }) => {
 
     if (!orders || orders.length === 0) {
       throw {
-        status: 404,
+        status: 200,
         data: {
           message: `No orders found with status "${status}"`,
         },
