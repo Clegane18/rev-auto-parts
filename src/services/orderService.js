@@ -75,22 +75,6 @@ const createOrder = async ({
       };
     }
 
-    const cart = await Cart.findOne({
-      where: {
-        customerId,
-        status: "active",
-      },
-    });
-
-    if (!cart) {
-      throw {
-        status: 404,
-        data: {
-          message: `Active cart not found for customer with ID ${customerId}.`,
-        },
-      };
-    }
-
     const address = await Address.findOne({
       where: { id: addressId, customerId: customerId },
     });
@@ -196,14 +180,6 @@ const createOrder = async ({
         imageUrl: productUpdate.imageUrl,
       });
     }
-
-    const purchasedProductIds = itemsArray.map((item) => item.productId);
-    await CartItem.destroy({
-      where: {
-        productId: purchasedProductIds,
-        cartId: cart.id,
-      },
-    });
 
     await createOnlineTransactionHistory({
       customerId,

@@ -316,9 +316,10 @@ const getCartItemCount = async ({ customerId }) => {
     });
 
     if (!cart) {
-      throw {
-        status: 404,
-        data: { message: "Active cart not found for the specified customer." },
+      return {
+        status: 200,
+        data: 0,
+        message: "No active cart found. Assuming zero items for the customer.",
       };
     }
 
