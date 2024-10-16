@@ -3,8 +3,7 @@ const OrderItem = require("../database/models/orderItemModel");
 const Product = require("../database/models/inventoryProductModel");
 const Customer = require("../database/models/customerModel");
 const Address = require("../database/models/addressModel");
-const CartItem = require("../database/models/cartItemModel");
-const Cart = require("../database/models/cartModel");
+const Comment = require("../database/models/commentModel");
 const { ProductImage } = require("../database/models");
 const sequelize = require("../database/db");
 const {
@@ -240,30 +239,46 @@ const getOrdersByStatus = async ({ status, customerId }) => {
       };
     }
 
-    const orderDetails = orders.map((order) => {
-      const detail = {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        totalAmount: order.totalAmount,
-        status: order.status,
-        createdAt: formatDate(order.createdAt),
-        items: order.OrderItems.map((item) => ({
-          productId: item.Product.id,
-          productName: item.Product.name,
-          productImage:
-            item.Product.images?.[0]?.imageUrl || "default-image.jpg",
-          quantity: item.quantity,
-          price: item.Product.price,
-        })),
-      };
+    const orderDetails = await Promise.all(
+      orders.map(async (order) => {
+        const items = await Promise.all(
+          order.OrderItems.map(async (item) => {
+            const hasCommented = await Comment.findOne({
+              where: {
+                productId: item.Product.id,
+                customerId,
+              },
+            });
 
-      if (order.status === "To Ship") {
-        const { startDate, endDate } = calculateETARange(order.createdAt);
-        detail.eta = formatDateRange(startDate, endDate);
-      }
+            return {
+              productId: item.Product.id,
+              productName: item.Product.name,
+              productImage:
+                item.Product.images?.[0]?.imageUrl || "default-image.jpg",
+              quantity: item.quantity,
+              price: item.Product.price,
+              hasCommented: !!hasCommented,
+            };
+          })
+        );
 
-      return detail;
-    });
+        const detail = {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          totalAmount: order.totalAmount,
+          status: order.status,
+          createdAt: formatDate(order.createdAt),
+          items,
+        };
+
+        if (order.status === "To Ship") {
+          const { startDate, endDate } = calculateETARange(order.createdAt);
+          detail.eta = formatDateRange(startDate, endDate);
+        }
+
+        return detail;
+      })
+    );
 
     return {
       status: 200,
@@ -271,7 +286,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
       data: orderDetails,
     };
   } catch (error) {
-    console.error("Error retrieving orders by status:", error);
+    console.error("Error in getOrdersByStatus:", error);
     return {
       status: 500,
       data: {
