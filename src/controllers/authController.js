@@ -10,17 +10,20 @@ exports.googleLogin = passport.authenticate("google", {
 exports.googleCallback = (req, res) => {
   passport.authenticate(
     "google",
-    { failureRedirect: "https://front-end-rev-auto-parts.onrender.com/login" },
+    {
+      failureRedirect:
+        "https://front-end-rev-auto-parts.onrender.com/customer-login",
+    },
     async (err, user, info) => {
       if (err) {
         console.error("Error during Google authentication:", err);
         return res.redirect(
-          "https://front-end-rev-auto-parts.onrender.com/login"
+          "https://front-end-rev-auto-parts.onrender.com/customer-login"
         );
       }
       if (!user) {
         return res.redirect(
-          "https://front-end-rev-auto-parts.onrender.com/login"
+          "https://front-end-rev-auto-parts.onrender.com/customer-login"
         );
       }
 
@@ -70,7 +73,7 @@ exports.googleCallback = (req, res) => {
           if (err) {
             console.error("Error during user login:", err);
             return res.redirect(
-              "https://front-end-rev-auto-parts.onrender.com/login"
+              "https://front-end-rev-auto-parts.onrender.com/customer-login"
             );
           }
 
@@ -81,7 +84,7 @@ exports.googleCallback = (req, res) => {
       } catch (err) {
         console.error("Error handling customer record:", err);
         return res.redirect(
-          "https://front-end-rev-auto-parts.onrender.com/login"
+          "https://front-end-rev-auto-parts.onrender.com/customer-login"
         );
       }
     }
