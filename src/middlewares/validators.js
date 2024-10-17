@@ -378,7 +378,7 @@ const addAddressSchema = Joi.object({
     .min(11)
     .max(12)
     .messages({
-      "string.min": "Phone number must be at least 10 digits long.",
+      "string.min": "Phone number must be at least 11 digits long.",
       "string.max": "Phone number must be at most 12 digits long.",
     }),
   region: Joi.string().optional().allow(null, ""),

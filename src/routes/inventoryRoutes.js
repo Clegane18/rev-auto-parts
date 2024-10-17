@@ -98,4 +98,9 @@ router.get(
   inventoryController.getAllItemsByCategory
 );
 
+router.get(
+  "/online-products/filter/nameOrDescription",
+  inventoryController.getPublishedProducts
+);
+
 module.exports = router;

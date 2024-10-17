@@ -706,6 +706,48 @@ const getAllItemsByCategory = async () => {
   }
 };
 
+const getPublishedProducts = async ({ name, description }) => {
+  try {
+    if (!name && !description) {
+      throw {
+        status: 400,
+        data: { message: "At least one of name or description is required." },
+      };
+    }
+
+    const products = await Product.findAll({
+      where: {
+        status: "published",
+        [Op.or]: [
+          name ? { name: { [Op.iLike]: `%${name}%` } } : null,
+          description
+            ? { description: { [Op.iLike]: `%${description}%` } }
+            : null,
+        ].filter(Boolean),
+      },
+    });
+
+    if (!products || products.length === 0) {
+      throw {
+        status: 404,
+        data: {
+          message: `Published product not found with name: ${
+            name || "any"
+          } and description: ${description || "any"}`,
+        },
+      };
+    }
+
+    return {
+      status: 200,
+      data: products,
+    };
+  } catch (error) {
+    console.error("Error in getPublishedProducts service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -727,4 +769,5 @@ module.exports = {
   getTotalStock,
   getTotalItems,
   getAllItemsByCategory,
+  getPublishedProducts,
 };
