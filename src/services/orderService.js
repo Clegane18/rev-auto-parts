@@ -4,6 +4,8 @@ const Product = require("../database/models/inventoryProductModel");
 const Customer = require("../database/models/customerModel");
 const Address = require("../database/models/addressModel");
 const Comment = require("../database/models/commentModel");
+const Cart = require("../database/models/cartModel");
+const CartItem = require("../database/models/cartItemModel");
 const { ProductImage } = require("../database/models");
 const sequelize = require("../database/db");
 const {
@@ -85,6 +87,13 @@ const createOrder = async ({
         },
       };
     }
+
+    const cart = await Cart.findOne({
+      where: {
+        customerId,
+        status: "active",
+      },
+    });
 
     const aggregatedItems = items.reduce((acc, item) => {
       if (acc[item.productId]) {
@@ -177,6 +186,16 @@ const createOrder = async ({
         quantity: productUpdate.quantity,
         price: productUpdate.price,
         imageUrl: productUpdate.imageUrl,
+      });
+    }
+
+    if (cart) {
+      const purchasedProductIds = items.map((item) => item.productId);
+      await CartItem.destroy({
+        where: {
+          productId: purchasedProductIds,
+          cartId: cart.id,
+        },
       });
     }
 
