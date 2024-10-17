@@ -68,4 +68,14 @@ router.delete(
   onlineStoreFrontCustomerController.deleteCustomerById
 );
 
+router.post(
+  "/request-change-password",
+  onlineStoreFrontCustomerController.requestChangePassword
+);
+
+router.post(
+  "/change-password/:token",
+  onlineStoreFrontCustomerController.changePassword
+);
+
 module.exports = router;

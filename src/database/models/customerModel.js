@@ -35,6 +35,14 @@ const Customer = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    changePasswordToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    changePasswordExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     googleId: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -68,4 +76,4 @@ const Customer = sequelize.define(
   }
 );
 
-module.exports = Customer;
+module.exports = { Customer };

@@ -149,6 +149,36 @@ const deleteCustomerById = async (req, res) => {
       .json(error.data || { message: "An unexpected error occurred" });
   }
 };
+
+const requestChangePassword = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.requestChangePassword({
+      email: req.body.email,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error requesting for customer's change password:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.changePassword({
+      token: req.params.token,
+      newPassword: req.body.newPassword,
+      confirmPassword: req.body.confirmPassword,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error changing customer's password:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
 module.exports = {
   signUp,
   login,
@@ -160,4 +190,6 @@ module.exports = {
   toggleCustomerStatus,
   getCustomerOnlinePurchaseHistory,
   deleteCustomerById,
+  requestChangePassword,
+  changePassword,
 };

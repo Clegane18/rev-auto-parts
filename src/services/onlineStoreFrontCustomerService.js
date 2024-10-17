@@ -138,7 +138,7 @@ const requestResetPassword = async ({ email }) => {
     customer.resetPasswordExpires = resetTokenExpiry;
     await customer.save();
 
-    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetUrl = `https://front-end-rev-auto-parts.onrender.com/reset-password/${resetToken}`;
     const message = `
       <p>You requested a password reset. Please click the button below to reset your password.</p>
       <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #bb0000; text-decoration: none; border-radius: 2px; ">It's me</a>
@@ -436,6 +436,104 @@ const deleteCustomerById = async ({ customerId }) => {
   }
 };
 
+const requestChangePassword = async ({ email }) => {
+  try {
+    const customer = await Customer.findOne({ where: { email } });
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: `Customer with the email of ${email} was not found.`,
+      };
+    }
+
+    const changeToken = crypto.randomBytes(32).toString("hex");
+    const changeTokenExpiry = Date.now() + 180000; // 3 minutes from now
+
+    customer.changePasswordToken = changeToken;
+    customer.changePasswordExpires = changeTokenExpiry;
+    await customer.save();
+
+    const changeUrl = `https://your-frontend-domain.com/change-password/${changeToken}`;
+    const message = `
+      <p>You requested to change your password. Please click the button below to proceed.</p>
+      <a href="${changeUrl}" style="
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #28a745;
+        text-decoration: none;
+        border-radius: 2px;
+      ">Change Password</a>
+    `;
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      to: customer.email,
+      from: process.env.EMAIL_USER,
+      subject: "Change Your Password",
+      html: message,
+    });
+
+    return {
+      status: 200,
+      message: "Change password email sent successfully.",
+    };
+  } catch (error) {
+    console.error("Error in requestChangePassword service:", error);
+    throw error;
+  }
+};
+
+const changePassword = async ({ token, newPassword, confirmPassword }) => {
+  try {
+    if (newPassword !== confirmPassword) {
+      return {
+        status: 400,
+        message: "New password and confirm password do not match.",
+      };
+    }
+
+    const customer = await Customer.findOne({
+      where: {
+        changePasswordToken: token,
+        changePasswordExpires: { [Op.gt]: Date.now() },
+      },
+    });
+
+    if (!customer) {
+      return {
+        status: 400,
+        message: "Change password token is invalid or has expired.",
+      };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    customer.password = hashedPassword;
+
+    customer.changePasswordToken = null;
+    customer.changePasswordExpires = null;
+
+    await customer.save();
+
+    return {
+      status: 200,
+      message: "Password has been successfully updated.",
+    };
+  } catch (error) {
+    console.error("Error in changePassword service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   signUp,
   login,
@@ -447,4 +545,6 @@ module.exports = {
   toggleCustomerStatus,
   getCustomerOnlinePurchaseHistory,
   deleteCustomerById,
+  requestChangePassword,
+  changePassword,
 };
