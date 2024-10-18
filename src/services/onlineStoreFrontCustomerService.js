@@ -140,9 +140,21 @@ const requestResetPassword = async ({ email }) => {
 
     const resetUrl = `https://front-end-rev-auto-parts.onrender.com/reset-password/${resetToken}`;
     const message = `
-      <p>You requested a password reset. Please click the button below to reset your password.</p>
-      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #bb0000; text-decoration: none; border-radius: 2px; ">It's me</a>
-    `;
+    <p style="font-family: 'Montserrat', serif; text-transform: none;">
+      You requested a password reset. Please click the button below to reset your password.
+    </p>
+    <a href="${resetUrl}" style="
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #bb0000;
+      text-decoration: none;
+      border-radius: 2px;
+      border: 2px solid #bb0000;
+      font-family: 'Montserrat', serif;
+      text-transform: none;
+    ">It's me</a>
+  `;
 
     const transporter = nodemailer.createTransport({
       service: "Gmail",
@@ -454,17 +466,21 @@ const requestChangePassword = async ({ email }) => {
     customer.changePasswordExpires = changeTokenExpiry;
     await customer.save();
 
-    const changeUrl = `https://your-frontend-domain.com/change-password/${changeToken}`;
+    const changeUrl = `https://front-end-rev-auto-parts.onrender.com/change-password/${changeToken}`;
     const message = `
-      <p>You requested to change your password. Please click the button below to proceed.</p>
+      <p style="font-family: 'Montserrat', serif; text-transform: none;">
+        You requested to change your password. Please click the button below to proceed.
+      </p>
       <a href="${changeUrl}" style="
         display: inline-block;
         padding: 10px 20px;
         font-size: 16px;
-        color: #fff;
-        background-color: #28a745;
+        color: #bb0000;
         text-decoration: none;
         border-radius: 2px;
+        border: 2px solid #bb0000;
+        font-family: 'Montserrat', serif;
+        text-transform: none;
       ">Change Password</a>
     `;
 
