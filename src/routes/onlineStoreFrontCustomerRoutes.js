@@ -9,6 +9,7 @@ const {
   resetPasswordValidation,
   requestChangePasswordValidation,
   changePasswordValidation,
+  updatePasswordValidation,
 } = require("../middlewares/validators");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
@@ -97,6 +98,7 @@ router.post(
   "/update-password",
   authenticateToken,
   checkAuthorization,
+  updatePasswordValidation,
   onlineStoreFrontCustomerController.updatePassword
 );
 

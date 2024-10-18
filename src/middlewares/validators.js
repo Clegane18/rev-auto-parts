@@ -282,6 +282,18 @@ const changePasswordValidation = (req, res, next) => {
   next();
 };
 
+const updatePasswordValidation = (req, res, next) => {
+  const { error } = updatePasswordSchema.validate(req.body, {
+    abortEarly: true,
+  });
+
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().min(3).required(),
@@ -638,6 +650,34 @@ const changePasswordSchema = Joi.object({
     }),
 });
 
+const updatePasswordSchema = Joi.object({
+  customerId: Joi.string().required().messages({
+    "string.empty": "Customer ID cannot be empty.",
+    "any.required": "Customer ID is required.",
+  }),
+  newPassword: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must be 8-30 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      "string.empty": "New password field cannot be empty.",
+      "any.required": "New password is required.",
+    }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("newPassword"))
+    .required()
+    .messages({
+      "any.only": "Confirm password does not match the new password.",
+      "string.empty": "Confirm password field cannot be empty.",
+      "any.required": "Confirm password is required.",
+    }),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -666,4 +706,5 @@ module.exports = {
   resetPasswordValidation,
   requestChangePasswordValidation,
   changePasswordValidation,
+  updatePasswordValidation,
 };
