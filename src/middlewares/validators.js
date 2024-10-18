@@ -234,6 +234,46 @@ const updateAdminPasswordValidation = (req, res, next) => {
   next();
 };
 
+const requestResetPasswordValidation = (req, res, next) => {
+  const { error } = requestResetPasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  next();
+};
+
+const resetPasswordValidation = (req, res, next) => {
+  const { error } = resetPasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  next();
+};
+
+const requestChangePasswordValidation = (req, res, next) => {
+  const { error } = requestChangePasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  next();
+};
+
+const changePasswordValidation = (req, res, next) => {
+  const { error } = changePasswordSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  next();
+};
+
 const createProductSchema = Joi.object({
   category: Joi.string().required().min(3),
   itemCode: Joi.string().min(3).required(),
@@ -520,6 +560,40 @@ const updateAdminPasswordSchema = Joi.object({
     }),
 });
 
+const requestResetPasswordSchema = Joi.object({
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required(),
+});
+
+const resetPasswordSchema = Joi.object({
+  newPassword: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$"
+      )
+    )
+    .required(),
+  confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
+});
+
+const requestChangePasswordSchema = Joi.object({
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required(),
+});
+
+const changePasswordSchema = Joi.object({
+  newPassword: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$"
+      )
+    )
+    .required(),
+  confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
+});
+
 module.exports = {
   createProductValidation,
   updateProductValidation,
@@ -544,4 +618,8 @@ module.exports = {
   adminLogInValidation,
   updateAdminEmailValidation,
   updateAdminPasswordValidation,
+  requestResetPasswordValidation,
+  resetPasswordValidation,
+  requestChangePasswordValidation,
+  changePasswordValidation,
 };

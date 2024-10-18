@@ -5,6 +5,10 @@ const {
   signUpValidation,
   loginValidation,
   updateCustomerValidation,
+  requestResetPasswordValidation,
+  resetPasswordValidation,
+  requestChangePasswordValidation,
+  changePasswordValidation,
 } = require("../middlewares/validators");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
@@ -23,11 +27,13 @@ router.post(
 
 router.post(
   "/request-reset-password",
+  requestResetPasswordValidation,
   onlineStoreFrontCustomerController.requestResetPassword
 );
 
 router.post(
   "/reset-password/:token",
+  resetPasswordValidation,
   onlineStoreFrontCustomerController.resetPassword
 );
 
@@ -70,11 +76,13 @@ router.delete(
 
 router.post(
   "/request-change-password",
+  requestChangePasswordValidation,
   onlineStoreFrontCustomerController.requestChangePassword
 );
 
 router.post(
   "/change-password/:token",
+  changePasswordValidation,
   onlineStoreFrontCustomerController.changePassword
 );
 
