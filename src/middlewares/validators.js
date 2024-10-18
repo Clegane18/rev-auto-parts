@@ -651,10 +651,6 @@ const changePasswordSchema = Joi.object({
 });
 
 const updatePasswordSchema = Joi.object({
-  customerId: Joi.string().required().messages({
-    "string.empty": "Customer ID cannot be empty.",
-    "any.required": "Customer ID is required.",
-  }),
   newPassword: Joi.string()
     .pattern(
       new RegExp(
