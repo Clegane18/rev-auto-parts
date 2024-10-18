@@ -235,7 +235,9 @@ const updateAdminPasswordValidation = (req, res, next) => {
 };
 
 const requestResetPasswordValidation = (req, res, next) => {
-  const { error } = requestResetPasswordSchema.validate(req.body);
+  const { error } = requestResetPasswordSchema.validate(req.body, {
+    abortEarly: true,
+  });
 
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
@@ -245,7 +247,9 @@ const requestResetPasswordValidation = (req, res, next) => {
 };
 
 const resetPasswordValidation = (req, res, next) => {
-  const { error } = resetPasswordSchema.validate(req.body);
+  const { error } = resetPasswordSchema.validate(req.body, {
+    abortEarly: true,
+  });
 
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
@@ -255,7 +259,9 @@ const resetPasswordValidation = (req, res, next) => {
 };
 
 const requestChangePasswordValidation = (req, res, next) => {
-  const { error } = requestChangePasswordSchema.validate(req.body);
+  const { error } = requestChangePasswordSchema.validate(req.body, {
+    abortEarly: true,
+  });
 
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
@@ -265,7 +271,9 @@ const requestChangePasswordValidation = (req, res, next) => {
 };
 
 const changePasswordValidation = (req, res, next) => {
-  const { error } = changePasswordSchema.validate(req.body);
+  const { error } = changePasswordSchema.validate(req.body, {
+    abortEarly: true,
+  });
 
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
@@ -563,7 +571,12 @@ const updateAdminPasswordSchema = Joi.object({
 const requestResetPasswordSchema = Joi.object({
   email: Joi.string()
     .email({ tlds: { allow: false } })
-    .required(),
+    .required()
+    .messages({
+      "string.empty": "Email address is required.",
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email address is required.",
+    }),
 });
 
 const resetPasswordSchema = Joi.object({
@@ -573,14 +586,32 @@ const resetPasswordSchema = Joi.object({
         "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$"
       )
     )
-    .required(),
-  confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
+    .required()
+    .messages({
+      "string.empty": "New password is required.",
+      "string.pattern.base":
+        "Password must be 8-30 characters long, include uppercase and lowercase letters, a number, and a special character.",
+      "any.required": "New password is required.",
+    }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("newPassword"))
+    .required()
+    .messages({
+      "any.only": "Passwords do not match.",
+      "string.empty": "Please confirm your new password.",
+      "any.required": "Please confirm your new password.",
+    }),
 });
 
 const requestChangePasswordSchema = Joi.object({
   email: Joi.string()
     .email({ tlds: { allow: false } })
-    .required(),
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+      "string.empty": "Email field cannot be empty.",
+      "any.required": "Email is required.",
+    }),
 });
 
 const changePasswordSchema = Joi.object({
@@ -590,8 +621,21 @@ const changePasswordSchema = Joi.object({
         "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$"
       )
     )
-    .required(),
-  confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must be 8-30 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      "string.empty": "New password field cannot be empty.",
+      "any.required": "New password is required.",
+    }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("newPassword"))
+    .required()
+    .messages({
+      "any.only": "Confirm password does not match the new password.",
+      "string.empty": "Confirm password field cannot be empty.",
+      "any.required": "Confirm password is required.",
+    }),
 });
 
 module.exports = {

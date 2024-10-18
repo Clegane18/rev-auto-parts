@@ -179,6 +179,53 @@ const changePassword = async (req, res) => {
       .json(error.data || { message: "An unexpected error occurred" });
   }
 };
+
+const verifyOldPassword = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.verifyOldPassword({
+      customerId: req.user.id,
+      oldPassword: req.body.oldPassword,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error verifying customer's old password:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const updatePassword = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.updatePassword({
+      customerId: req.user.id,
+      newPassword: req.body.newPassword,
+      confirmPassword: req.body.confirmPassword,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error verifying customer's old password:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const getPasswordChangeMethod = async (req, res) => {
+  try {
+    const result =
+      await onlineStoreFrontCustomerService.getPasswordChangeMethod({
+        customerId: req.user.id,
+      });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error verifying customer's password change method:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   signUp,
   login,
@@ -192,4 +239,7 @@ module.exports = {
   deleteCustomerById,
   requestChangePassword,
   changePassword,
+  verifyOldPassword,
+  updatePassword,
+  getPasswordChangeMethod,
 };

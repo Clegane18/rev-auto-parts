@@ -550,6 +550,111 @@ const changePassword = async ({ token, newPassword, confirmPassword }) => {
   }
 };
 
+const verifyOldPassword = async ({ customerId, oldPassword }) => {
+  try {
+    const customer = await Customer.findByPk(customerId);
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: "Customer not found.",
+      };
+    }
+
+    if (!customer.password) {
+      return {
+        status: 400,
+        message:
+          "This account does not have a password set. Please use the password reset option.",
+      };
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, customer.password);
+
+    if (!isMatch) {
+      return {
+        status: 400,
+        message: "Old password is incorrect.",
+      };
+    }
+
+    return {
+      status: 200,
+      message: "Old password verified successfully.",
+    };
+  } catch (error) {
+    console.error("Error in verifyOldPassword service:", error);
+    throw error;
+  }
+};
+
+const updatePassword = async ({ customerId, newPassword, confirmPassword }) => {
+  try {
+    if (newPassword !== confirmPassword) {
+      return {
+        status: 400,
+        message: "New password and confirm password do not match.",
+      };
+    }
+
+    const customer = await Customer.findByPk(customerId);
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: "Customer not found.",
+      };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    customer.password = hashedPassword;
+
+    await customer.save();
+
+    return {
+      status: 200,
+      message: "Password has been successfully updated.",
+    };
+  } catch (error) {
+    console.error("Error in updatePassword service:", error);
+    throw error;
+  }
+};
+
+const getPasswordChangeMethod = async ({ customerId }) => {
+  try {
+    const customer = await Customer.findByPk(customerId);
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: "Customer not found.",
+      };
+    }
+
+    if (customer.password) {
+      return {
+        status: 200,
+        method: "oldPassword",
+      };
+    }
+
+    if (customer.googleId) {
+      return {
+        status: 200,
+        method: "email",
+      };
+    }
+    return {
+      status: 400,
+      message: "Unable to determine account type.",
+    };
+  } catch (error) {
+    console.error("Error in getPasswordChangeMethod service:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   signUp,
   login,
@@ -563,4 +668,7 @@ module.exports = {
   deleteCustomerById,
   requestChangePassword,
   changePassword,
+  verifyOldPassword,
+  updatePassword,
+  getPasswordChangeMethod,
 };

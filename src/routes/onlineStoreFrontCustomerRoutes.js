@@ -86,4 +86,25 @@ router.post(
   onlineStoreFrontCustomerController.changePassword
 );
 
+router.post(
+  "/verify-old-password",
+  authenticateToken,
+  checkAuthorization,
+  onlineStoreFrontCustomerController.verifyOldPassword
+);
+
+router.post(
+  "/update-password",
+  authenticateToken,
+  checkAuthorization,
+  onlineStoreFrontCustomerController.updatePassword
+);
+
+router.get(
+  "/password-change-method",
+  authenticateToken,
+  checkAuthorization,
+  onlineStoreFrontCustomerController.getPasswordChangeMethod
+);
+
 module.exports = router;
