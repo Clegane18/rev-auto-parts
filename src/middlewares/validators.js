@@ -108,8 +108,12 @@ const getProductByIdAndPublishValidation = (req, res, next) => {
 };
 
 const signUpValidation = (req, res, next) => {
-  const { error } = signupSchema.validate(req.body);
-  if (error) return res.status(400).json({ error: error.details[0].message });
+  const { error } = signupSchema.validate(req.body, {
+    abortEarly: true,
+  });
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
   next();
 };
@@ -386,9 +390,35 @@ const getProductByIdAndPublishSchema = Joi.object({
 });
 
 const signupSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).required(),
-  email: Joi.string().email().max(30).required(),
-  password: Joi.string().min(6).max(30).required(),
+  username: Joi.string().alphanum().min(3).max(30).required().messages({
+    "string.alphanum": "Username must contain only alphanumeric characters.",
+    "string.min": "Username must be at least 3 characters long.",
+    "string.max": "Username must be at most 30 characters long.",
+    "any.required": "Username is required.",
+  }),
+  email: Joi.string().email().max(30).required().messages({
+    "string.email": "Email must be a valid email address.",
+    "string.max": "Email must be at most 30 characters long.",
+    "any.required": "Email is required.",
+  }),
+  password: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must be 8-30 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      "string.empty": "Password field cannot be empty.",
+      "any.required": "Password is required.",
+    }),
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
+    "any.only": "Confirm password does not match the password.",
+    "string.empty": "Confirm password field cannot be empty.",
+    "any.required": "Confirm password is required.",
+  }),
 });
 
 const loginSchema = Joi.object({
