@@ -103,4 +103,9 @@ router.get(
   inventoryController.getPublishedProducts
 );
 
+router.get(
+  "/products/filter/status",
+  inventoryController.getAllProductsByStatus
+);
+
 module.exports = router;

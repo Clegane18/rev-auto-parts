@@ -300,6 +300,20 @@ const getPublishedProducts = async (req, res) => {
   }
 };
 
+const getAllProductsByStatus = async (req, res) => {
+  try {
+    const result = await inventoryService.getAllProductsByStatus({
+      status: req.query.status,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error fetching all products by status:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -322,4 +336,5 @@ module.exports = {
   getTotalItems,
   getAllItemsByCategory,
   getPublishedProducts,
+  getAllProductsByStatus,
 };

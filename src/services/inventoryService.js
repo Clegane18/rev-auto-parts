@@ -748,6 +748,46 @@ const getPublishedProducts = async ({ name, description }) => {
   }
 };
 
+const getAllProductsByStatus = async ({ status }) => {
+  try {
+    if (!status) {
+      throw {
+        status: 400,
+        data: {
+          message: "Product status is required",
+        },
+      };
+    }
+
+    const products = await Product.findAll({
+      where: { status },
+    });
+
+    if (!products || products.length === 0) {
+      return {
+        status: 200,
+        data: {
+          message: `No products found with status "${status}"`,
+          products: [],
+        },
+      };
+    }
+
+    return {
+      status: 200,
+      data: products,
+    };
+  } catch (error) {
+    return {
+      status: error.status || 500,
+      data: {
+        message:
+          error.data?.message || "An error occurred while fetching products",
+      },
+    };
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -770,4 +810,5 @@ module.exports = {
   getTotalItems,
   getAllItemsByCategory,
   getPublishedProducts,
+  getAllProductsByStatus,
 };
