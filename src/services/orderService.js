@@ -233,7 +233,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
           include: [
             {
               model: Product,
-              attributes: ["id", "name", "price"],
+              attributes: ["id", "name", "price", "purchaseMethod"],
               include: [
                 {
                   model: ProductImage,
@@ -260,6 +260,8 @@ const getOrdersByStatus = async ({ status, customerId }) => {
 
     const orderDetails = await Promise.all(
       orders.map(async (order) => {
+        const totalAmount = parseFloat(order.totalAmount) || 0;
+
         const items = await Promise.all(
           order.OrderItems.map(async (item) => {
             const hasCommented = await Comment.findOne({
@@ -272,44 +274,48 @@ const getOrdersByStatus = async ({ status, customerId }) => {
             return {
               productId: item.Product.id,
               productName: item.Product.name,
-              productImage:
-                item.Product.images?.[0]?.imageUrl || "default-image.jpg",
+              productImage: item.Product.images?.[0]?.imageUrl || null,
               quantity: item.quantity,
-              price: item.Product.price,
+              price: parseFloat(item.Product.price).toFixed(2),
+              purchaseMethod: item.Product.purchaseMethod,
               hasCommented: !!hasCommented,
             };
           })
         );
 
-        const detail = {
+        const createdAt = new Date(order.createdAt);
+        const pickupDeadline = new Date(createdAt);
+        pickupDeadline.setDate(createdAt.getDate() + 7);
+
+        return {
           orderId: order.id,
           orderNumber: order.orderNumber,
-          totalAmount: order.totalAmount,
+          totalAmount: totalAmount.toFixed(2),
           status: order.status,
-          createdAt: formatDate(order.createdAt),
+          createdAt: createdAt.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
           items,
+          message: `Please pick up your order before ${pickupDeadline.toLocaleDateString(
+            "en-US",
+            { year: "numeric", month: "long", day: "numeric" }
+          )}.`,
         };
-
-        if (order.status === "To Ship") {
-          const { startDate, endDate } = calculateETARange(order.createdAt);
-          detail.eta = formatDateRange(startDate, endDate);
-        }
-
-        return detail;
       })
     );
 
     return {
       status: 200,
-      message: `Orders retrieved successfully.`,
       data: orderDetails,
     };
   } catch (error) {
-    console.error("Error in getOrdersByStatus:", error);
+    console.error(error);
     return {
       status: 500,
       data: {
-        message: "An error occurred while retrieving orders.",
+        message: "An error occurred while fetching orders.",
       },
     };
   }
