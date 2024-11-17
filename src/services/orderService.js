@@ -283,39 +283,58 @@ const getOrdersByStatus = async ({ status, customerId }) => {
           })
         );
 
-        const createdAt = new Date(order.createdAt);
-        const pickupDeadline = new Date(createdAt);
-        pickupDeadline.setDate(createdAt.getDate() + 7);
-
-        return {
+        const detail = {
           orderId: order.id,
           orderNumber: order.orderNumber,
           totalAmount: totalAmount.toFixed(2),
           status: order.status,
-          createdAt: createdAt.toLocaleDateString("en-US", {
+          createdAt: new Date(order.createdAt).toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
           }),
           items,
-          message: `Please pick up your order before ${pickupDeadline.toLocaleDateString(
-            "en-US",
-            { year: "numeric", month: "long", day: "numeric" }
-          )}.`,
         };
+
+        if (order.status === "To Ship") {
+          const { startDate, endDate } = calculateETARange(order.createdAt);
+          detail.eta = formatDateRange(startDate, endDate);
+        }
+
+        if (
+          order.OrderItems.some(
+            (item) => item.Product.purchaseMethod === "in-store-pickup"
+          )
+        ) {
+          const createdAt = new Date(order.createdAt);
+          const pickupDeadline = new Date(createdAt);
+          pickupDeadline.setDate(createdAt.getDate() + 7);
+
+          detail.message = `Please pick up your order before ${pickupDeadline.toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          )}.`;
+        }
+
+        return detail;
       })
     );
 
     return {
       status: 200,
+      message: "Orders retrieved successfully.",
       data: orderDetails,
     };
   } catch (error) {
-    console.error(error);
+    console.error("Error in getOrdersByStatus:", error);
     return {
       status: 500,
       data: {
-        message: "An error occurred while fetching orders.",
+        message: "An error occurred while retrieving orders.",
       },
     };
   }
