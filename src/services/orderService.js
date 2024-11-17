@@ -317,7 +317,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
               month: "long",
               day: "numeric",
             }
-          )}.`;
+          )},`;
         }
 
         return detail;
