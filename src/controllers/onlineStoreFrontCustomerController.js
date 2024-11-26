@@ -6,10 +6,42 @@ const signUp = async (req, res) => {
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
+      confirmPassword: req.body.confirmPassword,
     });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error creating customer account:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const verifyPin = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.verifyPin({
+      email: req.body.email,
+      pin: req.body.pin,
+    });
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    return res
+      .status(error.status || 500)
+      .json(error.data || { message: "An unexpected error occurred" });
+  }
+};
+
+const resendVerificationLink = async (req, res) => {
+  try {
+    const result = await onlineStoreFrontCustomerService.resendVerificationLink(
+      {
+        email: req.body.email,
+      }
+    );
+    return res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error resending verification pin for email:", error);
     return res
       .status(error.status || 500)
       .json(error.data || { message: "An unexpected error occurred" });
@@ -228,6 +260,8 @@ const getPasswordChangeMethod = async (req, res) => {
 
 module.exports = {
   signUp,
+  verifyPin,
+  resendVerificationLink,
   login,
   requestResetPassword,
   resetPassword,

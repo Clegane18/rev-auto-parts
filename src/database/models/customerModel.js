@@ -23,6 +23,19 @@ const Customer = sequelize.define(
         isEmail: true,
       },
     },
+    emailVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    emailVerificationPin: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    pinExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: true,

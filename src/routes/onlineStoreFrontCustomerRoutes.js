@@ -20,6 +20,13 @@ router.post(
   onlineStoreFrontCustomerController.signUp
 );
 
+router.post("/verify-pin", onlineStoreFrontCustomerController.verifyPin);
+
+router.post(
+  "/resend-pin",
+  onlineStoreFrontCustomerController.resendVerificationLink
+);
+
 router.post(
   "/login",
   loginValidation,

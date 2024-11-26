@@ -10,8 +10,15 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-const signUp = async ({ username, email, password }) => {
+const signUp = async ({ username, email, password, confirmPassword }) => {
   try {
+    if (password.trim() !== confirmPassword.trim()) {
+      return {
+        status: 400,
+        message: "Passwords do not match. Please try again.",
+      };
+    }
+
     const existingCustomer = await Customer.findOne({
       where: {
         [Op.or]: [{ email }, { username }],
@@ -39,26 +46,166 @@ const signUp = async ({ username, email, password }) => {
       username,
       email,
       password: hashedPassword,
+      emailVerified: false,
     });
 
-    const token = createTokenWithExpiration(
-      {
-        id: newCustomer.id,
-        username: newCustomer.username,
-        email: newCustomer.email,
+    const pin = Math.floor(100000 + Math.random() * 900000);
+    const pinExpiry = Date.now() + 15 * 60 * 1000;
+
+    newCustomer.emailVerificationPin = pin;
+    newCustomer.verificationPinExpiry = pinExpiry;
+    await newCustomer.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
-      "1h"
-    );
+    });
+
+    const message = `
+      <p style="font-family: 'Montserrat', serif; text-transform: none;">
+        You requested to verify your email address. Please use the following PIN to verify your email:
+      </p>
+      <h3 style="color: #bb0000;">${pin}</h3>
+      <p style="font-family: 'Montserrat', serif; text-transform: none;">
+        The PIN is valid for 15 minutes. Please enter it promptly to complete the verification.
+      </p>
+    `;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Email Verification PIN",
+      html: message,
+    });
 
     return {
       status: 200,
-      message: "Account successfully created.",
+      message:
+        "Account successfully created. A verification PIN has been sent to your email.",
       accountInfo: newCustomer,
-      token,
     };
   } catch (error) {
-    console.error("Error in signUp service:", error);
-    throw error;
+    console.error(error);
+    return {
+      status: 500,
+      message: "An error occurred while creating the account.",
+    };
+  }
+};
+
+const verifyPin = async ({ email, pin }) => {
+  try {
+    const customer = await Customer.findOne({ where: { email } });
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: `No customer found with the email ${email}.`,
+      };
+    }
+
+    if (customer.emailVerified) {
+      return {
+        status: 400,
+        message: "Your email is already verified.",
+      };
+    }
+
+    if (customer.emailVerificationPin !== pin) {
+      return {
+        status: 400,
+        message: "Invalid PIN. Please try again.",
+      };
+    }
+
+    if (customer.verificationPinExpiry < Date.now()) {
+      return {
+        status: 400,
+        message: "The PIN has expired. Please request a new one.",
+      };
+    }
+
+    customer.emailVerified = true;
+    customer.emailVerificationPin = null;
+    customer.verificationPinExpiry = null;
+    await customer.save();
+
+    return {
+      status: 200,
+      message: "Email successfully verified.",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 500,
+      message: "Internal server error. Please try again later.",
+    };
+  }
+};
+
+const resendVerificationLink = async ({ email }) => {
+  try {
+    const customer = await Customer.findOne({ where: { email } });
+
+    if (!customer) {
+      return {
+        status: 404,
+        message: `No customer found with the email ${email}.`,
+      };
+    }
+
+    if (customer.emailVerified) {
+      return {
+        status: 400,
+        message: "Your email is already verified.",
+      };
+    }
+
+    const newPin = Math.floor(100000 + Math.random() * 900000);
+    const pinExpiry = Date.now() + 15 * 60 * 1000;
+
+    customer.emailVerificationPin = newPin;
+    customer.verificationPinExpiry = pinExpiry;
+    await customer.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const message = `
+      <p style="font-family: 'Montserrat', serif; text-transform: none;">
+        You requested to verify your email address. Please use the following PIN to verify your email:
+      </p>
+      <h3 style="color: #bb0000;">${newPin}</h3>
+      <p style="font-family: 'Montserrat', serif; text-transform: none;">
+        The PIN is valid for 15 minutes. Please enter it promptly to complete the verification.
+      </p>
+    `;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Email Verification PIN",
+      html: message,
+    });
+
+    return {
+      status: 200,
+      message: "A new verification PIN has been sent to your email.",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 500,
+      message: "An error occurred while resending verification pin for email.",
+    };
   }
 };
 
@@ -77,6 +224,14 @@ const login = async ({ email, password }) => {
       return {
         status: 403,
         message: "Your account has been suspended.",
+      };
+    }
+
+    if (!customer.emailVerified) {
+      return {
+        status: 400,
+        message:
+          "Your email has not been verified. Please verify your email first.",
       };
     }
 
@@ -657,6 +812,8 @@ const getPasswordChangeMethod = async ({ customerId }) => {
 
 module.exports = {
   signUp,
+  verifyPin,
+  resendVerificationLink,
   login,
   requestResetPassword,
   resetPassword,
