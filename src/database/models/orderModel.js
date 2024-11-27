@@ -68,6 +68,18 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "Pending",
     },
+    cancellationReason: {
+      type: DataTypes.ENUM(
+        "Need to change delivery address",
+        "Need to input/change voucher",
+        "Need to modify order",
+        "Payment procedure too troublesome",
+        "Found cheaper elsewhere",
+        "Don't want to buy anymore",
+        "Others"
+      ),
+      allowNull: true,
+    },
   },
   {
     timestamps: true,

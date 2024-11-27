@@ -66,8 +66,21 @@ const getToPayOrders = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.orderId;
-    const result = await orderService.cancelOrder(orderId);
+    const result = await orderService.cancelOrder({
+      orderId: req.params.orderId,
+      cancellationReason: req.body.cancellationReason,
+    });
+    res.status(result.status).json(result);
+  } catch (error) {
+    res
+      .status(error.status || 500)
+      .json({ error: error.data || "Internal Server Error" });
+  }
+};
+
+const getCancellationCounts = async (req, res) => {
+  try {
+    const result = await orderService.getCancellationCounts();
     res.status(result.status).json(result);
   } catch (error) {
     res
@@ -177,6 +190,7 @@ module.exports = {
   getOrdersByStatus,
   getToPayOrders,
   cancelOrder,
+  getCancellationCounts,
   getAllOrders,
   updateOrderStatus,
   deleteOrderById,

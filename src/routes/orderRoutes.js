@@ -45,6 +45,11 @@ router.post(
   orderController.cancelOrder
 );
 
+router.get(
+  "/orders/cancel-reason-count",
+  orderController.getCancellationCounts
+);
+
 router.get("/orders", orderController.getAllOrders);
 
 router.put("/orders/:orderId/update-status", orderController.updateOrderStatus);

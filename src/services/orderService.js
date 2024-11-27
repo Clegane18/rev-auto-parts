@@ -7,6 +7,7 @@ const Comment = require("../database/models/commentModel");
 const Cart = require("../database/models/cartModel");
 const CartItem = require("../database/models/cartItemModel");
 const { ProductImage } = require("../database/models");
+const { Op } = require("sequelize");
 const sequelize = require("../database/db");
 const {
   createOnlineTransactionHistory,
@@ -340,7 +341,7 @@ const getOrdersByStatus = async ({ status, customerId }) => {
   }
 };
 
-const cancelOrder = async (orderId) => {
+const cancelOrder = async ({ orderId, cancellationReason }) => {
   try {
     const order = await Order.findByPk(orderId, {
       include: [{ model: OrderItem }],
@@ -360,6 +361,23 @@ const cancelOrder = async (orderId) => {
       };
     }
 
+    const validReasons = [
+      "Need to change delivery address",
+      "Need to input/change voucher",
+      "Need to modify order",
+      "Payment procedure too troublesome",
+      "Found cheaper elsewhere",
+      "Don't want to buy anymore",
+      "Others",
+    ];
+
+    if (!validReasons.includes(cancellationReason)) {
+      throw {
+        status: 400,
+        data: { message: "Invalid cancellation reason provided." },
+      };
+    }
+
     await sequelize.transaction(async (t) => {
       for (const item of order.OrderItems) {
         const product = await Product.findByPk(item.productId, {
@@ -373,7 +391,10 @@ const cancelOrder = async (orderId) => {
         }
       }
 
-      await order.update({ status: "Cancelled" }, { transaction: t });
+      await order.update(
+        { status: "Cancelled", cancellationReason },
+        { transaction: t }
+      );
     });
 
     return {
@@ -383,6 +404,42 @@ const cancelOrder = async (orderId) => {
   } catch (error) {
     console.error("Error in cancelOrder service:", error);
     throw error;
+  }
+};
+
+const getCancellationCounts = async () => {
+  try {
+    const cancellationCounts = await Order.findAll({
+      attributes: [
+        "cancellationReason",
+        [sequelize.fn("COUNT", sequelize.col("cancellationReason")), "count"],
+      ],
+      where: {
+        status: "Cancelled",
+        cancellationReason: { [Op.ne]: null },
+      },
+      group: ["cancellationReason"],
+      raw: true,
+    });
+
+    if (cancellationCounts.length === 0) {
+      return {
+        status: 404,
+        data: { message: "No canceled orders found." },
+      };
+    }
+    return {
+      status: 200,
+      data: cancellationCounts,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while fetching cancellation counts.",
+      },
+    };
   }
 };
 
@@ -896,6 +953,7 @@ module.exports = {
   createOrder,
   getOrdersByStatus,
   cancelOrder,
+  getCancellationCounts,
   getAllOrders,
   updateOrderStatus,
   deleteOrderById,
