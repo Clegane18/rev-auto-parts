@@ -294,13 +294,9 @@ const getOrdersByStatus = async ({ status, customerId }) => {
             month: "long",
             day: "numeric",
           }),
+          eta: order.eta || null,
           items,
         };
-
-        if (order.status === "To Ship") {
-          const { startDate, endDate } = calculateETARange(order.createdAt);
-          detail.eta = formatDateRange(startDate, endDate);
-        }
 
         if (
           order.OrderItems.some(
@@ -615,11 +611,21 @@ const updateOrderStatus = async ({ orderId, newStatus }) => {
       };
     } else {
       order.status = newStatus;
+
+      if (newStatus === "To Ship") {
+        const updatedAt = new Date(order.updatedAt);
+        const { startDate, endDate } = calculateETARange(updatedAt);
+        order.eta = formatDateRange(startDate, endDate);
+      }
+
       await order.save();
 
       return {
         status: 200,
-        message: `Order status updated to '${newStatus}' successfully`,
+        message: `Order status updated to '${newStatus}' successfully.`,
+        data: {
+          eta: newStatus === "To Ship" ? order.eta : null,
+        },
       };
     }
   } catch (error) {
@@ -628,6 +634,63 @@ const updateOrderStatus = async ({ orderId, newStatus }) => {
       status: 500,
       data: {
         message: "An error occurred while updating the order status",
+      },
+    };
+  }
+};
+
+const updateOrderETA = async ({ orderId, newETA }) => {
+  try {
+    const parsedETA = new Date(newETA);
+    if (isNaN(parsedETA)) {
+      return {
+        status: 400,
+        data: {
+          message: "Invalid ETA date format. Please provide a valid date.",
+        },
+      };
+    }
+
+    const order = await Order.findByPk(orderId);
+
+    if (!order) {
+      return {
+        status: 404,
+        data: {
+          message: "Order not found.",
+        },
+      };
+    }
+
+    if (order.status !== "To Ship") {
+      return {
+        status: 400,
+        data: {
+          message: "ETA can only be adjusted for orders with 'To Ship' status.",
+        },
+      };
+    }
+
+    const { startDate, endDate } = calculateETARange(parsedETA);
+    order.eta = formatDateRange(startDate, endDate);
+
+    await order.save();
+
+    return {
+      status: 200,
+      message: "ETA updated successfully.",
+      data: {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        eta: order.eta,
+      },
+    };
+  } catch (error) {
+    console.error("Error in updateOrderETA service:", error);
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while adjusting the ETA.",
       },
     };
   }
@@ -956,6 +1019,7 @@ module.exports = {
   getCancellationCounts,
   getAllOrders,
   updateOrderStatus,
+  updateOrderETA,
   deleteOrderById,
   updateOrderPaymentStatus,
   getAllOrdersByStatus,

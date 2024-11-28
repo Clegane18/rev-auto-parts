@@ -68,6 +68,10 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "Pending",
     },
+    eta: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
     cancellationReason: {
       type: DataTypes.ENUM(
         "Need to change delivery address",

@@ -54,6 +54,8 @@ router.get("/orders", orderController.getAllOrders);
 
 router.put("/orders/:orderId/update-status", orderController.updateOrderStatus);
 
+router.put("/orders/:orderId/update-ETA", orderController.updateOrderETA);
+
 router.delete("/orders/:orderId", orderController.deleteOrderById);
 
 router.put(

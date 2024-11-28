@@ -126,6 +126,21 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const updateOrderETA = async (req, res) => {
+  try {
+    const result = await orderService.updateOrderETA({
+      orderId: req.params.orderId,
+      newETA: req.body.newETA,
+    });
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error updating order ETA:", error);
+    res
+      .status(error.status || 500)
+      .json({ error: error.data || "Internal Server Error" });
+  }
+};
+
 const deleteOrderById = async (req, res) => {
   try {
     const result = await orderService.deleteOrderById({
@@ -193,6 +208,7 @@ module.exports = {
   getCancellationCounts,
   getAllOrders,
   updateOrderStatus,
+  updateOrderETA,
   deleteOrderById,
   updateOrderPaymentStatus,
   getAllOrdersByStatus,
