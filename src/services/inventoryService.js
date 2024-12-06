@@ -6,6 +6,7 @@ const { ProductImage } = require("../database/models/index");
 const { getMonthStartAndEnd } = require("../utils/dateUtils");
 const { Op, fn, col, literal } = require("sequelize");
 const sequelize = require("../database/db");
+const parseDate = require("../utils/dateParser");
 
 const addProduct = async ({
   category,
@@ -413,13 +414,33 @@ const getProductsByDateRange = async ({ startDate, endDate }) => {
   }
 };
 
-const getLowStockProducts = async () => {
+const getLowStockProducts = async ({ date = null }) => {
   try {
-    const products = await Product.findAll();
-    const minimumStockLevel = 15;
-    const lowStockProducts = products.filter(
-      (product) => product.stock < minimumStockLevel
-    );
+    let lowStockProducts;
+
+    const dateRange = parseDate(date);
+
+    if (dateRange) {
+      const { endOfDay } = dateRange;
+      lowStockProducts = await Product.findAll({
+        where: {
+          stock: {
+            [Op.lt]: 15,
+          },
+          createdAt: {
+            [Op.lte]: endOfDay,
+          },
+        },
+      });
+    } else {
+      lowStockProducts = await Product.findAll({
+        where: {
+          stock: {
+            [Op.lt]: 15,
+          },
+        },
+      });
+    }
 
     if (lowStockProducts.length === 0) {
       return {
@@ -579,8 +600,16 @@ const updateArrivalDate = async ({ pendingStockId, newArrivalDate }) => {
   }
 };
 
-const getTopBestSellerItems = async (limit = 5) => {
-  const { start, end } = getMonthStartAndEnd();
+const getTopBestSellerItems = async ({ date = null, limit = 5 }) => {
+  let start, end;
+
+  if (date) {
+    const parsedDate = parseDate(date);
+    start = parsedDate.startOfDay;
+    end = parsedDate.endOfDay;
+  } else {
+    ({ start, end } = getMonthStartAndEnd());
+  }
 
   try {
     const result = await TransactionItems.findAll({
@@ -624,28 +653,35 @@ const getTopBestSellerItems = async (limit = 5) => {
       limit: limit,
     });
 
-    if (result.length > 0) {
-      return {
-        status: 200,
-        message: "Top best seller items fetched successfully",
-        data: result.map((item) => item.get()),
-      };
-    } else {
-      return {
-        status: 404,
-        message: "No items found",
-        data: [],
-      };
-    }
+    return {
+      status: 200,
+      message: "Top best seller items fetched successfully",
+      data: result.map((item) => item.get()),
+    };
   } catch (error) {
     console.error("Error in getTopBestSellerItems service:", error);
     throw error;
   }
 };
 
-const getTotalStock = async () => {
+const getTotalStock = async ({ date = null }) => {
   try {
-    const totalStock = await Product.sum("stock");
+    let totalStock;
+
+    const dateRange = parseDate(date);
+
+    if (dateRange) {
+      const { endOfDay } = dateRange;
+      totalStock = await Product.sum("stock", {
+        where: {
+          createdAt: {
+            [Op.lte]: endOfDay,
+          },
+        },
+      });
+    } else {
+      totalStock = await Product.sum("stock");
+    }
 
     return {
       status: 200,
@@ -653,23 +689,58 @@ const getTotalStock = async () => {
       totalStocks: totalStock,
     };
   } catch (error) {
+    if (error.message.includes("Invalid date format")) {
+      return {
+        status: 400,
+        message: error.message,
+      };
+    }
+
     console.error("Error in getTotalStock service:", error);
-    throw error;
+    return {
+      status: 500,
+      message: "An error occurred while fetching the total stock.",
+    };
   }
 };
 
-const getTotalItems = async () => {
+const getTotalItems = async ({ date = null }) => {
   try {
-    const totalItems = await Product.count();
+    let totalItems;
+
+    const dateRange = parseDate(date);
+
+    if (dateRange) {
+      const { endOfDay } = dateRange;
+      totalItems = await Product.count({
+        where: {
+          createdAt: {
+            [Op.lte]: endOfDay,
+          },
+        },
+      });
+    } else {
+      totalItems = await Product.count();
+    }
 
     return {
       status: 200,
-      message: "Successfully fetched the total number of Items.",
+      message: "Successfully fetched the total number of items.",
       totalItems: totalItems,
     };
   } catch (error) {
+    if (error.message.includes("Invalid date format")) {
+      return {
+        status: 400,
+        message: error.message,
+      };
+    }
+
     console.error("Error in getTotalItems service:", error);
-    throw error;
+    return {
+      status: 500,
+      message: "An error occurred while fetching the total number of items.",
+    };
   }
 };
 

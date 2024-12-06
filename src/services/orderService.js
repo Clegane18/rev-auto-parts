@@ -17,6 +17,7 @@ const {
   formatDate,
   formatDateRange,
 } = require("../utils/etaUtils");
+const parseDate = require("../utils/dateParser");
 
 const calculateShippingFee = async ({ addressId }) => {
   try {
@@ -403,8 +404,33 @@ const cancelOrder = async ({ orderId, cancellationReason }) => {
   }
 };
 
-const getCancellationCounts = async () => {
+const getCancellationCounts = async ({ date = null }) => {
   try {
+    const allCancellationReasons = [
+      "Need to change delivery address",
+      "Need to input/change voucher",
+      "Need to modify order",
+      "Payment procedure too troublesome",
+      "Found cheaper elsewhere",
+      "Don't want to buy anymore",
+      "Others",
+    ];
+
+    const result = allCancellationReasons.map((reason) => ({
+      cancellationReason: reason,
+      count: "0",
+    }));
+
+    let dateFilter = {};
+    if (date) {
+      const parsedDate = parseDate(date);
+      dateFilter = {
+        createdAt: {
+          [Op.lte]: parsedDate.endOfDay,
+        },
+      };
+    }
+
     const cancellationCounts = await Order.findAll({
       attributes: [
         "cancellationReason",
@@ -413,28 +439,38 @@ const getCancellationCounts = async () => {
       where: {
         status: "Cancelled",
         cancellationReason: { [Op.ne]: null },
+        ...(date && dateFilter),
       },
       group: ["cancellationReason"],
       raw: true,
     });
 
-    if (cancellationCounts.length === 0) {
-      return {
-        status: 404,
-        data: { message: "No canceled orders found." },
-      };
-    }
+    cancellationCounts.forEach(({ cancellationReason, count }) => {
+      const reasonIndex = result.findIndex(
+        (item) => item.cancellationReason === cancellationReason
+      );
+      if (reasonIndex !== -1) {
+        result[reasonIndex].count = count.toString();
+      }
+    });
+
     return {
       status: 200,
-      data: cancellationCounts,
+      message: "Cancellation counts successfully fetched.",
+      data: result,
     };
   } catch (error) {
-    console.error(error);
+    if (error.message.includes("Invalid date format")) {
+      return {
+        status: 400,
+        message: error.message,
+      };
+    }
+
+    console.error("Error in getCancellationCounts:", error);
     return {
       status: 500,
-      data: {
-        message: "An error occurred while fetching cancellation counts.",
-      },
+      message: "An error occurred while fetching cancellation counts.",
     };
   }
 };

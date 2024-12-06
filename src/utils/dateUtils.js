@@ -1,5 +1,6 @@
 const getMonthStartAndEnd = (date = new Date()) => {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
+
   const end = new Date(
     date.getFullYear(),
     date.getMonth() + 1,
@@ -9,6 +10,7 @@ const getMonthStartAndEnd = (date = new Date()) => {
     59,
     999
   );
+
   return { start, end };
 };
 

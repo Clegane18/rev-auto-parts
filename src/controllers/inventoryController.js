@@ -160,7 +160,9 @@ const getProductsByDateRange = async (req, res) => {
 
 const getLowStockProducts = async (req, res) => {
   try {
-    const result = await inventoryService.getLowStockProducts();
+    const result = await inventoryService.getLowStockProducts({
+      date: req.query.date,
+    });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching low stock products:", error);
@@ -239,7 +241,9 @@ const updateArrivalDate = async (req, res) => {
 
 const getTopBestSellerItems = async (req, res) => {
   try {
-    const result = await inventoryService.getTopBestSellerItems();
+    const result = await inventoryService.getTopBestSellerItems({
+      date: req.query.date,
+    });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching top best seller items:", error);
@@ -251,7 +255,10 @@ const getTopBestSellerItems = async (req, res) => {
 
 const getTotalStock = async (req, res) => {
   try {
-    const result = await inventoryService.getTotalStock();
+    const result = await inventoryService.getTotalStock({
+      date: req.query.date,
+    });
+
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching total number of stocks:", error);
@@ -263,7 +270,9 @@ const getTotalStock = async (req, res) => {
 
 const getTotalItems = async (req, res) => {
   try {
-    const result = await inventoryService.getTotalItems();
+    const result = await inventoryService.getTotalItems({
+      date: req.query.date,
+    });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching total number of items:", error);

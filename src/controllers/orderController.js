@@ -80,7 +80,9 @@ const cancelOrder = async (req, res) => {
 
 const getCancellationCounts = async (req, res) => {
   try {
-    const result = await orderService.getCancellationCounts();
+    const result = await orderService.getCancellationCounts({
+      date: req.query.date,
+    });
     res.status(result.status).json(result);
   } catch (error) {
     res

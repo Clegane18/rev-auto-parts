@@ -3,6 +3,8 @@ const TransactionHistories = require("../database/models/transactionHistoryModel
 const TransactionItems = require("../database/models/transactionItemModel");
 const { createTransaction } = require("../utils/transactionUtils");
 const { Op } = require("sequelize");
+const moment = require("moment-timezone");
+const parseDate = require("../utils/dateParser");
 
 const buyProductsOnPhysicalStore = async ({ items, paymentAmount }) => {
   try {
@@ -60,8 +62,23 @@ const calculateTotalIncome = async () => {
   }
 };
 
-const calculateTotalIncomeByMonth = async () => {
+const calculateTotalIncomeByMonth = async ({ date = null }) => {
   try {
+    let start, end;
+
+    if (date) {
+      const queryDate = new Date(date);
+      const year = queryDate.getFullYear();
+      const month = queryDate.getMonth();
+
+      start = new Date(year, month, 1);
+      end = new Date(year, month + 1, 0);
+    } else {
+      const currentYear = new Date().getFullYear();
+      start = new Date(currentYear, 0, 1);
+      end = new Date(currentYear, 11, 31);
+    }
+
     const transactions = await TransactionHistories.findAll({
       include: [
         {
@@ -69,6 +86,11 @@ const calculateTotalIncomeByMonth = async () => {
           include: [Product],
         },
       ],
+      where: {
+        transactionDate: {
+          [Op.between]: [start, end],
+        },
+      },
     });
 
     const incomeByMonth = {};
@@ -94,10 +116,9 @@ const calculateTotalIncomeByMonth = async () => {
       });
     });
 
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
-    for (let month = 1; month <= currentMonth; month++) {
-      const monthYear = `${currentYear}-${String(month).padStart(2, "0")}`;
+    const year = new Date(start).getFullYear();
+    for (let month = 0; month < 12; month++) {
+      const monthYear = `${year}-${String(month + 1).padStart(2, "0")}`;
       if (!incomeByMonth[monthYear]) {
         incomeByMonth[monthYear] = {
           totalGrossIncome: "0",
@@ -131,13 +152,30 @@ const calculateTotalIncomeByMonth = async () => {
   }
 };
 
-const getTotalNumberTransactions = async () => {
+const getTotalNumberTransactions = async ({ date = null }) => {
   try {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    let dateRange;
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    if (date) {
+      dateRange = parseDate(date);
+
+      if (!dateRange) {
+        return {
+          status: 400,
+          data: {
+            message:
+              "Invalid date format. Please provide a valid date in YYYY-MM-DD format.",
+          },
+        };
+      }
+    } else {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      dateRange = { startOfDay, endOfDay };
+    }
+
+    const { startOfDay, endOfDay } = dateRange;
 
     const totalTransactions = await TransactionHistories.count({
       where: {
@@ -149,22 +187,45 @@ const getTotalNumberTransactions = async () => {
 
     return {
       status: 200,
-      message: "All transactions for today successfully fetched",
-      TotalTransactions: totalTransactions,
+      message: "Transactions successfully fetched for the specified day.",
+      totalTransactions,
     };
   } catch (error) {
     console.error("Error in getTotalNumberTransactions service:", error);
-    throw error;
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while fetching transactions.",
+        error: error.message,
+      },
+    };
   }
 };
 
-const getTotalCountOfTransactionsFromPOS = async () => {
+const getTotalCountOfTransactionsFromPOS = async ({ date = null }) => {
   try {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    let dateRange;
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    if (date) {
+      dateRange = parseDate(date);
+
+      if (!dateRange) {
+        return {
+          status: 400,
+          data: {
+            message:
+              "Invalid date format. Please provide a valid date in YYYY-MM-DD format.",
+          },
+        };
+      }
+    } else {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      dateRange = { startOfDay, endOfDay };
+    }
+
+    const { startOfDay, endOfDay } = dateRange;
 
     const totalTransactions = await TransactionHistories.count({
       where: {
@@ -177,7 +238,7 @@ const getTotalCountOfTransactionsFromPOS = async () => {
 
     return {
       status: 200,
-      message: "The total count of transactions from POS successfully fetched",
+      message: "The total count of transactions from POS successfully fetched.",
       TotalCountOfTransactions: totalTransactions,
     };
   } catch (error) {
@@ -185,17 +246,40 @@ const getTotalCountOfTransactionsFromPOS = async () => {
       "Error in getTotalCountOfTransactionsFromPOS service:",
       error
     );
-    throw error;
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while fetching POS transactions.",
+        error: error.message,
+      },
+    };
   }
 };
 
-const getTotalCountOfTransactionsFromOnline = async () => {
+const getTotalCountOfTransactionsFromOnline = async ({ date = null }) => {
   try {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    let dateRange;
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    if (date) {
+      dateRange = parseDate(date);
+
+      if (!dateRange) {
+        return {
+          status: 400,
+          data: {
+            message:
+              "Invalid date format. Please provide a valid date in YYYY-MM-DD format.",
+          },
+        };
+      }
+    } else {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      dateRange = { startOfDay, endOfDay };
+    }
+
+    const { startOfDay, endOfDay } = dateRange;
 
     const totalTransactions = await TransactionHistories.count({
       where: {
@@ -209,7 +293,7 @@ const getTotalCountOfTransactionsFromOnline = async () => {
     return {
       status: 200,
       message:
-        "The total count of transactions from Online  Store Front successfully fetched",
+        "The total count of transactions from Online Store Front successfully fetched.",
       TotalCountOfTransactions: totalTransactions,
     };
   } catch (error) {
@@ -217,17 +301,40 @@ const getTotalCountOfTransactionsFromOnline = async () => {
       "Error in getTotalCountOfTransactionsFromOnline service:",
       error
     );
-    throw error;
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while fetching Online Store transactions.",
+        error: error.message,
+      },
+    };
   }
 };
 
-const getTodaysTransactions = async () => {
+const getTodaysTransactions = async ({ date = null }) => {
   try {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    let dateRange;
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    if (date) {
+      dateRange = parseDate(date);
+
+      if (!dateRange) {
+        return {
+          status: 400,
+          data: {
+            message:
+              "Invalid date format. Please provide a valid date in YYYY-MM-DD format.",
+          },
+        };
+      }
+    } else {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      dateRange = { startOfDay, endOfDay };
+    }
+
+    const { startOfDay, endOfDay } = dateRange;
 
     const todaysTransactions = await TransactionHistories.findAll({
       where: {
@@ -237,10 +344,10 @@ const getTodaysTransactions = async () => {
       },
     });
 
-    if (!todaysTransactions) {
-      throw {
+    if (!todaysTransactions || todaysTransactions.length === 0) {
+      return {
         status: 404,
-        data: { message: "There's no transaction today." },
+        data: { message: "There are no transactions for the specified day." },
       };
     }
 
@@ -251,7 +358,13 @@ const getTodaysTransactions = async () => {
     };
   } catch (error) {
     console.error("Error in getTodaysTransactions service:", error);
-    throw error;
+    return {
+      status: 500,
+      data: {
+        message: "An error occurred while fetching today's transactions.",
+        error: error.message,
+      },
+    };
   }
 };
 

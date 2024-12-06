@@ -317,12 +317,12 @@ const updateProductSchema = Joi.object({
   itemCode: Joi.string().min(3),
   brand: Joi.string().min(3),
   name: Joi.string().min(3),
-  description: Joi.string().required().min(3),
+  description: Joi.string().min(3),
   price: Joi.number().min(0),
-  supplierCost: Joi.number().required().min(0).less(Joi.ref("price")).messages({
+  supplierCost: Joi.number().min(0).less(Joi.ref("price")).messages({
     "number.less": '"supplierCost" must be less than "price"',
   }),
-  supplierName: Joi.string().required().min(3),
+  supplierName: Joi.string().min(3),
 }).unknown(true); // Allow unspecified fields
 
 const buyProductsOnPhysicalStoreSchema = Joi.object({
@@ -396,7 +396,7 @@ const signupSchema = Joi.object({
     "string.max": "Username must be at most 30 characters long.",
     "any.required": "Username is required.",
   }),
-  email: Joi.string().email().max(30).required().messages({
+  email: Joi.string().email().required().messages({
     "string.email": "Email must be a valid email address.",
     "string.max": "Email must be at most 30 characters long.",
     "any.required": "Email is required.",

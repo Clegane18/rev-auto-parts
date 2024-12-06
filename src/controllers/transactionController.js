@@ -30,7 +30,10 @@ const calculateTotalIncome = async (req, res) => {
 
 const calculateTotalIncomeByMonth = async (req, res) => {
   try {
-    const result = await transactionService.calculateTotalIncomeByMonth();
+    const result = await transactionService.calculateTotalIncomeByMonth({
+      date: req.query.date,
+    });
+
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error calculating total income in by month", error);
@@ -42,7 +45,10 @@ const calculateTotalIncomeByMonth = async (req, res) => {
 
 const getTotalNumberTransactions = async (req, res) => {
   try {
-    const result = await transactionService.getTotalNumberTransactions();
+    const result = await transactionService.getTotalNumberTransactions({
+      date: req.query.date,
+    });
+
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching total count of transactions today", error);
@@ -54,8 +60,10 @@ const getTotalNumberTransactions = async (req, res) => {
 
 const getTotalCountOfTransactionsFromPOS = async (req, res) => {
   try {
-    const result =
-      await transactionService.getTotalCountOfTransactionsFromPOS();
+    const result = await transactionService.getTotalCountOfTransactionsFromPOS({
+      date: req.query.date,
+    });
+
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching total count of transactions from POS", error);
@@ -68,7 +76,9 @@ const getTotalCountOfTransactionsFromPOS = async (req, res) => {
 const getTotalCountOfTransactionsFromOnline = async (req, res) => {
   try {
     const result =
-      await transactionService.getTotalCountOfTransactionsFromOnline();
+      await transactionService.getTotalCountOfTransactionsFromOnline({
+        date: req.query.date,
+      });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error(
@@ -83,7 +93,9 @@ const getTotalCountOfTransactionsFromOnline = async (req, res) => {
 
 const getTodaysTransactions = async (req, res) => {
   try {
-    const result = await transactionService.getTodaysTransactions();
+    const result = await transactionService.getTodaysTransactions({
+      date: req.query.date,
+    });
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error fetching today's transactions", error);
