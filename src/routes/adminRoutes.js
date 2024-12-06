@@ -9,8 +9,6 @@ const {
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
 const auditLogger = require("../middlewares/auditLogger");
 
-router.post("/createAccount", adminController.createAdminAccount);
-
 router.post("/logInAdmin", adminLogInValidation, adminController.adminLogIn);
 
 router.put(
@@ -29,6 +27,11 @@ router.put(
   adminController.updateAdminPassword
 );
 
-router.delete("/:adminId", adminController.deleteAdminById);
+router.post(
+  "/logout",
+  authenticateToken,
+  auditLogger("Admin logged out"),
+  adminController.adminLogout
+);
 
 module.exports = router;

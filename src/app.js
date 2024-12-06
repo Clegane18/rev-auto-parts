@@ -15,6 +15,7 @@ const archiveRoutes = require("./routes/archiveRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const commentsRoutes = require("./routes/commentsRoutes");
+const auditLogRoutes = require("./routes/auditLogRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const bodyParser = require("body-parser");
 const session = require("express-session");
@@ -76,6 +77,7 @@ app.use("/api/archives", archiveRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/comments", commentsRoutes);
+app.use("/api/audit-logs", auditLogRoutes);
 
 app.use(errorHandler);
 

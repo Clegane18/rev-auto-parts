@@ -1,55 +1,68 @@
 const bcrypt = require("bcrypt");
 const { createTokenWithExpiration } = require("../utils/tokenUtils");
 const Admin = require("../database/models/adminModel");
+const auditLogger = require("../middlewares/auditLogger");
+const AuditLog = require("../database/models/auditLog");
 
-const createAdminAccount = async ({ email, password }) => {
+// const createAdminAccount = async ({ email, password }) => {
+//   try {
+//     if (!email || !password) {
+//       return {
+//         status: 400,
+//         message: "Email and password are required.",
+//       };
+//     }
+
+//     const existingAdmin = await Admin.findOne({ where: { email } });
+//     if (existingAdmin) {
+//       return {
+//         status: 409,
+//         message: "An admin with this email already exists.",
+//       };
+//     }
+
+//     const SALT_ROUNDS = 10;
+//     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+//     const newAdmin = await Admin.create({
+//       email,
+//       password: hashedPassword,
+//     });
+
+//     return {
+//       status: 201,
+//       message: "Admin account created successfully.",
+//       admin: {
+//         id: newAdmin.id,
+//         email: newAdmin.email,
+//         createdAt: newAdmin.createdAt,
+//       },
+//     };
+//   } catch (error) {
+//     console.error("Error in createAdminAccount service:", error);
+
+//     if (error.name === "SequelizeUniqueConstraintError") {
+//       return {
+//         status: 409,
+//         message: "An admin with this email already exists.",
+//       };
+//     }
+
+//     return {
+//       status: 500,
+//       message: "An unexpected error occurred while creating the admin account.",
+//     };
+//   }
+// };
+
+const logAudit = async (admin, actionDescription) => {
   try {
-    if (!email || !password) {
-      return {
-        status: 400,
-        message: "Email and password are required.",
-      };
-    }
-
-    const existingAdmin = await Admin.findOne({ where: { email } });
-    if (existingAdmin) {
-      return {
-        status: 409,
-        message: "An admin with this email already exists.",
-      };
-    }
-
-    const SALT_ROUNDS = 10;
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-
-    const newAdmin = await Admin.create({
-      email,
-      password: hashedPassword,
+    await AuditLog.create({
+      adminId: admin.id,
+      action: actionDescription,
     });
-
-    return {
-      status: 201,
-      message: "Admin account created successfully.",
-      admin: {
-        id: newAdmin.id,
-        email: newAdmin.email,
-        createdAt: newAdmin.createdAt,
-      },
-    };
   } catch (error) {
-    console.error("Error in createAdminAccount service:", error);
-
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return {
-        status: 409,
-        message: "An admin with this email already exists.",
-      };
-    }
-
-    return {
-      status: 500,
-      message: "An unexpected error occurred while creating the admin account.",
-    };
+    console.error("Audit logging failed:", error);
   }
 };
 
@@ -81,6 +94,8 @@ const adminLogIn = async ({ email, password }) => {
       },
       "1h"
     );
+
+    await logAudit(admin, "Admin logged in");
 
     return {
       status: 200,
@@ -169,31 +184,44 @@ const updateAdminPassword = async ({ adminId, oldPassword, newPassword }) => {
   }
 };
 
-const deleteAdminById = async ({ adminId }) => {
+const adminLogout = async () => {
   try {
-    const admin = await Admin.findByPk(adminId);
-
-    await admin.destroy();
-
     return {
       status: 200,
-      message: "Customer deleted successfully.",
-      data: { adminId },
+      message: "Successfully logged out.",
     };
   } catch (error) {
-    console.error("Error in deleteCustomerById service:", error);
-
+    console.error("Error in adminLogout service:", error);
     throw {
       status: 500,
-      data: { message: "Error deleting customer." },
+      message: "An unexpected error occurred during logout.",
     };
   }
 };
 
+// const deleteAdminById = async ({ adminId }) => {
+//   try {
+//     const admin = await Admin.findByPk(adminId);
+
+//     await admin.destroy();
+
+//     return {
+//       status: 200,
+//       message: "Customer deleted successfully.",
+//       data: { adminId },
+//     };
+//   } catch (error) {
+//     console.error("Error in deleteCustomerById service:", error);
+
+//     throw {
+//       status: 500,
+//       data: { message: "Error deleting customer." },
+//     };
+//   }
+// };
 module.exports = {
   adminLogIn,
   updateAdminEmail,
   updateAdminPassword,
-  createAdminAccount,
-  deleteAdminById,
+  adminLogout,
 };
