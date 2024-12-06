@@ -6,7 +6,7 @@ const http = require("http");
 const server = http.createServer(app);
 initializeWebSocket(server);
 
-const Admin = require("../database/models/adminModel");
+const Admin = require("./database/models/adminModel");
 const bcrypt = require("bcrypt");
 
 const createAdminAccount = async ({ email, password }) => {
