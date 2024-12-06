@@ -3,6 +3,7 @@ const transactionService = require("../services/transactionService");
 const buyProductsOnPhysicalStore = async (req, res) => {
   try {
     const result = await transactionService.buyProductsOnPhysicalStore({
+      adminId: req.user.id,
       items: req.body.items,
       totalAmount: req.body.totalAmount,
       paymentAmount: req.body.paymentAmount,

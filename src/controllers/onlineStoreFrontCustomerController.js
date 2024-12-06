@@ -140,6 +140,7 @@ const getAllCustomers = async (req, res) => {
 const toggleCustomerStatus = async (req, res) => {
   try {
     const result = await onlineStoreFrontCustomerService.toggleCustomerStatus({
+      adminId: req.user.id,
       customerId: req.params.customerId,
       currentStatus: req.body.currentStatus,
     });
@@ -171,6 +172,7 @@ const getCustomerOnlinePurchaseHistory = async (req, res) => {
 const deleteCustomerById = async (req, res) => {
   try {
     const result = await onlineStoreFrontCustomerService.deleteCustomerById({
+      adminId: req.user.id,
       customerId: req.params.customerId,
     });
     return res.status(result.status).json(result);

@@ -65,6 +65,7 @@ exports.googleCallback = (req, res) => {
             username: existingCustomer.username,
             email: existingCustomer.email,
             defaultAddressId,
+            role: "user",
           },
           "1h"
         );

@@ -3,6 +3,7 @@ const inventoryService = require("../services/inventoryService");
 const addProduct = async (req, res) => {
   try {
     const result = await inventoryService.addProduct({
+      adminId: req.user.id,
       category: req.body.category,
       itemCode: req.body.itemCode,
       brand: req.body.brand,
@@ -25,6 +26,7 @@ const addProduct = async (req, res) => {
 const addToProductStock = async (req, res) => {
   try {
     const result = await inventoryService.addToProductStock({
+      adminId: req.user.id,
       productId: req.params.productId,
       quantityToAdd: req.body.quantityToAdd,
     });
@@ -40,6 +42,7 @@ const addToProductStock = async (req, res) => {
 const updateProductById = async (req, res) => {
   try {
     const result = await inventoryService.updateProductById({
+      adminId: req.user.id,
       productId: req.params.productId,
       category: req.body.category,
       itemCode: req.body.itemCode,
@@ -175,6 +178,7 @@ const getLowStockProducts = async (req, res) => {
 const addPendingStock = async (req, res) => {
   try {
     const result = await inventoryService.addPendingStock({
+      adminId: req.user.id,
       productName: req.body.productName,
       quantity: req.body.quantity,
       arrivalDate: req.body.arrivalDate,
@@ -190,7 +194,8 @@ const addPendingStock = async (req, res) => {
 
 const confirmStock = async (req, res) => {
   try {
-    const result = await inventoryService.confirmStock(req.params.id);
+    const adminId = req.user.id;
+    const result = await inventoryService.confirmStock(req.params.id, adminId);
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error confirming stock:", error);
@@ -202,7 +207,12 @@ const confirmStock = async (req, res) => {
 
 const cancelPendingStock = async (req, res) => {
   try {
-    const result = await inventoryService.cancelPendingStock(req.params.id);
+    const adminId = req.user.id;
+
+    const result = await inventoryService.cancelPendingStock(
+      req.params.id,
+      adminId
+    );
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error cancelling pending stock:", error);
@@ -227,6 +237,7 @@ const getAllPendingStocks = async (req, res) => {
 const updateArrivalDate = async (req, res) => {
   try {
     const result = await inventoryService.updateArrivalDate({
+      adminId: req.user.id,
       pendingStockId: req.params.id,
       newArrivalDate: req.body.newArrivalDate,
     });

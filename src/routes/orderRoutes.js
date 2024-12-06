@@ -7,6 +7,7 @@ const {
   createOrderValidation,
   getOrdersByStatusValidation,
 } = require("../middlewares/validators");
+const auditLogger = require("../middlewares/auditLogger");
 
 router.post(
   "/calculate-shipping-fee/:addressId",
@@ -52,14 +53,33 @@ router.get(
 
 router.get("/orders", orderController.getAllOrders);
 
-router.put("/orders/:orderId/update-status", orderController.updateOrderStatus);
+router.put(
+  "/orders/:orderId/update-status",
+  authenticateToken,
+  auditLogger((req) => `Updated order ${req.params.orderId} status`),
+  orderController.updateOrderStatus
+);
 
-router.put("/orders/:orderId/update-ETA", orderController.updateOrderETA);
+router.put(
+  "/orders/:orderId/update-ETA",
+  authenticateToken,
+  auditLogger((req) => `Updated ETA for order ${req.params.orderId}`),
+  orderController.updateOrderETA
+);
 
-router.delete("/orders/:orderId", orderController.deleteOrderById);
+router.delete(
+  "/orders/:orderId",
+  authenticateToken,
+  auditLogger((req) => `Deleted order ${req.params.orderId}`),
+  orderController.deleteOrderById
+);
 
 router.put(
   "/orders/:orderId/update-payment-status",
+  authenticateToken,
+  auditLogger(
+    (req) => `Updated payment status for order ${req.params.orderId}`
+  ),
   orderController.updateOrderPaymentStatus
 );
 

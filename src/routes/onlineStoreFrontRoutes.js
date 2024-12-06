@@ -9,17 +9,25 @@ const {
 const onlineStoreFrontController = require("../controllers/onlineStoreFrontController");
 const upload = require("../middlewares/multerConfig");
 const showcaseUpload = require("../middlewares/multerConfigShowcaseProducts");
+const { authenticateToken } = require("../middlewares/jwtMiddleware");
+const auditLogger = require("../middlewares/auditLogger");
 
 router.post(
   "/uploadPhotos/:productId",
+  authenticateToken,
   upload.array("files", 10),
   uploadProductPhotoValidation,
+  auditLogger(
+    (req) => `Uploaded product images for product ID: ${req.params.productId}`
+  ),
   onlineStoreFrontController.uploadProductImages
 );
 
 router.post(
   "/products/getProductByIdAndPublish/:productId",
+  authenticateToken,
   getProductByIdAndPublishValidation,
+  auditLogger((req) => `Published product with ID: ${req.params.productId}`),
   onlineStoreFrontController.getProductByIdAndPublish
 );
 
@@ -30,7 +38,9 @@ router.get(
 
 router.post(
   "/products/unpublishedItem/:productId",
+  authenticateToken,
   unpublishedItemByIdValidation,
+  auditLogger((req) => `Unpublished product with ID: ${req.params.productId}`),
   onlineStoreFrontController.unpublishItemByProductId
 );
 
@@ -57,6 +67,10 @@ router.put(
 
 router.delete(
   "/products/:productImageId/delete-product-image",
+  authenticateToken,
+  auditLogger(
+    (req) => `Deleted product image with ID: ${req.params.productImageId}`
+  ),
   onlineStoreFrontController.deleteProductImageById
 );
 
@@ -72,7 +86,9 @@ router.get(
 
 router.post(
   "/showcase-upload",
+  authenticateToken,
   showcaseUpload.array("files", 10),
+  auditLogger("Uploaded showcase images"),
   onlineStoreFrontController.uploadShowcaseImages
 );
 
@@ -80,6 +96,8 @@ router.get("/showcase-images", onlineStoreFrontController.getShowcaseImages);
 
 router.delete(
   "/delete-showcase-images/:showcaseId",
+  authenticateToken,
+  auditLogger((req) => `Deleted showcase with ID: ${req.params.showcaseId}`),
   onlineStoreFrontController.deleteShowcase
 );
 

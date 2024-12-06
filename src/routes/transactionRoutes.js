@@ -4,10 +4,14 @@ const {
   buyProductsOnPhysicalStoreValidation,
 } = require("../middlewares/validators");
 const transactionController = require("../controllers/transactionController");
+const { authenticateToken } = require("../middlewares/jwtMiddleware");
+const auditLogger = require("../middlewares/auditLogger");
 
 router.post(
   "/products/buyProducts",
+  authenticateToken,
   buyProductsOnPhysicalStoreValidation,
+  auditLogger("POS purchase processed"),
   transactionController.buyProductsOnPhysicalStore
 );
 

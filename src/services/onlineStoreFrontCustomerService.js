@@ -260,6 +260,7 @@ const login = async ({ email, password }) => {
         username: customer.username,
         email: customer.email,
         defaultAddressId,
+        role: "user",
       },
       "1h"
     );
@@ -500,22 +501,31 @@ const toggleCustomerStatus = async ({ customerId, currentStatus }) => {
   try {
     const newStatus = currentStatus === "Active" ? "Suspended" : "Active";
 
-    const updatedCustomer = await Customer.update(
+    const [affectedRows] = await Customer.update(
       { accountStatus: newStatus },
-      { where: { id: customerId }, returning: true, plain: true }
+      { where: { id: customerId } }
     );
 
-    if (!updatedCustomer) {
+    if (!affectedRows) {
       throw {
         status: 404,
         data: { message: "Customer not found." },
       };
     }
 
+    const updatedCustomer = await Customer.findByPk(customerId);
+
+    if (!updatedCustomer) {
+      throw {
+        status: 404,
+        data: { message: "Customer not found after update." },
+      };
+    }
+
     return {
       status: 200,
       message: `Customer status updated to ${newStatus}.`,
-      data: updatedCustomer[1],
+      data: updatedCustomer,
     };
   } catch (error) {
     console.error("Error in toggleCustomerStatus service:", error);

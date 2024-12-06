@@ -12,6 +12,8 @@ const CartItem = require("./cartItemModel");
 const ProductImage = require("./productImageModel");
 const Comment = require("./commentModel");
 const CommentImage = require("./commentImageModel");
+const Admin = require("./adminModel");
+const AuditLog = require("./auditLog");
 
 // Transactions
 TransactionHistories.hasMany(TransactionItems, {
@@ -93,6 +95,17 @@ Comment.hasMany(CommentImage, {
 CommentImage.belongsTo(Comment, {
   foreignKey: "commentId",
   as: "comment",
+});
+
+// Admin and AuditLog
+Admin.hasMany(AuditLog, {
+  foreignKey: "adminId",
+  as: "auditLogs",
+  onDelete: "CASCADE",
+});
+AuditLog.belongsTo(Admin, {
+  foreignKey: "adminId",
+  as: "admin",
 });
 
 module.exports = {

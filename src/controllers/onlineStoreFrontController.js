@@ -3,6 +3,7 @@ const onlineStoreFrontService = require("../services/onlineStoreFrontService");
 const uploadProductImages = async (req, res) => {
   try {
     const result = await onlineStoreFrontService.uploadProductImages({
+      adminId: req.user.id,
       productId: req.params.productId,
       files: req.files,
     });
@@ -19,8 +20,10 @@ const uploadProductImages = async (req, res) => {
 const getProductByIdAndPublish = async (req, res) => {
   try {
     const { productId } = req.params;
+    const adminId = req.user.id;
     const result = await onlineStoreFrontService.getProductByIdAndPublish(
-      productId
+      productId,
+      adminId
     );
     return res.status(result.status).json(result);
   } catch (error) {
@@ -47,6 +50,7 @@ const unpublishItemByProductId = async (req, res) => {
   try {
     const result = await onlineStoreFrontService.unpublishItemByProductId({
       productId: req.params.productId,
+      adminId: req.user.id,
     });
     return res.status(result.status).json(result);
   } catch (error) {
@@ -121,8 +125,11 @@ const updateProductPurchaseMethod = async (req, res) => {
 const deleteProductImageById = async (req, res) => {
   try {
     const productImageId = req.params.productImageId;
+    const adminId = req.user.id;
+
     const result = await onlineStoreFrontService.deleteProductImageById(
-      productImageId
+      productImageId,
+      adminId
     );
     return res.status(result.status).json(result);
   } catch (error) {
@@ -165,8 +172,10 @@ const getAllProductImagesByProductId = async (req, res) => {
 
 const uploadShowcaseImages = async (req, res) => {
   try {
+    const adminId = req.user.id;
     const result = await onlineStoreFrontService.uploadShowcaseImages(
-      req.files
+      req.files,
+      adminId
     );
 
     return res.status(result.status).json(result);
@@ -193,7 +202,12 @@ const getShowcaseImages = async (req, res) => {
 const deleteShowcase = async (req, res) => {
   try {
     const showcaseId = req.params.showcaseId;
-    const result = await onlineStoreFrontService.deleteShowcase(showcaseId);
+    const adminId = req.user.id;
+
+    const result = await onlineStoreFrontService.deleteShowcase(
+      showcaseId,
+      adminId
+    );
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error deleting showcase images:", error);

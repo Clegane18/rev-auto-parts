@@ -107,10 +107,12 @@ const updateOrderStatus = async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const newStatus = req.body.newStatus;
+    const adminId = req.user.id;
 
     const result = await orderService.updateOrderStatus({
       orderId,
       newStatus,
+      adminId,
     });
 
     if (result.status === 200) {
@@ -133,6 +135,7 @@ const updateOrderETA = async (req, res) => {
     const result = await orderService.updateOrderETA({
       orderId: req.params.orderId,
       newETA: req.body.newETA,
+      adminId: req.user.id,
     });
     res.status(result.status).json(result);
   } catch (error) {
@@ -147,6 +150,7 @@ const deleteOrderById = async (req, res) => {
   try {
     const result = await orderService.deleteOrderById({
       orderId: req.params.orderId,
+      adminId: req.user.id,
     });
     res.status(result.status).json(result);
   } catch (error) {
@@ -162,6 +166,7 @@ const updateOrderPaymentStatus = async (req, res) => {
     const result = await orderService.updateOrderPaymentStatus({
       orderId: req.params.orderId,
       newPaymentStatus: req.body.newPaymentStatus,
+      adminId: req.user.id,
     });
 
     res.status(result.status).json(result);

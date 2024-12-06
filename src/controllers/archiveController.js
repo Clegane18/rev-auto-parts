@@ -3,6 +3,7 @@ const archiveService = require("../services/archiveService");
 const archiveProductById = async (req, res) => {
   try {
     const result = await archiveService.archiveProductById({
+      adminId: req.user.id,
       productId: req.params.productId,
     });
     return res.status(result.status).json(result);
@@ -74,6 +75,7 @@ const restoreAllArchivedProducts = async (req, res) => {
 const permanentlyDeleteArchivedProduct = async (req, res) => {
   try {
     const result = await archiveService.permanentlyDeleteArchivedProduct({
+      adminId: req.user.id,
       productId: req.params.productId,
     });
     return res.status(result.status).json(result);
@@ -88,7 +90,9 @@ const permanentlyDeleteArchivedProduct = async (req, res) => {
 
 const deleteAllArchivedProducts = async (req, res) => {
   try {
-    const result = await archiveService.deleteAllArchivedProducts();
+    const result = await archiveService.deleteAllArchivedProducts({
+      adminId: req.user.id,
+    });
 
     return res.status(result.status).json(result);
   } catch (error) {

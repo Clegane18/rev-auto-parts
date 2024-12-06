@@ -13,6 +13,7 @@ const {
 } = require("../middlewares/validators");
 const { checkAuthorization } = require("../utils/tokenUtils");
 const { authenticateToken } = require("../middlewares/jwtMiddleware");
+const auditLogger = require("../middlewares/auditLogger");
 
 router.post(
   "/signUp",
@@ -69,6 +70,11 @@ router.get("/customers", onlineStoreFrontCustomerController.getAllCustomers);
 
 router.put(
   "/customers/:customerId/account-status/toggle-status",
+  authenticateToken,
+  auditLogger(
+    (req) =>
+      `Toggled account status for customer with ID: ${req.params.customerId}`
+  ),
   onlineStoreFrontCustomerController.toggleCustomerStatus
 );
 
@@ -79,6 +85,10 @@ router.get(
 
 router.delete(
   "/delete-account/:customerId",
+  authenticateToken,
+  auditLogger(
+    (req) => `Deleted account for customer with ID: ${req.params.customerId}`
+  ),
   onlineStoreFrontCustomerController.deleteCustomerById
 );
 

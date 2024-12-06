@@ -2,6 +2,57 @@ const bcrypt = require("bcrypt");
 const { createTokenWithExpiration } = require("../utils/tokenUtils");
 const Admin = require("../database/models/adminModel");
 
+const createAdminAccount = async ({ email, password }) => {
+  try {
+    if (!email || !password) {
+      return {
+        status: 400,
+        message: "Email and password are required.",
+      };
+    }
+
+    const existingAdmin = await Admin.findOne({ where: { email } });
+    if (existingAdmin) {
+      return {
+        status: 409,
+        message: "An admin with this email already exists.",
+      };
+    }
+
+    const SALT_ROUNDS = 10;
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const newAdmin = await Admin.create({
+      email,
+      password: hashedPassword,
+    });
+
+    return {
+      status: 201,
+      message: "Admin account created successfully.",
+      admin: {
+        id: newAdmin.id,
+        email: newAdmin.email,
+        createdAt: newAdmin.createdAt,
+      },
+    };
+  } catch (error) {
+    console.error("Error in createAdminAccount service:", error);
+
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return {
+        status: 409,
+        message: "An admin with this email already exists.",
+      };
+    }
+
+    return {
+      status: 500,
+      message: "An unexpected error occurred while creating the admin account.",
+    };
+  }
+};
+
 const adminLogIn = async ({ email, password }) => {
   try {
     const admin = await Admin.findOne({ where: { email } });
@@ -26,6 +77,7 @@ const adminLogIn = async ({ email, password }) => {
       {
         id: admin.id,
         email: admin.email,
+        role: "admin",
       },
       "1h"
     );
@@ -52,6 +104,14 @@ const updateAdminEmail = async ({ adminId, newEmail }) => {
       return {
         status: 404,
         message: "Admin not found.",
+      };
+    }
+
+    const emailInUse = await Admin.findOne({ where: { email: newEmail } });
+    if (emailInUse && emailInUse.id !== adminId) {
+      return {
+        status: 409,
+        message: "The new email is already in use by another admin.",
       };
     }
 
@@ -109,4 +169,31 @@ const updateAdminPassword = async ({ adminId, oldPassword, newPassword }) => {
   }
 };
 
-module.exports = { adminLogIn, updateAdminEmail, updateAdminPassword };
+const deleteAdminById = async ({ adminId }) => {
+  try {
+    const admin = await Admin.findByPk(adminId);
+
+    await admin.destroy();
+
+    return {
+      status: 200,
+      message: "Customer deleted successfully.",
+      data: { adminId },
+    };
+  } catch (error) {
+    console.error("Error in deleteCustomerById service:", error);
+
+    throw {
+      status: 500,
+      data: { message: "Error deleting customer." },
+    };
+  }
+};
+
+module.exports = {
+  adminLogIn,
+  updateAdminEmail,
+  updateAdminPassword,
+  createAdminAccount,
+  deleteAdminById,
+};
