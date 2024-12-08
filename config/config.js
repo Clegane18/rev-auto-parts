@@ -20,7 +20,7 @@ module.exports = {
   production: {
     url: process.env.DATABASE_URL,
     dialect: "postgres",
-    logging: false,
+    logging: (msg) => console.log(`Sequelize Query: ${msg}`),
     dialectOptions: {
       ssl: {
         require: true,
